@@ -1,0 +1,13 @@
+Django==4.0.1
+pytest==6.2.5
+pytest-django==4.5.2
+psycopg2-binary==2.9.3
+Pillow==9.0.0
+crispy-bootstrap5==0.6
+djangorestframework==3.13.1
+ipython==8.0.1
+factory_boy>=3.2.0
+scrapy==2.5.1
+django-rq==2.5.1
+requests==2.27.1
+faker==13.2.0
