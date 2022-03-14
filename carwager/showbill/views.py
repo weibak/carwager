@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+import logging
+from showbill.forms import CarForm
+from showbill.models import Car
 
-# Create your views here.
+
+logger = logging.getLogger(__name__)

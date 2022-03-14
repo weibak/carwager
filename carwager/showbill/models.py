@@ -44,10 +44,10 @@ class CarModel(models.Model):
 
 class Car(models.Model):
     mark = models.ForeignKey(
-        CarMark, on_delete=models.CASCADE
+        CarMark, related_name="cars", on_delete=models.CASCADE
     )
     model = models.ForeignKey(
-        CarModel, on_delete=models.CASCADE
+        CarModel, related_name="cars", on_delete=models.CASCADE
     )
     year = models.IntegerField(default=None)
     favorites = models.ManyToManyField(
