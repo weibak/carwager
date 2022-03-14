@@ -31,9 +31,32 @@ GEAR_BOX = (
 )
 
 
+class CarMark(models.Model):
+    car_mark = models.CharField(max_length=100)
+
+
+class CarModel(models.Model):
+    car_mark = models.ForeignKey(
+        CarMark, related_name="carmodels", on_delete=models.CASCADE
+    )
+    car_model = models.CharField(max_length=100)
+
+
 class Car(models.Model):
-    car_mark = models.CharField(max_length=100, choices=CAR_MARK, default="No mark")
-    car_model = models.CharField(max_length=25, default="No model")
+    mark = models.ForeignKey(
+        CarMark, on_delete=models.CASCADE
+    )
+    model = models.ForeignKey(
+        CarModel, on_delete=models.CASCADE
+    )
+    year = models.IntegerField()
+    favorites = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="favorite_products"
+    )
+
+
+
+"""
     engine_type = models.CharField(max_length=100, choices=ENGINE_TYPE, default="No type")
     engine_capacity = models.IntegerField(default="No capacity")
     drive = models.CharField(max_length=100, choices=DRIVE, default="No type")
@@ -43,6 +66,4 @@ class Car(models.Model):
     win = models.CharField(max_length=17, null=True, blank=True)
     price = models.DecimalField(decimal_places=2, max_digits=15)
     price_usd = models.DecimalField(default=0, decimal_places=2, max_digits=15)
-    favorites = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="favorite_products"
-    )
+"""
