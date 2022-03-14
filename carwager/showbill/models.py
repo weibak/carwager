@@ -49,11 +49,10 @@ class Car(models.Model):
     model = models.ForeignKey(
         CarModel, on_delete=models.CASCADE
     )
-    year = models.IntegerField()
+    year = models.IntegerField(default=None)
     favorites = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="favorite_products"
+        settings.AUTH_USER_MODEL, related_name="favorite_cars"
     )
-
 
 
 """
