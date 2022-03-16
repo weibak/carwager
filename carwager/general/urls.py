@@ -18,14 +18,16 @@ from django.contrib import admin
 from django.urls import path
 
 from general.views import register, sign_in, logout_view
+from news.views import news_list_all
+from showbill.views import CarView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-   # path('/', "admin.site.urls", name="home"),
+    path('', CarView.as_view(), name="home"),
     path("register/", register, name="register"),
     path("auth/", sign_in, name="auth"),
     path("logout/", logout_view, name="logout"),
-   # path('news/', "admin.site.urls", name="news"),
+    path('showbill/', CarView.as_view(), name="news"),
    # path('showbill/', "admin.site.urls", name="showbill"),
    # path('cars/', "admin.site.urls", name="cars"),
    # path('cars/auction/', "admin.site.urls", name="cars_auction"),

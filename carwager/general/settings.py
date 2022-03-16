@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "django_rq",
     "showbill",
-    "news"
+    "news",
+    "general",
 ]
 
 MIDDLEWARE = [
