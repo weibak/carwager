@@ -7,6 +7,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
+from showbill.forms import CarFiltersForm, AdvertFiltersForm
+from showbill.models import Advert
+from showbill.queries import filter_cars, filter_adverts
+
 logger = logging.getLogger(__name__)
 
 
@@ -55,4 +59,25 @@ def logout_view(request):
     return render(
         request,
         "logout.html",
+    )
+
+
+def profile_view(request):
+    if request.user.is_anonymous:
+        return redirect("auth")
+    user = request.user
+    cars = Advert.objects.filter(owner=request.user).all()
+    logger.info(f"Adverts of {request.user}")
+    filters_form = AdvertFiltersForm(request.GET)
+
+    if filters_form.is_valid():
+        order_by = filters_form.cleaned_data["order_by"]
+        cars = filter_adverts(cars, order_by)
+
+    return render(
+        request,
+        "profile.html", {
+            "user": user,
+            "adverts": cars,
+            "filters_form": filters_form}
     )

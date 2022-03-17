@@ -3,9 +3,8 @@ from django.db import models
 
 
 ORDER_BY_CHOICES = (
-    ("cost_asc", "Cost Asc"),
-    ("cost_desc", "Cost Desc"),
-    ("max_price", "Max Cost"),
+    ("price_asc", "Price Asc"),
+    ("price_desc", "Price Desc"),
 )
 
 
@@ -89,6 +88,9 @@ class Advert(models.Model):
     )
     phone_number = models.CharField(max_length=13)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True,)
+    favorites = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="favorite_adverts"
+    )
 
     def __str__(self):
         return f"{self.car.mark} - {self.car.model} - {self.car.year}"

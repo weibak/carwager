@@ -17,9 +17,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path
 
-from general.views import register, sign_in, logout_view
+from general.views import register, sign_in, logout_view, profile_view
 from news.views import news_list_all
-from showbill.views import CarView
+from showbill.views import CarView, create_advert, advert_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,10 +27,12 @@ urlpatterns = [
     path("register/", register, name="register"),
     path("auth/", sign_in, name="auth"),
     path("logout/", logout_view, name="logout"),
-    path('showbill/', CarView.as_view(), name="news"),
-   # path('showbill/', "admin.site.urls", name="showbill"),
-   # path('cars/', "admin.site.urls", name="cars"),
-   # path('cars/auction/', "admin.site.urls", name="cars_auction"),
+    path('showbill/', CarView.as_view(), name="showbill"),
+    path('news/', news_list_all, name="news"),
+    path('profile/', profile_view, name="profile"),
+    path("advert/<int:advert_id>", advert_view, name="car_advert"),
+    path('showbill/add/', create_advert, name="add_advert"),
+
 ]
 
 

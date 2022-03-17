@@ -1,24 +1,21 @@
 from django.db.models import Sum, F
 
 
-def filter_cars(products, cost__gt, cost__lt, order_by):
-    if cost__gt is not None:
-        products = products.filter(cost__gt=cost__gt)
-    if cost__lt is not None:
-        products = products.filter(cost__lt=cost__lt)
+def filter_cars(cars, price__gt, price__lt, order_by):
+    if price__gt is not None:
+        cars = cars.filter(price__gt=price__gt)
+    if price__lt is not None:
+        cars = cars.filter(price__lt=price__lt)
     if order_by:
-        if order_by == "cost_asc":
-            products = products.order_by("cost")
+        if order_by == "price_asc":
+            cars = cars.order_by("price")
         if order_by == "cost_desc":
-            products = products.order_by("-cost")
-        if order_by == "max_price":
-            products = products.annotate(
-                total_cost=Sum("purchases__count") * F("cost")
-            ).order_by("-total_cost")
-    return products
+            cars = cars.order_by("-price")
+
+    return cars
 
 
-def filter_purchases(purchases, order_by):
+def filter_adverts(purchases, order_by):
     if order_by == "-created_at":
         purchases = purchases.order_by("-created_at")
     elif order_by == "created_at":

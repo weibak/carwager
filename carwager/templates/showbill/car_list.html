@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load pagination_tags %}
+{% load pagination_tags text_tags%}
 {% load i18n static crispy_forms_filters %}
 
 {% block title %}Cars for sale{% endblock %}
@@ -19,7 +19,7 @@
             </div>
             <nav class="col-9">
                 <div class="row">
-                    {% for car in cars %}
+                    {% for advert in adverts %}
                         <div class="col-4">
                             {% include "showbill/car_card.html" %}
                         </div>
@@ -35,25 +35,25 @@
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=cars.previous_page_number %}">
+                            <a class="page-link" href="{% url_replace page=adverts.previous_page_number %}">
                                 {% translate "Previous" %}
                             </a>
                         </li>
                     {% endif %}
                     <li class="page-item disabled">
                 <span class="page-link">
-                  {% translate "Page" %} {{ cars.number }}
-                  {% translate "of" %} {{ cars.paginator.num_pages }}.
+                  {% translate "Page" %} {{ adverts.number }}
+                  {% translate "of" %} {{ adverts.paginator.num_pages }}.
                 </span>
                     </li>
-                    {% if products.has_next %}
+                    {% if adverts.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=cars.next_page_number %}">
+                            <a class="page-link" href="{% url_replace page=adverts.next_page_number %}">
                                 {% translate "Next" %}
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=cars.paginator.num_pages %}">
+                            <a class="page-link" href="{% url_replace page=adverts.paginator.num_pages %}">
                                 {% translate "Last" %} &raquo;
                             </a>
                         </li>

@@ -1,18 +1,22 @@
 {% load static %}
+{% load text_tags%}
 
 <div class="card mb-4">
-  <div class="card-body">
-    {% if car.image %}
-      <img class="card-img-top mb-2" src="{{ advert.image.url }}" alt="{{ advert.title }}">
-    {% else %}
-      <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
-    {% endif %}
-    <h5 class="card-title">{{ car.title }}</h5>
-    <h6 class="card-subtitle mb-2 text-muted">Cost: {{ advert.car.cost }} BYN - {{ advert.car.cost_usd }} USD/ {{ car.get_status_display }}</h6>
-    <p class="card-text">{{ advert.description }}</p>
-      {% if advert.description %}
-      <p class="card-text">{{ advert.description }}</p>
-      {% endif %}
-    <a href="{% url 'product_card' advert.id %}" class="btn btn-primary">Details</a>
-  </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ advert.car.mark }}</h5>
+        <h5 class="card-title">{{ advert.car.model.car_model }}</h5>
+        {% if advert.image %}
+            <img class="card-img-top mb-2" src="{{ advert.image.url}}" alt="{{ advert.car.mark }}">
+        {% else %}
+            <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
+        {% endif %}
+
+        <h6 class="card-subtitle mb-2 text-muted">Cost: {{ advert.price }} BYN - {{ advert.price_usd }} USD</h6>
+        <p class="card-text"> Engine: {{ advert.get_engine_type_display }} - {{ advert.engine_capacity }}l.</p>
+        <p class="card-text"> Transmission: {{ advert.get_gear_box_display }}</p>
+        {% if advert.description %}
+            <p class="card-text">{{ advert.description|cut_text:100 }}</p>
+        {% endif %}
+        <a href="{% url 'car_advert' advert.id %}" class="btn btn-primary">Details</a>
+    </div>
 </div>

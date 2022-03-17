@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %} Advert {{ advert.car.model }}{% endblock %}
+{% block content %}
+
+    <main class="product-details">
+        <h1 class="my-4">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h1>
+        <div class="row">
+            <div class="col-4">
+                <img src="{{ advert.image.url }}" alt="{{ advert.car.model }}" class="w-100">
+            </div>
+            <div class="col-8">
+                <h3 class="mb-3">Price: {{ advert.price }} BYN | {{ advert.price_usd }} USD</h3>
+                <h3 class="mb-3">Engine type: {{ advert.get_engine_type_display }}</h3>
+                <div class="mb-3">
+                    <h3 class="mb-3">Description:</h3>
+                    {{ advert.description }}
+                </div>
+                {% if user.is_authenticated %}
+                    <form method="POST" class="mt-4">
+                        {% csrf_token %}
+                        {% if is_product_in_favorites %}
+                            <input type="hidden" name="action" value="remove">
+                            <button type="submit" class="btn btn-primary">Remove from favorites</button>
+                        {% else %}
+                            <input type="hidden" name="action" value="add">
+                            <button type="submit" class="btn btn-primary">Add to favorites</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+{% endblock %}
