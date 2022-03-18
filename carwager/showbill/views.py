@@ -4,9 +4,8 @@ import logging
 from django.contrib import messages
 from django.views.generic import TemplateView
 
-
-from showbill.forms import CarFiltersForm, AdvertForm
-from showbill.models import Advert
+from showbill.forms import CarFiltersForm, AdvertForm, CarForm
+from showbill.models import Advert, Car
 from showbill.queries import filter_cars
 
 logger = logging.getLogger(__name__)
@@ -23,7 +22,10 @@ class CarView(TemplateView):
             price__gt = filters_form.cleaned_data["price__gt"]
             price__lt = filters_form.cleaned_data["price__lt"]
             order_by = filters_form.cleaned_data["order_by"]
-            adverts = filter_cars(adverts, price__gt, price__lt, order_by)
+            engine_type = filters_form.cleaned_data["engine_type"]
+            gear_box = filters_form.cleaned_data["gear_box"]
+            drive = filters_form.cleaned_data["drive"]
+            adverts = filter_cars(adverts, price__gt, price__lt, order_by, engine_type, gear_box, drive)
 
         paginator = Paginator(adverts, 30)
         page_number = "page"
@@ -31,20 +33,32 @@ class CarView(TemplateView):
         return {"adverts": adverts, "filters_form": filters_form}
 
 
-def create_advert(request):
+def choise_mark(request, mark_id):
+    ...
+
+
+def choise_model(request, choise_mark, model_id):
+    ...
+
+
+def create_advert(request, *args, **kwargs):
     if request.user.is_authenticated:
         if request.method == "POST":
             form = AdvertForm(request.POST, request.FILES)
-            if form.is_valid():
-                logger.info(form.cleaned_data)
-                advert = Advert.objects.create(owner=request.user, **form.cleaned_data)
-                advert.save()
+            form_car = CarForm(request.POST, )
+            if form_car.is_valid():
+                car = Car.objects.create(**form_car.cleaned_data)
+                if form.is_valid():
+                    logger.info(form.cleaned_data)
+                    advert = Advert.objects.create(car=car, owner=request.user, **form.cleaned_data)
+                    advert.save()
                 return redirect(
                     "/",
                 )
         else:
             form = AdvertForm()
-        return render(request, "showbill/create_advert.html", {"form": form})
+            form_car = CarForm()
+            return render(request, "showbill/create_advert.html", {"form": form, "form_car": form_car})
     else:
         return redirect("auth")
 
@@ -59,10 +73,10 @@ def advert_view(request, advert_id):
             elif request.POST["action"] == "remove":
                 advert.favorites.remove(request.user)
                 messages.info(request, "Product successfully removed to favorites")
-            redirect("product_card", product_id=advert.id)
+            redirect("car_details", advert_id=advert.id)
     return render(
         request,
-        "showbill/car_advert.html",
+        "showbill/car_details.html",
         {
             "advert": advert,
             "is_product_in_favorites": request.user in advert.favorites.all(),

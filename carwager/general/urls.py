@@ -19,7 +19,7 @@ from django.urls import path
 
 from general.views import register, sign_in, logout_view, profile_view
 from news.views import news_list_all
-from showbill.views import CarView, create_advert, advert_view
+from showbill.views import CarView, create_advert, advert_view, choise_mark, choise_model
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,9 +30,10 @@ urlpatterns = [
     path('showbill/', CarView.as_view(), name="showbill"),
     path('news/', news_list_all, name="news"),
     path('profile/', profile_view, name="profile"),
-    path("advert/<int:advert_id>", advert_view, name="car_advert"),
+    path("advert/<int:advert_id>", advert_view, name="car_details"),
     path('showbill/add/', create_advert, name="add_advert"),
-
+    path("add/<int:mark_id>", choise_mark, name="choise_mark"),
+    path("add/<int:mark_id>/<int:car_model>", choise_model, name="choise_model"),
 ]
 
 

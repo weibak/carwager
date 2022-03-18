@@ -1,7 +1,7 @@
 {% load static %}
 {% load text_tags%}
 
-<div class="card mb-4">
+<div href="{% url 'car_details' advert.id %}" class="card mb-4">
     <div class="card-body">
         <h5 class="card-title">{{ advert.car.mark }}</h5>
         <h5 class="card-title">{{ advert.car.model.car_model }}</h5>
@@ -10,13 +10,12 @@
         {% else %}
             <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
         {% endif %}
-
         <h6 class="card-subtitle mb-2 text-muted">Cost: {{ advert.price }} BYN - {{ advert.price_usd }} USD</h6>
-        <p class="card-text"> Engine: {{ advert.get_engine_type_display }} - {{ advert.engine_capacity }}l.</p>
-        <p class="card-text"> Transmission: {{ advert.get_gear_box_display }}</p>
+        <p class="card-engine"> Engine: {{ advert.get_engine_type_display }} - {{ advert.engine_capacity }}l.</p>
+        <p class="card-transmission"> Transmission: {{ advert.get_gear_box_display }}</p>
         {% if advert.description %}
             <p class="card-text">{{ advert.description|cut_text:100 }}</p>
         {% endif %}
-        <a href="{% url 'car_advert' advert.id %}" class="btn btn-primary">Details</a>
+        <a href="{% url 'car_details' advert.id %}" class="btn btn-primary">Details</a>
     </div>
 </div>

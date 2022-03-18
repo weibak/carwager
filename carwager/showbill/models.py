@@ -7,7 +7,6 @@ ORDER_BY_CHOICES = (
     ("price_desc", "Price Desc"),
 )
 
-
 CAR_MARK = (
     ("bmw", "BMW"),
     ("merc", "MERCEDES"),
