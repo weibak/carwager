@@ -1,8 +1,7 @@
 from django import forms
-from django.conf import settings
 from django.core.exceptions import ValidationError
 
-from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX, CarMark, Car, CarModel
+from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX, CarMark, CarModel
 
 
 class CarFiltersForm(forms.Form):
@@ -19,7 +18,6 @@ class CarFiltersForm(forms.Form):
         price__lt = cleaned_data.get("price__lt")
         if price__gt and price__lt and price__gt > price__lt:
             raise ValidationError("Min price can't be greater than Max price")
-
 
 
 class AdvertFiltersForm(forms.Form):
@@ -43,7 +41,7 @@ class AdvertForm(forms.Form):
     drive = forms.ChoiceField(choices=DRIVE)
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
     description = forms.CharField(max_length=500)
-    image = forms.ImageField()
+    image = forms.ImageField(required=False)
     win = forms.CharField(max_length=17,)
     price = forms.DecimalField(decimal_places=2, max_digits=15)
     price_usd = forms.DecimalField(decimal_places=2, max_digits=15)

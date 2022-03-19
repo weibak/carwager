@@ -17,9 +17,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path
 
+from auction.views import CarAuctionView, auction_view, create_auction
 from general.views import register, sign_in, logout_view, profile_view
 from news.views import news_list_all
-from showbill.views import CarView, create_advert, advert_view, choise_mark, choise_model
+from showbill.views import CarView, create_advert, advert_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,8 +33,9 @@ urlpatterns = [
     path('profile/', profile_view, name="profile"),
     path("advert/<int:advert_id>", advert_view, name="car_details"),
     path('showbill/add/', create_advert, name="add_advert"),
-    path("add/<int:mark_id>", choise_mark, name="choise_mark"),
-    path("add/<int:mark_id>/<int:car_model>", choise_model, name="choise_model"),
+    path('auction/', CarAuctionView.as_view(), name="auction"),
+    path("details/<int:auction_id>", auction_view, name="auction_details"),
+    path('auction/add/', create_auction, name="add_auction"),
 ]
 
 

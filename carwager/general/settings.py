@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "showbill",
     "news",
     "general",
+    "auction",
 ]
 
 MIDDLEWARE = [

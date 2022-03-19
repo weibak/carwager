@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %} Advert {{ advert.car.model }}{% endblock %}
+{% block title %} Auction {{ auction.car.model }}{% endblock %}
 {% block content %}
 
-    <main class="car-details">
-        <h1 class="my-4">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h1>
+    <main class="auction-details">
+        <h1 class="my-4">{{ auction.car.mark }} {{ auction.car.model.car_model }}</h1>
         <div class="row">
             <div class="col-4">
-                {% if advert.image %}
-                    <img src="{{ advert.image.url }}" alt="{{ advert.car.model }}" class="w-100">
+                {% if auction.image %}
+                    <img src="{{ auction.image.url }}" alt="{{ auction.car.model }}" class="w-100">
                 {% else %}
                     <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
                 {% endif %}
             </div>
             <div class="col-8">
-                <h3 class="mb-3">Price: {{ advert.price }} BYN | {{ advert.price_usd }} USD</h3>
-                <h3 class="mb-3">Engine type: {{ advert.get_engine_type_display }}</h3>
+                <h3 class="mb-3">Price: {{ auction.price }} BYN | {{ auction.price_usd }} USD</h3>
+                <h3 class="mb-3">Engine type: {{ auction.get_engine_type_display }}</h3>
                 <div class="mb-3">
                     <h3 class="mb-3">Description:</h3>
-                    {{ advert.description }}
+                    {{ auction.description }}
                 </div>
                 {% if user.is_authenticated %}
                     <form method="POST" class="mt-4">
                         {% csrf_token %}
-                        {% if is_advert_in_favorites %}
+                        {% if is_auction_in_favorites %}
                             <input type="hidden" name="action" value="remove">
                             <button type="submit" class="btn btn-primary">Remove from favorites</button>
                         {% else %}

@@ -18,9 +18,15 @@
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="{% url "showbill" %}">Sale ads</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url "auction" %}">Auction</a>
+                </li>
                 {% if request.user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url "add_advert" %}">Create advert</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url "add_auction" %}">Create Auction</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url "logout" %}">Logout</a>

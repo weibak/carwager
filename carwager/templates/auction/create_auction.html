@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <h1>Add car auction</h1>
+    <form enctype="multipart/form-data" method="POST" class="post-form">
+        {% csrf_token %}
+        {{ form_car | crispy }}
+        {{ form | crispy }}
+        <button type="submit" class="save btn btn-primary">Save</button>
+    </form>
+{% endblock %}
