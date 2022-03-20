@@ -10,20 +10,22 @@
                 {% if auction.image %}
                     <img src="{{ auction.image.url }}" alt="{{ auction.car.model }}" class="w-100">
                 {% else %}
-                    <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
+                    <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">
                 {% endif %}
             </div>
             <div class="col-6">
                 <h3 class="mb-1">Current Price: {{ auction.price }} BYN</h3>
+                <h5 class="mb-1">{{ auction.get_status_display }}</h5>
                 <h8 class="mb-1">Started at: {{ auction.date_start }}</h8><br>
                 <h8 class="mb-1">Stop at {{ auction.date_end }}</h8>
+            {% if auction.status == "go" %}
                 <form method="post">
                     {% csrf_token %}
                     <h7 class="mb-2">Auction bid</h7>
                     <div class="row">
                         <div class="col-6">
                             <div class="input-group mb-3">
-                                <input name="bid" type="text" class="form-control" placeholder="Bid"
+                                <input name="bid" type="number" class="bid form-control" required minlength="1" value="1" step="0.01" placeholder="Bid"
                                        aria-label="Bid"
                                        aria-describedby="bid">
                                 <span class="input-group-text" id="bid">
@@ -33,6 +35,7 @@
                         </div>
                     </div>
                 </form>
+            {% endif %}
                 <h4 class="mb-3">Information: </h4>
                 <h6 class="mb-3">Engine type: {{ auction.get_engine_type_display }}</h6>
                 <h6 class="mb-3">Engine capacity: {{ auction.get_engine_capacity_display }}</h6>
@@ -42,7 +45,7 @@
                 <h6 class="mb-3">Phone number: {{ auction.phone_number }}</h6>
                 <div class="description mb-3">
                     <h3 class="mb-3">Description:</h3>
-                    {{ auction.description }}
+                    <h6 class="mb-3">{{ auction.description }}</h6>
                 </div>
                 {% if user.is_authenticated %}
                     <form method="POST" class="mt-4">
@@ -61,7 +64,7 @@
                 <div class="bids col-2">
                     <h3 class="mb-3">Users previously take a bid to this auction:</h3>
                     <ul>
-                        {% for bid in auction.bids.all %}
+                        {% for bid in bids.all %}
                             <li>{{ bid.bid }} BYN by {{ bid.user.username }}
                                 at {{ bid.created_at }}</li>
                         {% endfor %}

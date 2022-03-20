@@ -26,7 +26,10 @@
                         <a class="nav-link active" aria-current="page" href="{% url "add_advert" %}">Create advert</a>
                     </li>
                     <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url "add_auction" %}">Create Auction</a>
+                        <a class="nav-link active" aria-current="page" href="{% url "add_auction" %}">Create Auction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url "profile" %}">{{ request.user.username }}</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url "logout" %}">Logout</a>
@@ -34,12 +37,6 @@
                 {% else %}
                     <li>
                         <a class="nav-link active" aria-current="page" href="{% url "auth" %}">Login</a>
-                    </li>
-                {% endif %}
-                {% if request.user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page"
-                           href="{% url "profile" %}">{{ request.user.first_name }}</a>
                     </li>
                 {% endif %}
             </ul>

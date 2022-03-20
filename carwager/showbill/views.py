@@ -79,6 +79,6 @@ def advert_view(request, advert_id):
         "showbill/car_details.html",
         {
             "advert": advert,
-            "is_product_in_favorites": request.user in advert.favorites.all(),
+            "is_advert_in_favorites": request.user in advert.favorites.all(),
         },
     )

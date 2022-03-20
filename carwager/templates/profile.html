@@ -11,9 +11,6 @@
                             <div class="row m-l-0 m-r-0">
                                 <div class="col-sm-4 bg-c-lite-green user-profile">
                                     <div class="card-block text-center text-white">
-                                        <div class="m-b-25"><img
-                                                width="120" height="100"
-                                                class="img-radius" alt="User-Profile-Image"></div>
                                         <h6 class="f-w-600"> {{ user.first_name }} {{ user.last_name }}</h6>
                                     </div>
                                 </div>
@@ -56,10 +53,34 @@
                             </tr>
                             {% for advert in adverts %}
                                 <tr>
-                                    <td>{{ advert.car.mark }} - {{ advert.car.model }}</td>
+                                    <td><a href="{% url 'car_details' advert.id %}">{{ advert.car.mark }} - {{ advert.car.model.car_model }}</a></td>
                                     <td>{{ advert.price }} BYN | {{ advert.price_usd }}</td>
                                     <td>{{ advert.car.year }}</td>
                                     <td>{{ advert.created_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <div class="purchases">
+                        <h1>Your bids in auction</h1>
+                        <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                               class="table">
+                            <tr>
+                                <th>Car</th>
+                                <th>Current price</th>
+                                <th>Bid</th>
+                                <th>Bid at</th>
+                                <th>Started at</th>
+                                <th>Date end</th>
+                            </tr>
+                            {% for auction in auctions %}
+                                <tr>
+                                    <td><a href="{% url 'auction_details' auction.id %}">{{ auction.auction.car.mark }} - {{ auction.auction.car.model.car_model }}</a></td>
+                                    <td>{{ auction.auction.price }} BYN</td>
+                                    <td>{{ auction.bid }}</td>
+                                    <td>{{ auction.created_at }}</td>
+                                    <td>{{ auction.auction.date_start }}</td>
+                                    <td>{{ auction.auction.date_end }}</td>
                                 </tr>
                             {% endfor %}
                         </table>

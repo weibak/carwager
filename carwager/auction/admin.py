@@ -28,12 +28,12 @@ class AuctionAdmin(admin.ModelAdmin):
     list_display = (
         "car", "engine_type", "engine_capacity", "drive",
         "gear_box", "description", "image", "win",
-        "price", "price_usd", "owner", "phone_number", "date_start", "date_end",
+        "price", "price_usd", "owner", "phone_number", "date_start", "date_end", "status"
     )
     fields = (
         "car", "engine_type", "engine_capacity", "drive",
         "gear_box", "description", "image", "win",
-        "price", "price_usd", "owner", "phone_number", "date_start", "date_end",
+        "price", "price_usd", "owner", "phone_number", "date_start", "date_end", "status"
     )
-    search_fields = ("car", "engine_type", "gear_box")
+    search_fields = ("car", "engine_type", "gear_box", "status")
     readonly_fields = ("created_at",)

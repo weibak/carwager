@@ -2,6 +2,7 @@ import logging
 
 from django.http import HttpResponse
 
+from auction.models import Auction, Bid
 from general.forms import RegisterForm, AuthForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
@@ -67,6 +68,7 @@ def profile_view(request):
         return redirect("auth")
     user = request.user
     cars = Advert.objects.filter(owner=request.user).all()
+    auctions = Bid.objects.filter(user=request.user).all()
     logger.info(f"Adverts of {request.user}")
     filters_form = AdvertFiltersForm(request.GET)
 
@@ -79,5 +81,6 @@ def profile_view(request):
         "profile.html", {
             "user": user,
             "adverts": cars,
+            "auctions": auctions,
             "filters_form": filters_form}
     )

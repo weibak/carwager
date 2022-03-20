@@ -96,5 +96,6 @@ def auction_view(request, auction_id):
         {
             "auction": auction,
             "is_auction_in_favorites": request.user in auction.favorites.all(),
+            "bids": auction.bids.order_by("-created_at")[0:10]
         },
     )

@@ -15,10 +15,18 @@
             </div>
             <div class="col-8">
                 <h3 class="mb-3">Price: {{ advert.price }} BYN | {{ advert.price_usd }} USD</h3>
-                <h3 class="mb-3">Engine type: {{ advert.get_engine_type_display }}</h3>
                 <div class="mb-3">
+                <h4 class="mb-3">Information: </h4>
+                <h6 class="mb-3">Engine type: {{ advert.get_engine_type_display }}</h6>
+                <h6 class="mb-3">Engine capacity: {{ advert.engine_capacity }} l.</h6>
+                <h6 class="mb-3">Gear box: {{ advert.get_gear_box_display }}</h6>
+                <h6 class="mb-3">Drive: {{ advert.get_drive_display }}</h6>
+                <h6 class="mb-3">Win: {{ advert.win }}</h6>
+                <h6 class="mb-3">Phone number: {{ advert.phone_number }}</h6>
+                    <div class="description mb-3">
                     <h3 class="mb-3">Description:</h3>
-                    {{ advert.description }}
+                    <h6 class="mb-3" >{{ advert.description }}</h6>
+                    </div>
                 </div>
                 {% if user.is_authenticated %}
                     <form method="POST" class="mt-4">
