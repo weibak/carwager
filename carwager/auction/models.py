@@ -1,8 +1,14 @@
-import datetime
-
 from django.conf import settings
 from django.db import models
 from showbill.models import ENGINE_TYPE, GEAR_BOX, DRIVE
+
+
+STATUS_AUC = (
+    ("go", "Auction in underway "),
+    ("soon", "Auction started soon"),
+    ("stop", "Auction ended")
+
+)
 
 
 class CarMarkAuction(models.Model):
@@ -58,9 +64,24 @@ class Auction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True,)
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_AUC, default="stop")
     favorites = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="favorite_auctions"
     )
 
     def __str__(self):
         return f"{self.car.mark} - {self.car.model} - {self.car.year}"
+
+
+class Bid(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="bids", on_delete=models.CASCADE
+    )
+    auction = models.ForeignKey(
+        Auction, related_name="bids", on_delete=models.CASCADE
+    )
+    bid = models.DecimalField(decimal_places=2, max_digits=15)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.auction.car} - {self.bid}"

@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from django.db.models import F
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
@@ -7,7 +7,7 @@ from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 
 from auction.forms import AuctionForm, CarAuctionForm
-from auction.models import Auction, CarAuction
+from auction.models import Auction, CarAuction, Bid
 from auction.queries import filter_cars
 from showbill.forms import CarFiltersForm
 
@@ -76,6 +76,12 @@ def create_auction(request, *args, **kwargs):
 def auction_view(request, auction_id):
     auction = get_object_or_404(Auction, id=auction_id)
     if request.method == "POST":
+        if request.POST.get("bid"):
+            Bid.objects.create(
+                auction=auction, user=request.user, bid=request.POST.get("bid")
+            )
+            Auction.objects.filter(id=auction_id).update(price=F("price") + request.POST.get("bid"))
+            return redirect("auction_details", auction_id=auction_id)
         if request.user.is_authenticated and request.method == "POST":
             if request.POST["action"] == "add":
                 auction.favorites.add(request.user)
@@ -89,6 +95,6 @@ def auction_view(request, auction_id):
         "auction/auction_details.html",
         {
             "auction": auction,
-            "is_product_in_favorites": request.user in auction.favorites.all(),
+            "is_auction_in_favorites": request.user in auction.favorites.all(),
         },
     )

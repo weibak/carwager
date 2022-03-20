@@ -13,10 +13,34 @@
                     <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
                 {% endif %}
             </div>
-            <div class="col-8">
-                <h3 class="mb-3">Price: {{ auction.price }} BYN | {{ auction.price_usd }} USD</h3>
-                <h3 class="mb-3">Engine type: {{ auction.get_engine_type_display }}</h3>
-                <div class="mb-3">
+            <div class="col-6">
+                <h3 class="mb-1">Current Price: {{ auction.price }} BYN</h3>
+                <h8 class="mb-1">Started at: {{ auction.date_start }}</h8><br>
+                <h8 class="mb-1">Stop at {{ auction.date_end }}</h8>
+                <form method="post">
+                    {% csrf_token %}
+                    <h7 class="mb-2">Auction bid</h7>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="input-group mb-3">
+                                <input name="bid" type="text" class="form-control" placeholder="Bid"
+                                       aria-label="Bid"
+                                       aria-describedby="bid">
+                                <span class="input-group-text" id="bid">
+                                    <button type="submit" class="btn">Bid</button>
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <h4 class="mb-3">Information: </h4>
+                <h6 class="mb-3">Engine type: {{ auction.get_engine_type_display }}</h6>
+                <h6 class="mb-3">Engine capacity: {{ auction.get_engine_capacity_display }}</h6>
+                <h6 class="mb-3">Gear box: {{ auction.get_gear_box_display }}</h6>
+                <h6 class="mb-3">Drive: {{ auction.get_drive_display }}</h6>
+                <h6 class="mb-3">Win: {{ auction.win }}</h6>
+                <h6 class="mb-3">Phone number: {{ auction.phone_number }}</h6>
+                <div class="description mb-3">
                     <h3 class="mb-3">Description:</h3>
                     {{ auction.description }}
                 </div>
@@ -33,6 +57,17 @@
                     </form>
                 {% endif %}
             </div>
+            {% if auction.bids.exists %}
+                <div class="bids col-2">
+                    <h3 class="mb-3">Users previously take a bid to this auction:</h3>
+                    <ul>
+                        {% for bid in auction.bids.all %}
+                            <li>{{ bid.bid }} BYN by {{ bid.user.username }}
+                                at {{ bid.created_at }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
         </div>
     </main>
 {% endblock %}
