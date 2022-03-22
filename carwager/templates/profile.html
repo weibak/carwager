@@ -23,7 +23,7 @@
                                                 <h6 class="text-muted f-w-400">{{ user.email }}</h6>
                                             </div>
                                             <div class="col-sm-6">
-                                                <p class="m-b-10 f-w-600">Register at </p>
+                                                <p class="m-b-10 f-w-600">Registered at </p>
                                                 <h6 class="text-muted f-w-400">{{ user.date_joined }}</h6>
                                             </div>
                                         </div>
@@ -53,7 +53,8 @@
                             </tr>
                             {% for advert in adverts %}
                                 <tr>
-                                    <td><a href="{% url 'car_details' advert.id %}">{{ advert.car.mark }} - {{ advert.car.model.car_model }}</a></td>
+                                    <td><a href="{% url 'car_details' advert.id %}">{{ advert.car.mark }}
+                                        - {{ advert.car.model.car_model }}</a></td>
                                     <td>{{ advert.price }} BYN | {{ advert.price_usd }}</td>
                                     <td>{{ advert.car.year }}</td>
                                     <td>{{ advert.created_at }}</td>
@@ -61,7 +62,16 @@
                             {% endfor %}
                         </table>
                     </div>
-                    <div class="purchases">
+                    <div class="col-3">
+                        <div class="filters-form mb-4">
+                            <h3>{% translate "Filters" %}</h3>
+                            <form class="form-inline">
+                                {{ auc_filters_form|crispy }}
+                                <button type="submit" class="save btn btn-primary">{% translate "Search" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="auctions">
                         <h1>Your bids in auction</h1>
                         <table cellpadding="0" cellspacing="0" border="0" width="100%"
                                class="table">
@@ -75,7 +85,9 @@
                             </tr>
                             {% for auction in auctions %}
                                 <tr>
-                                    <td><a href="{% url 'auction_details' auction.id %}">{{ auction.auction.car.mark }} - {{ auction.auction.car.model.car_model }}</a></td>
+                                    <td>
+                                        <a href="{% url 'auction_details' auction.auction.id %}">{{ auction.auction.car.mark }}
+                                            - {{ auction.auction.car.model.car_model }}</a></td>
                                     <td>{{ auction.auction.price }} BYN</td>
                                     <td>{{ auction.bid }}</td>
                                     <td>{{ auction.created_at }}</td>

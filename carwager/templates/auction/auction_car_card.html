@@ -4,7 +4,7 @@
 <div class="card mb-4">
     <div class="card-body">
         <h5 class="card-title">{{ auction.car.mark }}</h5>
-        <h5 class="card-title">{{ auction.car.model.car_model }}</h5>
+        <h5 class="card-title">{{ auction.car.model.car_model }} | {{ auction.get_status_display }}</h5>
         {% if auction.image %}
             <img class="card-img-top mb-2" src="{{ auction.image.url }}" alt="{{ auction.car.mark }}">
         {% else %}

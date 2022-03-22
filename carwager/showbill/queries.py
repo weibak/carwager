@@ -1,6 +1,3 @@
-from django.db.models import Sum, F
-
-
 def filter_cars(cars, price__gt, price__lt, order_by, engine_type, drive, gear_box):
     if price__gt is not None:
         cars = cars.filter(price__gt=price__gt)
@@ -37,9 +34,9 @@ def filter_cars(cars, price__gt, price__lt, order_by, engine_type, drive, gear_b
     return cars
 
 
-def filter_adverts(purchases, order_by):
+def filter_adverts(adverts, order_by):
     if order_by == "-created_at":
-        purchases = purchases.order_by("-created_at")
+        adverts = adverts.order_by("-created_at")
     elif order_by == "created_at":
-        purchases = purchases.order_by("created_at")
-    return purchases
+        adverts = adverts.order_by("created_at")
+    return adverts

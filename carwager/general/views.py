@@ -2,15 +2,15 @@ import logging
 
 from django.http import HttpResponse
 
-from auction.models import Auction, Bid
+from auction.models import Bid
 from general.forms import RegisterForm, AuthForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
-from showbill.forms import CarFiltersForm, AdvertFiltersForm
+from showbill.forms import AdvertFiltersForm
 from showbill.models import Advert
-from showbill.queries import filter_cars, filter_adverts
+from showbill.queries import filter_adverts
 
 logger = logging.getLogger(__name__)
 
@@ -71,16 +71,23 @@ def profile_view(request):
     auctions = Bid.objects.filter(user=request.user).all()
     logger.info(f"Adverts of {request.user}")
     filters_form = AdvertFiltersForm(request.GET)
+    auc_filter_form = AdvertFiltersForm(request.GET)
 
     if filters_form.is_valid():
         order_by = filters_form.cleaned_data["order_by"]
         cars = filter_adverts(cars, order_by)
+
+    if auc_filter_form.is_valid():
+        order_by = auc_filter_form.cleaned_data["order_by"]
+        auctions = filter_adverts(auctions, order_by)
 
     return render(
         request,
         "profile.html", {
             "user": user,
             "adverts": cars,
-            "auctions": auctions,
-            "filters_form": filters_form}
+            "auctions": auctions[0:4],
+            "filters_form": filters_form,
+            "auc_filters_form": auc_filter_form},
+
     )

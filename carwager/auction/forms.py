@@ -1,11 +1,7 @@
-from datetime import datetime
-
 from django import forms
-from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
 
 from auction.models import CarMarkAuction, CarModelAuction
-from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX
+from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX
 
 
 class CarAuctionForm(forms.Form):

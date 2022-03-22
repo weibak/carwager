@@ -37,3 +37,4 @@ class AuctionAdmin(admin.ModelAdmin):
     )
     search_fields = ("car", "engine_type", "gear_box", "status")
     readonly_fields = ("created_at",)
+    list_filter = ["status"]

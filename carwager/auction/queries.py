@@ -1,4 +1,4 @@
-def filter_cars(cars, price__gt, price__lt, order_by, engine_type, drive, gear_box):
+def filter_cars_auction(cars, price__gt, price__lt, order_by, engine_type, drive, gear_box):
     if price__gt is not None:
         cars = cars.filter(price__gt=price__gt)
     if price__lt is not None:
@@ -34,9 +34,9 @@ def filter_cars(cars, price__gt, price__lt, order_by, engine_type, drive, gear_b
     return cars
 
 
-def filter_adverts(purchases, order_by):
+def filter_auctions(auctions, order_by):
     if order_by == "-created_at":
-        purchases = purchases.order_by("-created_at")
+        auctions = auctions.order_by("-created_at")
     elif order_by == "created_at":
-        purchases = purchases.order_by("created_at")
-    return purchases
+        auctions = auctions.order_by("created_at")
+    return auctions

@@ -80,6 +80,7 @@ class Bid(models.Model):
     auction = models.ForeignKey(
         Auction, related_name="bids", on_delete=models.CASCADE
     )
+    bef_bid_price = models.DecimalField(decimal_places=2, max_digits=15, default=0)
     bid = models.DecimalField(decimal_places=2, max_digits=15)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
