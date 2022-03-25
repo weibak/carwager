@@ -23,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-x47s268xj7f(5)-otz^_4+e*&bto6r6g_)nop5p$j4^ayf^aia'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+CSRF_TRUSTED_ORIGINS = ["https://carwager.herokuapp.com/", "http://127.0.0.1"]
 
 
 # Application definition
