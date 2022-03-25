@@ -1,0 +1,47 @@
+version: '3.3'
+services:
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=carwager
+      - POSTGRES_USER=carwager
+      - POSTGRES_PASSWORD=carwager
+
+  redis:
+    image: redis:latest
+
+  django:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./carwager/:/app/
+    depends_on:
+      - redis
+      - postgres
+    links:
+      - postgres
+      - redis
+    environment:
+      # - DEBUG=False
+      - REDIS_HOST=redis
+      - POSTGRES_HOST=postgres
+    command: |
+      python manage.py runserver 0.0.0.0:8000
+  worker:
+    build: .
+    volumes:
+      - ./carwager/:/app/
+    depends_on:
+      - redis
+      - postgres
+    links:
+      - postgres
+      - redis
+    environment:
+     # - DEBUG=False
+      - REDIS_HOST=redis
+      - POSTGRES_HOST=postgres
+    command: |
+      python manage.py rqworker default

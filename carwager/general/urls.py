@@ -15,14 +15,15 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from auction.views import CarAuctionView, auction_view, create_auction
 from general.views import register, sign_in, logout_view, profile_view
-from news.views import news_list_all
+from news.views import news_list_all, news_view
 from showbill.views import CarView, create_advert, advert_view
 
 urlpatterns = [
+    path("admin/django-rq/", include("django_rq.urls")),
     path('admin/', admin.site.urls),
     path('', CarView.as_view(), name="home"),
     path("register/", register, name="register"),
@@ -30,14 +31,14 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path('showbill/', CarView.as_view(), name="showbill"),
     path('news/', news_list_all, name="news"),
+    path('news/<str:slug>/', news_view, name="news_view"),
     path('profile/', profile_view, name="profile"),
     path("advert/<int:advert_id>", advert_view, name="car_details"),
     path('showbill/add/', create_advert, name="add_advert"),
     path('auction/', CarAuctionView.as_view(), name="auction"),
-    path("details/<int:auction_id>", auction_view, name="auction_details"),
+    path("details/<int:auction_id>/", auction_view, name="auction_details"),
     path('auction/add/', create_auction, name="add_auction"),
 ]
-
 
 if settings.DEBUG:
     from django.conf.urls.static import static

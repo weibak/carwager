@@ -1,13 +1,10 @@
 import logging
-
 from django.http import HttpResponse
-
 from auction.models import Bid
 from general.forms import RegisterForm, AuthForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-
 from showbill.forms import AdvertFiltersForm
 from showbill.models import Advert
 from showbill.queries import filter_adverts

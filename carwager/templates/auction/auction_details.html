@@ -3,8 +3,9 @@
 {% block title %} Auction {{ auction.car.model }}{% endblock %}
 {% block content %}
 
+
     <main class="auction-details">
-        <h1 class="my-4">{{ auction.car.mark }} {{ auction.car.model.car_model }}</h1>
+        <h1 class="my-4">{{ auction.car.mark }} {{ auction.car.model.car_model }} {{ time }}</h1>
         <div class="row">
             <div class="col-4">
                 {% if auction.image %}
@@ -20,6 +21,7 @@
                 <br>
                 <h8 class="mb-1">Stop at {{ auction.date_end }}</h8>
                 {% if auction.status == "go" %}
+                    <meta http-equiv="refresh" content="5">
                     <form method="post">
                         {% csrf_token %}
                         <h7 class="mb-2">Auction bid</h7>
@@ -40,7 +42,7 @@
                 {% endif %}
                 <h4 class="mb-3">Information: </h4>
                 <h6 class="mb-3">Engine type: {{ auction.get_engine_type_display }}</h6>
-                <h6 class="mb-3">Engine capacity: {{ auction.get_engine_capacity_display }}</h6>
+                <h6 class="mb-3">Engine capacity: {{ auction.engine_capacity}}l.</h6>
                 <h6 class="mb-3">Gear box: {{ auction.get_gear_box_display }}</h6>
                 <h6 class="mb-3">Drive: {{ auction.get_drive_display }}</h6>
                 <h6 class="mb-3">Win: {{ auction.win }}</h6>

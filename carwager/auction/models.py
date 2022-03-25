@@ -4,8 +4,8 @@ from showbill.models import ENGINE_TYPE, GEAR_BOX, DRIVE
 
 
 STATUS_AUC = (
-    ("go", "Auction in underway "),
-    ("soon", "Auction started soon"),
+    ("go", "Auction going "),
+    ("soon", "Soon"),
     ("stop", "Auction ended")
 
 )
@@ -56,7 +56,6 @@ class Auction(models.Model):
     image = models.ImageField(null=True, blank=True)
     win = models.CharField(max_length=17, null=True, blank=True)
     price = models.DecimalField(decimal_places=2, max_digits=15)
-    price_usd = models.DecimalField(default=0, decimal_places=2, max_digits=15)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="auctions"
     )

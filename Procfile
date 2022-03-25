@@ -1,0 +1,3 @@
+release: python carwager/manage.py migrate
+release: mkdir carwager/media
+web: python carwager/manage.py runserver 0.0.0.0:$PORT

@@ -9,5 +9,7 @@ ipython==8.0.1
 factory_boy>=3.2.0
 scrapy==2.5.1
 django-rq==2.5.1
+rq_scheduler==0.11.0
 requests==2.27.1
 faker==13.2.0
+schedule==1.1.0

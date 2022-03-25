@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <div class="news-details">
+        <div class="col-9 news-item">
+            <div class="news-card">
+                {% if news.image %}
+                    <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}">
+                {% endif %}
+                <div class="news-body">
+                    <h5 class="news-title">{{ news.title }}</h5>
+                    <p class="news-text">{{ news.text }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

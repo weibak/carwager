@@ -3,25 +3,25 @@
 
 {% block content %}
   <div class="posts">
-    <h1 class="my-4">Latest blog posts</h1>
+    <h1 class="my-4">Latest car news</h1>
     <div class="row">
       {% for new in news %}
-        <div class="col-4 post-item">
+        <div class="col-6 post-item">
           <div class="card">
             <div class="image-container">
               {% if new.image %}
-                <img src="{{ post.image.url }}" class="card-img-top img-thumbnail" alt="{{ new.title }}">
+                <img src="{{ new.image.url }}" class="card-img-top img-thumbnail" alt="{{ new.title }}">
               {% else %}
                 <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
               {% endif %}
             </div>
             <div class="card-body">
               <h5 class="card-title">{{ new.title }}</h5>
-              <p class="card-text">
-                {{ new.text|cut_text:150 }}
+              <p class="news-text">
+                {{ new.text|cut_text:550 }}
               </p>
               <p class="post-link">
-                 <a href="{% url "post_view" new.slug %}">Go to post</a>
+                 <a href="{% url "news_view" new.slug %}">Go to post</a>
               </p>
             </div>
           </div>

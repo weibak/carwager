@@ -33,14 +33,6 @@ class CarView(TemplateView):
         return {"adverts": adverts, "filters_form": filters_form}
 
 
-def choise_mark(request, mark_id):
-    ...
-
-
-def choise_model(request, choise_mark, model_id):
-    ...
-
-
 def create_advert(request, *args, **kwargs):
     if request.user.is_authenticated:
         if request.method == "POST":

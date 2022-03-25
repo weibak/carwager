@@ -87,9 +87,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "carwager",
-        "USER": "carwager",
-        "PASSWORD": "carwager",
+        "NAME": os.getenv("POSTGRES_NAME", "carwager"),
+        "USER": os.getenv("POSTGRES_USER", "carwager"),
+        "PASSWORD": os.getenv("POSTGRES_PASS", "carwager"),
         "HOST": os.getenv("POSTGRES_HOST", "localhost"),
         "PORT": 5432,
     }
@@ -181,12 +181,6 @@ LOGGING = {
         "console": {
             "class": "logging.StreamHandler",
         },
-    },
-    "file": {
-        "level": "INFO",
-        "class": "logging.FileHandler",
-        "filename": os.getenv("LOGGER_FILE", "/django.log"),
-        "formatter": "standard",
     },
     "root": {
         "handlers": ["console"],

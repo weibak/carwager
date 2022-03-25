@@ -1,7 +1,24 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from auction.models import CarMarkAuction, CarModelAuction, STATUS_AUC
+from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX, ORDER_BY_CHOICES
 
-from auction.models import CarMarkAuction, CarModelAuction
-from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX
+
+class AuctionFiltersForm(forms.Form):
+    price__gt = forms.IntegerField(min_value=0, label="Price Min", required=False)
+    price__lt = forms.IntegerField(min_value=0, label="Price Max", required=False)
+    order_by = forms.ChoiceField(choices=ORDER_BY_CHOICES, required=False)
+    engine_type = forms.ChoiceField(choices=ENGINE_TYPE, required=False)
+    gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False)
+    drive = forms.ChoiceField(choices=DRIVE, required=False)
+    status = forms.ChoiceField(choices=STATUS_AUC, required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        price__gt = cleaned_data.get("price__gt")
+        price__lt = cleaned_data.get("price__lt")
+        if price__gt and price__lt and price__gt > price__lt:
+            raise ValidationError("Min price can't be greater than Max price")
 
 
 class CarAuctionForm(forms.Form):
@@ -19,18 +36,6 @@ class AuctionForm(forms.Form):
     image = forms.ImageField(required=False)
     win = forms.CharField(max_length=17, )
     price = forms.DecimalField(decimal_places=2, max_digits=15)
-    price_usd = forms.DecimalField(decimal_places=2, max_digits=15)
     phone_number = forms.CharField(max_length=13)
-    date_start = forms.DateTimeField(input_formats='%Y-%m-%d %H:%M', help_text='2022-03-19 14:30')
-    date_end = forms.DateTimeField(input_formats='%Y-%m-%d %H:%M', help_text='2022-03-19 14:30')
-"""
-    def clean_date_start(self):
-        date_start = self.cleaned_data['date_start']
-        date_start = datetime.strptime(date_start, format="%d/%m/%Y %H:%M")
-        return date_start
-
-    def clean_date_end(self):
-        date_end = self.cleaned_data['date_end']
-        date_end = datetime.strptime(date_end, format="%d/%m/%Y %H:%M")
-        return date_end
-"""
+    date_start = forms.DateTimeField(input_formats='%Y-%m-%d %H', help_text='2022-03-19 14')
+    date_end = forms.DateTimeField(input_formats='%Y-%m-%d %H', help_text='2022-03-19 14')
