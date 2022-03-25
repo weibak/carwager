@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-x47s268xj7f(5)-otz^_4+e*&bto6r6g_)nop5p$j4^ayf^aia
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["*"]
-
-CSRF_TRUSTED_ORIGINS = ["https://carwager.herokuapp.com/", "http://127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["https://carwager.herokuapp.com", "http://127.0.0.1"]
 
 
 # Application definition
