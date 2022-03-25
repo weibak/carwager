@@ -21,28 +21,30 @@
                 <br>
                 <h8 class="mb-1">Stop at {{ auction.date_end }}</h8>
                 {% if auction.status == "go" %}
-                    <meta http-equiv="refresh" content="5">
-                    <form method="post">
-                        {% csrf_token %}
-                        <h7 class="mb-2">Auction bid</h7>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="input-group mb-3">
-                                    <input name="bid" type="number" class="bid form-control" required minlength="1"
-                                           value="1" step="0.01" placeholder="Bid"
-                                           aria-label="Bid"
-                                           aria-describedby="bid">
-                                    <span class="input-group-text" id="bid">
+                    {% if user.is_authenticated %}
+                        <meta http-equiv="refresh" content="5">
+                        <form method="post">
+                            {% csrf_token %}
+                            <h7 class="mb-2">Auction bid</h7>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="input-group mb-3">
+                                        <input name="bid" type="number" class="bid form-control" required minlength="1"
+                                               value="1" step="0.01" placeholder="Bid"
+                                               aria-label="Bid"
+                                               aria-describedby="bid">
+                                        <span class="input-group-text" id="bid">
                                     <button type="submit" class="btn">Bid</button>
                                     </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    {% endif %}
                 {% endif %}
                 <h4 class="mb-3">Information: </h4>
                 <h6 class="mb-3">Engine type: {{ auction.get_engine_type_display }}</h6>
-                <h6 class="mb-3">Engine capacity: {{ auction.engine_capacity}}l.</h6>
+                <h6 class="mb-3">Engine capacity: {{ auction.engine_capacity }}l.</h6>
                 <h6 class="mb-3">Gear box: {{ auction.get_gear_box_display }}</h6>
                 <h6 class="mb-3">Drive: {{ auction.get_drive_display }}</h6>
                 <h6 class="mb-3">Win: {{ auction.win }}</h6>
