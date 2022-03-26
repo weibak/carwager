@@ -72,6 +72,15 @@ class Auction(models.Model):
         return f"{self.car.mark} - {self.car.model} - {self.car.year}"
 
 
+class Winner(models.Model):
+    auction = models.ForeignKey(
+        Auction, on_delete=models.CASCADE, default=None
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None
+    )
+
+
 class Bid(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="bids", on_delete=models.CASCADE
@@ -85,3 +94,6 @@ class Bid(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.auction.car} - {self.bid}"
+
+
+

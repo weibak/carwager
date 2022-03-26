@@ -20,6 +20,10 @@
                 <h8 class="mb-1">Started at: {{ auction.date_start }}</h8>
                 <br>
                 <h8 class="mb-1">Stop at {{ auction.date_end }}</h8>
+                <br>
+                {% if  winner %}
+                    <div class="winner"><h5>Winner - {{ winner }} </h5></div>
+                {% endif %}
                 {% if auction.status == "go" %}
                     {% if user.is_authenticated %}
                         <meta http-equiv="refresh" content="5">

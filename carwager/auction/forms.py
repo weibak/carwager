@@ -34,7 +34,7 @@ class AuctionForm(forms.Form):
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
     description = forms.CharField(max_length=500)
     image = forms.ImageField(required=False)
-    win = forms.CharField(max_length=17, )
+    win = forms.CharField(max_length=17, required=False)
     price = forms.DecimalField(decimal_places=2, max_digits=15)
     phone_number = forms.CharField(max_length=13)
     date_start = forms.DateTimeField(input_formats='%Y-%m-%d %H', help_text='2022-03-19 14')

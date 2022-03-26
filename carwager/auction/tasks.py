@@ -1,8 +1,7 @@
 from django.utils import timezone
 from django_rq import job
 import logging
-from auction.models import Auction
-
+from auction.models import Auction, Winner
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +10,7 @@ logger = logging.getLogger(__name__)
 def run_status_update():
     auctions = Auction.objects.all()
     now = timezone.now()
-    logger.info("I'm working...")
+    logger.info("Update statuses...")
     logger.info(now)
     for auction in auctions:
         if auction.date_start <= now <= auction.date_end:
@@ -23,3 +22,15 @@ def run_status_update():
         if auction.date_start > now:
             auction.status = "soon"
             auction.save()
+
+
+@job
+def search_winners():
+    end_auctions = Auction.objects.filter(status="stop").all()
+    logger.info("Search winners...")
+    for auction in end_auctions:
+        winner = auction.bids.filter(auction=auction).order_by("-created_at").first()
+        if winner:
+            winn = winner.user
+            Winner.objects.update_or_create(auction=auction, user=winn)
+            logger.info(winn)

@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 from auction.forms import AuctionForm, CarAuctionForm, AuctionFiltersForm
-from auction.models import Auction, CarAuction, Bid
+from auction.models import Auction, CarAuction, Bid, Winner
 from auction.queries import filter_cars_auction
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,8 @@ def create_auction(request, *args, **kwargs):
                     if request.POST.get("date_start") > now:
                         status = "soon"
                     auction = Auction.objects.create(
-                        car=car, owner=request.user, status=status, **form.cleaned_data)  # create auction in DB
+                        car=car, owner=request.user, status=status, **form.cleaned_data
+                    )  # create auction in DB
                     auction.save()
                 return redirect(
                     "auction",
@@ -77,6 +78,10 @@ def create_auction(request, *args, **kwargs):
 def auction_view(request, auction_id):
     auction = get_object_or_404(Auction, id=auction_id)
     time = datetime.datetime.now()
+    winn = Winner.objects.filter(auction=auction).first()  # search winners of auction
+    winner = ""
+    if winn is not None:
+        winner = winn.user
     if request.method == "POST":
         if request.POST.get("bid"):
             # try to do validate of bid. if two user take a bid from one start price
@@ -106,5 +111,6 @@ def auction_view(request, auction_id):
             "is_auction_in_favorites": request.user in auction.favorites.all(),
             "bids": auction.bids.order_by("-created_at")[0:10],
             "time": time,
+            "winner": winner ,
         },
     )

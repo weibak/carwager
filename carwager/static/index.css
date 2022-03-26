@@ -11,7 +11,6 @@ body {
     max-width: 250px;
 }
 
-
 .news-details .text {
     white-space: pre-line;
 }
@@ -72,6 +71,10 @@ body {
 
 .input-group .bid{
     max-width: 200px;
+}
+
+.winner {
+    color: red;
 }
 
 .user-card-full .user-profile {
