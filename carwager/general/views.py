@@ -1,6 +1,6 @@
 import logging
 from django.http import HttpResponse
-from auction.models import Bid
+from auction.models import Bid, Auction
 from general.forms import RegisterForm, AuthForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
@@ -18,7 +18,7 @@ def register(request):
         if form.is_valid():
             logger.info(form.cleaned_data)
             user = User(
-                username=form.cleaned_data["email"],
+                username=form.cleaned_data["username"],
                 email=form.cleaned_data["email"],
                 first_name=form.cleaned_data["first_name"],
                 last_name=form.cleaned_data["last_name"],
@@ -66,6 +66,7 @@ def profile_view(request):
     user = request.user
     cars = Advert.objects.filter(owner=request.user).all()
     auctions = Bid.objects.filter(user=request.user).all()
+    auction = Auction.objects.all()
     logger.info(f"Adverts of {request.user}")
     filters_form = AdvertFiltersForm(request.GET)
     auc_filter_form = AdvertFiltersForm(request.GET)
@@ -85,6 +86,8 @@ def profile_view(request):
             "adverts": cars,
             "auctions": auctions[0:4],
             "filters_form": filters_form,
-            "auc_filters_form": auc_filter_form},
+            "auc_filters_form": auc_filter_form,
+            "favorites": favorites,
+        },
 
     )
