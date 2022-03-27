@@ -66,8 +66,13 @@ def profile_view(request):
     user = request.user
     cars = Advert.objects.filter(owner=request.user).all()
     auctions = Bid.objects.filter(user=request.user).all()
-    auction = Auction.objects.all()
-    logger.info(f"Adverts of {request.user}")
+    favorite_auctions = Auction.objects.filter(favorites=user).all()
+    favorites = favorite_auctions.all()
+    favorite_adverts = Advert.objects.filter(favorites=user).all()
+    logger.info(favorites)
+    logger.info(favorite_adverts)
+    logger.info(f"Adverts of {request.user}: {cars}")
+    logger.info(f"Bids of {request.user}: {auctions}")
     filters_form = AdvertFiltersForm(request.GET)
     auc_filter_form = AdvertFiltersForm(request.GET)
 
@@ -87,7 +92,7 @@ def profile_view(request):
             "auctions": auctions[0:4],
             "filters_form": filters_form,
             "auc_filters_form": auc_filter_form,
-            "favorites": favorites,
+            "favorite": favorites,
+            "favorite_adverts": favorite_adverts,
         },
-
     )

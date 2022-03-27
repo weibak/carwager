@@ -15,7 +15,7 @@
         <p class="card-transmission"> Transmission: {{ auction.get_gear_box_display }}</p>
         <p class="card-transmission"> Transmission: {{ auction.get_drive_display }}</p>
         {% if auction.description %}
-            <p class="card-text">Description: {{ auction.description|cut_text:70 }}</p>
+            <p class="card-text">Description: {{ auction.description|cut_text:200 }}</p>
         {% endif %}
         <a href="{% url 'auction_details' auction.id %}" class="btn btn-primary" aria-live="polite">Details</a>
     </div>

@@ -36,7 +36,7 @@ class CarForm(forms.Form):
 
 class AdvertForm(forms.Form):
     engine_type = forms.ChoiceField(choices=ENGINE_TYPE)
-    engine_capacity = forms.IntegerField()
+    engine_capacity = forms.DecimalField(decimal_places=2, max_digits=15)
     drive = forms.ChoiceField(choices=DRIVE)
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
     description = forms.CharField(max_length=500)

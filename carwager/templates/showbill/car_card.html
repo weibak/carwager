@@ -14,7 +14,7 @@
         <p class="card-engine"> Engine: {{ advert.get_engine_type_display }} - {{ advert.engine_capacity }}l.</p>
         <p class="card-transmission"> Transmission: {{ advert.get_gear_box_display }}</p>
         {% if advert.description %}
-            <p class="card-text">{{ advert.description|cut_text:100 }}</p>
+            <p class="card-text">{{ advert.description|cut_text:200 }}</p>
         {% endif %}
         <a href="{% url 'car_details' advert.id %}" class="btn btn-primary">Details</a>
     </div>
