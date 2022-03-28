@@ -28,7 +28,9 @@ services:
       - REDIS_HOST=redis
       - POSTGRES_HOST=postgres
     command: |
-      python manage.py runserver 0.0.0.0:8000
+      bash -c "python manage.py runserver 0.0.0.0:8000 && 
+             python manage.py run_status_update &&
+             python manage.py search_winners"
   worker:
     build: .
     volumes:
@@ -45,3 +47,19 @@ services:
       - POSTGRES_HOST=postgres
     command: |
       python manage.py rqworker default
+  sheduler:
+    build: .
+    volumes:
+      - ./carwager/:/app/
+    depends_on:
+      - redis
+      - postgres
+    links:
+      - postgres
+      - redis
+    environment:
+      # - DEBUG=False
+      - REDIS_HOST=redis
+      - POSTGRES_HOST=postgres
+    command: |
+      python manage.py rqscheduler default
