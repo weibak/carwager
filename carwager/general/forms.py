@@ -2,6 +2,7 @@ from django import forms
 
 
 class RegisterForm(forms.Form):
+    username = forms.CharField(max_length=100)
     first_name = forms.CharField(max_length=200)
     last_name = forms.CharField(max_length=200)
     email = forms.EmailField()
