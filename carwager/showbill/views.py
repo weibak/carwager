@@ -61,10 +61,10 @@ def advert_view(request, advert_id):
         if request.user.is_authenticated and request.method == "POST":
             if request.POST["action"] == "add":
                 advert.favorites.add(request.user)
-                messages.info(request, "Product successfully added to favorites")
+                messages.info(request, "Car successfully added to favorites")
             elif request.POST["action"] == "remove":
                 advert.favorites.remove(request.user)
-                messages.info(request, "Product successfully removed to favorites")
+                messages.info(request, "Car successfully removed to favorites")
             redirect("car_details", advert_id=advert.id)
     return render(
         request,

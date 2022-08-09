@@ -13,10 +13,13 @@
         <h6 class="card-subtitle mb-2 text-muted">Current price: {{ auction.price }} BYN</h6>
         <p class="card-engine"> Engine: {{ auction.get_engine_type_display }} - {{ auction.engine_capacity }}l.</p>
         <p class="card-transmission"> Transmission: {{ auction.get_gear_box_display }}</p>
-        <p class="card-transmission"> Transmission: {{ auction.get_drive_display }}</p>
+        <p class="card-drive"> Drive: {{ auction.get_drive_display }}</p>
         {% if auction.description %}
-            <p class="card-text">Description: {{ auction.description|cut_text:200 }}</p>
+            <p class="card-text">Description: {{ auction.description|cut_text:180 }}</p>
         {% endif %}
-        <a href="{% url 'auction_details' auction.id %}" class="btn btn-primary" aria-live="polite">Details</a>
-    </div>
+        <br>
+        <div class="bottom" aria-live="off">
+        <a href="{% url 'auction_details' auction.id %}" class="btn btn-primary">Details</a>
+        </div>
+   </div>
 </div>
