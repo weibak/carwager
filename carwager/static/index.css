@@ -26,27 +26,24 @@ body {
 }
 
 .padding {
-    padding: 3rem !important
+    padding: 3rem !important;
 }
 
 .user-card-full {
-    overflow: hidden
+    overflow: hidden;
 }
 
 .card {
     max-height: 530px;
     min-height: 530px;
-    -webkit-box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
-    border: none;
     margin-bottom: 30px;
     background-color: #919aa3;
     border-radius: 20px;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
 }
 
 .card-body a {
     display: block;
-    position: absolute;
     height: 100%;
     width: 100%;
 }
@@ -83,91 +80,91 @@ body {
 }
 
 .user-card-full .user-profile {
-    border-radius: 5px 0 0 5px
+    border-radius: 5px 0 0 5px;
 }
 
 .bg-c-lite-green {
     background: -webkit-gradient(linear, left top, right top, from(#b3696c), to(#666666));
-    background: linear-gradient(to right, #7d453a, #967c73)
+    background: linear-gradient(to right, #7d453a, #967c73);
 }
 
 .user-profile {
-    padding: 20px 0
+    padding: 20px 0;
 }
 
 .card-block {
-    padding: 1.25rem
+    padding: 1.25rem;
 }
 
 h6 {
-    font-size: 14px
+    font-size: 14px;
 }
 
 .news .news-card p {
-    line-height: 25px
+    line-height: 25px;
 }
 
 .b-b-default {
-    border-bottom: 1px solid #645d5d
+    border-bottom: 1px solid #645d5d;
 }
 
 .m-b-20 {
-    margin-bottom: 20px
+    margin-bottom: 20px;
 }
 
 .p-b-5 {
-    padding-bottom: 5px !important
+    padding-bottom: 5px !important;
 }
 
 .card .card-block p {
-    line-height: 25px
+    line-height: 25px;
 }
 
 .m-b-10 {
-    margin-bottom: 10px
+    margin-bottom: 10px;
 }
 
 .text-muted {
-    color: #919aa3 !important
+    color: #919aa3 !important;
 }
 
 .b-b-default {
-    border-bottom: 1px solid #e0e0e0
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .f-w-600 {
-    font-weight: 600
+    font-weight: 600;
 }
 
 .m-b-20 {
-    margin-bottom: 20px
+    margin-bottom: 20px;
 }
 
 .m-t-40 {
-    margin-top: 20px
+    margin-top: 20px;
 }
 
 .p-b-5 {
-    padding-bottom: 5px !important
+    padding-bottom: 5px !important;
 }
 
 .m-b-10 {
-    margin-bottom: 10px
+    margin-bottom: 10px;
 }
 
 .m-t-40 {
-    margin-top: 20px
+    margin-top: 20px;
 }
 
 .user-card-full .social-link li {
-    display: inline-block
+    display: inline-block;
 }
 
 .user-card-full .social-link li a {
     font-size: 20px;
     margin: 0 10px 0 0;
     -webkit-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out
+    transition: all 0.3s ease-in-out;
 }
 
 /* Dropdown Content (Hidden by Default) */
@@ -190,8 +187,3 @@ h6 {
 
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {background-color: #ddd}
-
-/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-.show {
-    display: block;
-}

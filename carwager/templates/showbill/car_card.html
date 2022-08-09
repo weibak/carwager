@@ -18,6 +18,6 @@
             <p class="card-text">{{ advert.description|cut_text:200 }}</p>
         {% endif %}
         <br>
-        <a href="{% url 'car_details' advert.id %}"></a>
+        <a href="{% url 'car_details' advert.id %}" class="btn btn-primary">Details</a>
     </div>
 </div>
