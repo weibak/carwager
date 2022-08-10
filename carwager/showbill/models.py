@@ -3,11 +3,13 @@ from django.db import models
 
 
 ORDER_BY_CHOICES = (
+    (None, ""),
     ("price_asc", "Price Asc"),
     ("price_desc", "Price Desc"),
 )
 
 CAR_MARK = (
+    (None, ""),
     ("bmw", "BMW"),
     ("merc", "MERCEDES"),
     ("toyo", "TOYOTA"),
@@ -15,6 +17,7 @@ CAR_MARK = (
 
 
 ENGINE_TYPE = (
+    (None, ""),
     ("petr", "Petrol"),
     ("dies", "Diesel"),
     ("hyb", "Hybrid"),
@@ -23,6 +26,7 @@ ENGINE_TYPE = (
 
 
 DRIVE = (
+    (None, ""),
     ("fwd", "Front-wheel drive"),
     ("rwd", "Rear-wheel drive"),
     ("awd", "Automatic 4WD"),
@@ -31,6 +35,7 @@ DRIVE = (
 
 
 GEAR_BOX = (
+    (None, ""),
     ("auto", "Automatic"),
     ("man", "Manual"),
 )
