@@ -10,14 +10,15 @@
         {% else %}
             <img src="{% static 'no-image.jpg' %}" class="card-img-top mb-2" alt="No image">
         {% endif %}
-        <h6 class="card-subtitle mb-2 text-muted">Current price: {{ auction.price }} BYN</h6>
-        <p class="card-engine"> Engine: {{ auction.get_engine_type_display }} - {{ auction.engine_capacity }}l.</p>
-        <p class="card-transmission"> Transmission: {{ auction.get_gear_box_display }}</p>
-        <p class="card-drive"> Drive: {{ auction.get_drive_display }}</p>
+        <h6 class="card-subtitle"><strong>Current price:</strong> {{ auction.price }} BYN</h6>
+        <p class="card-engine"> <strong>Engine:</strong> {{ auction.get_engine_type_display }} - {{ auction.engine_capacity }}l.</p>
+        <p class="card-transmission"> <strong>Transmission:</strong> {{ auction.get_gear_box_display }}</p>
+        <p class="card-drive"> <strong>Drive:</strong> {{ auction.get_drive_display }}</p>
         {% if auction.description %}
-            <p class="card-text">Description: {{ auction.description|cut_text:180 }}</p>
+            <p class="card-text"><strong>Description:</strong> {{ auction.description|cut_text:180 }}</p>
         {% endif %}
-        <br>
+        <p class="date"><strong>Date start:</strong> {{ auction.date_start }}</p>
+        <p class="date"><strong>Date end:</strong> {{ auction.date_end }}</p>
         <div class="bottom" aria-live="off">
         <a href="{% url 'auction_details' auction.id %}" class="btn btn-primary">Details</a>
         </div>

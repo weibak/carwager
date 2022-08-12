@@ -1,13 +1,16 @@
 def filter_cars(cars, price__gt, price__lt, order_by, mark, engine_type, drive, gear_box):
     if price__gt is not None:
         cars = cars.filter(price__gt=price__gt)
+        return cars
     if price__lt is not None:
         cars = cars.filter(price__lt=price__lt)
+        return cars
     if order_by is not None:
         if order_by == "price_asc":
             cars = cars.order_by("price")
-        if order_by == "cost_desc":
+        if order_by == "price_desc":
             cars = cars.order_by("-price")
+        return cars
     if mark is not None:
         if mark == "bmw":
             cars = cars.filter(mark="bmw")
@@ -15,6 +18,7 @@ def filter_cars(cars, price__gt, price__lt, order_by, mark, engine_type, drive, 
             cars = cars.filter(mark="merc")
         if mark == "toyo":
             cars = cars.filter(mark="toyo")
+        return cars
     if engine_type is not None:
         if engine_type == "petr":
             cars = cars.filter(engine_type="petr")
@@ -24,6 +28,7 @@ def filter_cars(cars, price__gt, price__lt, order_by, mark, engine_type, drive, 
             cars = cars.filter(engine_type="hyb")
         if engine_type == "elec":
             cars = cars.filter(engine_type="elec")
+        return cars
     if drive is not None:
         if drive == "fwd":
             cars = cars.filter(drive="fwd")
@@ -33,12 +38,13 @@ def filter_cars(cars, price__gt, price__lt, order_by, mark, engine_type, drive, 
             cars = cars.filter(drive="awd")
         if drive == "4wd":
             cars = cars.filter(drive="4wd")
+        return cars
     if gear_box is not None:
         if gear_box == "auto":
             cars = cars.filter(gear_box="auto")
         if gear_box == "man":
             cars = cars.filter(gear_box="man")
-    return cars
+        return cars
 
 
 def filter_adverts(adverts, order_by):

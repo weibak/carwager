@@ -7,7 +7,7 @@ class CarFiltersForm(forms.Form):
     price__gt = forms.IntegerField(min_value=0, label="Price Min", required=False)
     price__lt = forms.IntegerField(min_value=0, label="Price Max", required=False)
     mark = forms.ChoiceField(choices=CAR_MARK, required=False,)
-    order_by = forms.ChoiceField(choices=ORDER_BY_CHOICES, required=False, )
+    order_by = forms.ChoiceField(choices=ORDER_BY_CHOICES, required=False,)
     engine_type = forms.ChoiceField(choices=ENGINE_TYPE, required=False,)
     gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False,)
     drive = forms.ChoiceField(choices=DRIVE, required=False,)

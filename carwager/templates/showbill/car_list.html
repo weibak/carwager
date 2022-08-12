@@ -14,6 +14,7 @@
                 <div class="filters-form mb-4">
                     <h3>{% translate "Filters" %}</h3>
                     <form class="form-inline">
+                        {{ date_filter|crispy }}
                         {{ filters_form|crispy }}
                         <button type="submit" class="save btn btn-primary">{% translate "Search" %}</button>
                     </form>

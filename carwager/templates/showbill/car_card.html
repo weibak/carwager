@@ -8,16 +8,17 @@
         {% if advert.image %}
             <img class="card-img-top mb-2" src="{{ advert.image.url}}" alt="{{ advert.car.mark }}">
         {% else %}
-            <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
+            <img src="{% static 'no-image.jpg' %}" class="card-img-top mb-2" alt="No image">
         {% endif %}
-        <h6 class="card-subtitle mb-2 text-muted">Cost: {{ advert.price }} BYN - {{ advert.price_usd }} USD</h6>
-        <p class="card-engine"> Engine: {{ advert.get_engine_type_display }} - {{ advert.engine_capacity }}l.</p>
-        <p class="card-transmission"> Transmission: {{ advert.get_gear_box_display }}</p>
-        <p class="card-drive"> Drive: {{ advert.get_drive_display }}</p>
+        <h6 class="card-subtitle"><strong>Price:</strong> {{ advert.price }} BYN - {{ advert.price_usd }} USD</h6>
+        <p class="card-engine"><strong>Engine:</strong> {{ advert.get_engine_type_display }} - {{ advert.engine_capacity }}l.</p>
+        <p class="card-transmission"><strong>Transmission:</strong> {{ advert.get_gear_box_display }}</p>
+        <p class="card-drive"><strong>Drive:</strong> {{ advert.get_drive_display }}</p>
         {% if advert.description %}
             <p class="card-text">{{ advert.description|cut_text:200 }}</p>
         {% endif %}
         <br>
+        <p class="date"><strong>Date:</strong> {{ advert.created_at }}</p>
         <a href="{% url 'car_details' advert.id %}" class="btn btn-primary">Details</a>
     </div>
 </div>

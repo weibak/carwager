@@ -4,9 +4,9 @@ import logging
 from django.contrib import messages
 from django.views.generic import TemplateView
 
-from showbill.forms import CarFiltersForm, AdvertForm, CarForm
+from showbill.forms import CarFiltersForm, AdvertForm, CarForm, AdvertFiltersForm
 from showbill.models import Advert, Car
-from showbill.queries import filter_cars
+from showbill.queries import filter_cars, filter_adverts
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,7 @@ class CarView(TemplateView):
     def get_context_data(self, **kwargs, ):
         adverts = Advert.objects.all()
         filters_form = CarFiltersForm(self.request.GET)
+        car_date = AdvertFiltersForm(self.request.GET)
 
         if filters_form.is_valid():
             price__gt = filters_form.cleaned_data["price__gt"]
@@ -28,10 +29,14 @@ class CarView(TemplateView):
             drive = filters_form.cleaned_data["drive"]
             adverts = filter_cars(adverts, price__gt, price__lt, order_by, engine_type, gear_box, drive, mark)
 
+        if car_date.is_valid():
+            order_by = car_date.cleaned_data["order_by"]
+            adverts = filter_adverts(adverts, order_by)
+
         paginator = Paginator(adverts, 30)
         page_number = "page"
         adverts = paginator.get_page(page_number)
-        return {"adverts": adverts, "filters_form": filters_form}
+        return {"adverts": adverts, "filters_form": filters_form, "date_filter": car_date}
 
 
 def create_advert(request, *args, **kwargs):
