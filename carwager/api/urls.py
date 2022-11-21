@@ -3,12 +3,16 @@
 from django.urls import include, path
 from rest_framework import routers
 from api.showbill.views import AdvertViewSet
+from api.auction.views import AuctionViewSet
+from api.news.views import NewViewSet
 from api.users.views import UserCreateView, UserLoginView, UserLogoutView, UserViewSet
 
 app_name = "api"
 
 router = routers.DefaultRouter()
 router.register(r"adverts", AdvertViewSet, basename="adverts")
+router.register(r"auctions", AuctionViewSet, basename="auctions")
+router.register(r"news", NewViewSet, basename="news")
 router.register(r"users", UserViewSet, basename="users")
 
 
