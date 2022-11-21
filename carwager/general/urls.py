@@ -25,6 +25,7 @@ from showbill.views import CarView, create_advert, advert_view
 urlpatterns = [
     path("admin/django-rq/", include("django_rq.urls")),
     path('admin/', admin.site.urls),
+    path("api/", include("api.urls", namespace="api")),
     path('', CarView.as_view(), name="home"),
     path("register/", register, name="register"),
     path("auth/", sign_in, name="auth"),
