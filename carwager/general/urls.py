@@ -10,7 +10,7 @@ Class-based views
     1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
-    1. Import the include() function: from django.urls import include, path
+    1. Import include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf import settings
@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from auction.views import CarAuctionView, auction_view, create_auction
-from general.views import register, sign_in, logout_view, profile_view
+from general.views import register, sign_in, logout_view, profile_view, activate
 from news.views import news_list_all, news_view
 from showbill.views import CarView, create_advert, advert_view
 
@@ -39,6 +39,8 @@ urlpatterns = [
     path('auction/', CarAuctionView.as_view(), name="auction"),
     path("details/<int:auction_id>/", auction_view, name="auction_details"),
     path('auction/add/', create_auction, name="add_auction"),
+    path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',
+         activate, name='activate'),
 ]
 
 if settings.DEBUG:
