@@ -1,6 +1,6 @@
 body {
-    background-color: #355C7D;
-    font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+    background-color: #C29287;
+    font-family: Bookman, "URW Bookman L", serif;
 }
 
 .news .news-item {
@@ -29,7 +29,7 @@ body {
     max-height: 570px;
     min-height: 570px;
     margin-bottom: 30px;
-    background-color: #919aa3;
+    background-color: #C6B9B7;
     border-radius: 20px;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
 }
