@@ -22,16 +22,16 @@ class TestAuctions:
         model = CarModelAuction.objects.create(car_mark=mark, car_model="test")
         car = CarAuction.objects.create(mark=mark, model=model, year=random.randint(1800, 2022))
         Auction.objects.create(car=car, engine_type="Test", engine_capacity=random.randint(1, 10),
-                               drive="No type",  gear_box="No type", description="Test",
+                               drive="No type", gear_box="No type", description="Test",
                                price=random.randrange(9999999999999), owner=user,
                                phone_number=random.randrange(9999999), date_start=timezone.now(),
-                               date_end=timezone.now()+datetime.timedelta(days=1),
+                               date_end=timezone.now() + datetime.timedelta(days=1),
                                )
 
         client.force_login(user)
 
-        response = client.get("/auction/add")
-        assert response.status_code == 301
+        response = client.get("/auction/")
+        assert response.status_code == 200
 
-        response = client.get("/auction")
+        response = client.get("/auction/add")
         assert response.status_code == 301
