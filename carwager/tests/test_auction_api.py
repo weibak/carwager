@@ -10,7 +10,7 @@ from auction.models import Auction, CarAuction, CarModelAuction, CarMarkAuction
 
 
 @pytest.mark.django_db
-class TestAuctions:
+class TestAuctionsAPI:
     def test_auctions_view(self):
         client = Client()
 
