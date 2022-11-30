@@ -6,7 +6,5 @@ from showbill.models import Advert
 class AdvertModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Advert
-        fields = ["id", "win", "image", "description",
-                  "price", "price_usd", "created_at"]
-        read_only_fields = ("id", "win", "image", "description",
-                            "price", "price_usd", "created_at")
+        fields = ["id", "car_id", "engine_type", "engine_capacity", "drive", "gear_box", "description", "win", "image",
+                  "price", "price_usd", "phone_number", "created_at"]

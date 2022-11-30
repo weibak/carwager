@@ -23,15 +23,15 @@ class CarView(TemplateView):
             price__gt = filters_form.cleaned_data["price__gt"]
             price__lt = filters_form.cleaned_data["price__lt"]
             mark = filters_form.cleaned_data["mark"]
-            order_by = filters_form.cleaned_data["order_by"]
+            order_price = filters_form.cleaned_data["order_price"]
             engine_type = filters_form.cleaned_data["engine_type"]
             gear_box = filters_form.cleaned_data["gear_box"]
             drive = filters_form.cleaned_data["drive"]
-            adverts = filter_cars(adverts, price__gt, price__lt, order_by, engine_type, gear_box, drive, mark)
+            adverts = filter_cars(adverts, price__gt, price__lt, order_price, engine_type, gear_box, drive, mark)
 
         if car_date.is_valid():
-            order_by = car_date.cleaned_data["order_by"]
-            adverts = filter_adverts(adverts, order_by)
+            order_date = car_date.cleaned_data["order_date"]
+            adverts = filter_adverts(adverts, order_date)
 
         paginator = Paginator(adverts, 30)
         page_number = "page"

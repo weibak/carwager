@@ -13,7 +13,7 @@ class AdvertViewSet(viewsets.ModelViewSet):
 
     queryset = Advert.objects.all().order_by("-created_at")
     serializer_class = AdvertModelSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

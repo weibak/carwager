@@ -25,13 +25,13 @@ class CarAuctionView(TemplateView):
         if filters_form.is_valid():
             price__gt = filters_form.cleaned_data["price__gt"]
             price__lt = filters_form.cleaned_data["price__lt"]
-            order_by = filters_form.cleaned_data["order_by"]
+            order_price = filters_form.cleaned_data["order_price"]
             engine_type = filters_form.cleaned_data["engine_type"]
             gear_box = filters_form.cleaned_data["gear_box"]
             drive = filters_form.cleaned_data["drive"]
             status = filters_form.cleaned_data["status"]
             auctions = filter_cars_auction(
-                auctions, price__gt, price__lt, order_by, engine_type, gear_box, drive, status
+                auctions, price__gt, price__lt, order_price, engine_type, gear_box, drive, status
             )
 
         paginator = Paginator(auctions, 30)
@@ -48,7 +48,7 @@ def create_auction(request, *args, **kwargs):
             form_car = CarAuctionForm(request.POST)
             now = str(timezone.now())  # time to compare statuses
             if form_car.is_valid():
-                car = CarAuction.objects.create(**form_car.cleaned_data)
+                car, _ = CarAuction.objects.get_or_create(mark=form_car.cleaned_data["mark"], **form_car.cleaned_data)
                 if form.is_valid():
                     # take status to auction advert
                     status = ""

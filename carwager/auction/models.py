@@ -4,6 +4,7 @@ from showbill.models import ENGINE_TYPE, GEAR_BOX, DRIVE
 
 
 STATUS_AUC = (
+    ('', ""),
     ("go", "Auction going "),
     ("soon", "Soon"),
     ("stop", "Auction ended")

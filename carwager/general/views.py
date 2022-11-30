@@ -2,12 +2,12 @@ import logging
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
-from django.urls import reverse_lazy
+# from django.urls import reverse_lazy
 
 from auction.models import Bid, Auction
 from general.forms import RegisterForm, AuthForm
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, CreateView, UpdateView
+# from django.views.generic import TemplateView, CreateView, UpdateView
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout, get_user_model

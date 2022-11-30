@@ -13,4 +13,4 @@ class NewViewSet(viewsets.ModelViewSet):
 
     queryset = News.objects.all().order_by("-created_at")
     serializer_class = NewsModelSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
