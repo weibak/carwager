@@ -31,7 +31,7 @@ class CarAuctionView(TemplateView):
             drive = filters_form.cleaned_data["drive"]
             status = filters_form.cleaned_data["status"]
             auctions = filter_cars_auction(
-                auctions, price__gt, price__lt, order_price, engine_type, gear_box, drive, status
+                auctions,  price__gt, price__lt, order_price, engine_type, drive, gear_box, status
             )
 
         paginator = Paginator(auctions, 30)

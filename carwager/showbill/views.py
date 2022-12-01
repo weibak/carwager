@@ -27,7 +27,7 @@ class CarView(TemplateView):
             engine_type = filters_form.cleaned_data["engine_type"]
             gear_box = filters_form.cleaned_data["gear_box"]
             drive = filters_form.cleaned_data["drive"]
-            adverts = filter_cars(adverts, price__gt, price__lt, order_price, engine_type, gear_box, drive, mark)
+            adverts = filter_cars(adverts, price__gt, price__lt, order_price, mark, engine_type, drive, gear_box)
 
         if car_date.is_valid():
             order_date = car_date.cleaned_data["order_date"]

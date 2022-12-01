@@ -12,11 +12,11 @@ def filter_cars(cars, price__gt, price__lt, order_price, mark, engine_type, driv
             cars = cars.order_by("-price")
     if mark:
         if mark == "bmw":
-            cars = cars.filter(mark="bmw")
+            cars = cars.filter(car__mark=1)
         if mark == "merc":
-            cars = cars.filter(mark="merc")
+            cars = cars.filter(car__mark=2)
         if mark == "toyo":
-            cars = cars.car_mark.filter(mark="toyo")
+            cars = cars.filter(car__mark=3)
     if engine_type:
         if engine_type == "petr":
             cars = cars.filter(engine_type="petr")

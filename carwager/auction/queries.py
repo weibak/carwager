@@ -18,18 +18,18 @@ def filter_cars_auction(cars, price__gt, price__lt, order_price, engine_type, dr
         if engine_type == "elec":
             cars = cars.filter(engine_type="elec")
     if drive:
-        if engine_type == "fwd":
+        if drive == "fwd":
             cars = cars.filter(drive="fwd")
-        if engine_type == "rwd":
+        if drive == "rwd":
             cars = cars.filter(drive="rwd")
-        if engine_type == "awd":
+        if drive == "awd":
             cars = cars.filter(drive="awd")
-        if engine_type == "4wd":
+        if drive == "4wd":
             cars = cars.filter(drive="4wd")
     if gear_box:
-        if engine_type == "auto":
+        if gear_box == "auto":
             cars = cars.filter(gear_box="auto")
-        if engine_type == "man":
+        if gear_box == "man":
             cars = cars.filter(gear_box="man")
     if status:
         if status == "go":
