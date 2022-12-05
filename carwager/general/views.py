@@ -159,12 +159,12 @@ def profile_view(request):
     auc_filter_form = AdvertFiltersForm(request.GET)
 
     if filters_form.is_valid():
-        order_by = filters_form.cleaned_data["order_by"]
-        cars = filter_adverts(cars, order_by)
+        order_date = filters_form.cleaned_data["order_date"]
+        cars = filter_adverts(cars, order_date)
 
     if auc_filter_form.is_valid():
-        order_by = auc_filter_form.cleaned_data["order_by"]
-        auctions = filter_adverts(auctions, order_by)
+        order_date = auc_filter_form.cleaned_data["order_date"]
+        auctions = filter_adverts(auctions, order_date)
 
     return render(
         request,
