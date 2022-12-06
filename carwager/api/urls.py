@@ -2,7 +2,7 @@
 
 from django.urls import include, path, re_path
 from rest_framework import routers
-from api.showbill.views import AdvertViewSet
+from api.showbill.views import AdvertViewSet, CarViewSet
 from api.auction.views import AuctionViewSet
 from api.news.views import NewViewSet
 from api.users.views import UserCreateView, UserLoginView, UserLogoutView, UserViewSet
@@ -14,6 +14,7 @@ router.register(r"adverts", AdvertViewSet, basename="adverts")
 router.register(r"auctions", AuctionViewSet, basename="auctions")
 router.register(r"news", NewViewSet, basename="news")
 router.register(r"users", UserViewSet, basename="users")
+router.register(r"cars", CarViewSet, basename="cars")
 
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
     path("login/", UserLoginView.as_view(), name="login"),
     path("logout/", UserLogoutView.as_view(), name="logout"),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    # path("cars/", CarViewSet.as_view({"get": ""}), name="cars")
 ]

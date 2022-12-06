@@ -72,7 +72,7 @@ class Car(models.Model):
     )
 
     def __str__(self):
-        return f"{self.mark.car_mark} - {self.model.car_model}"
+        return f"{self.mark.car_mark} - {self.model.car_model} - {self.year}"
 
 
 class Advert(models.Model):
