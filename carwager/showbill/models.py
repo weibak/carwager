@@ -56,7 +56,7 @@ class CarModel(models.Model):
     car_model = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
-        return f"{self.car_mark} - {self.car_model}"
+        return f"{self.car_mark.car_mark} - {self.car_model}"
 
 
 class Car(models.Model):

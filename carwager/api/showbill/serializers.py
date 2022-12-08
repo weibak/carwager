@@ -6,29 +6,30 @@ from showbill.models import Advert, Car, CarModel, CarMark
 class MarkModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarMark
-        fields = ["id"]
+        fields = ["car_mark"]
 
 
 class ModelModelSerializer(serializers.ModelSerializer):
-    mark = MarkModelSerializer(source="*")
+    mark = MarkModelSerializer(source="car_mark")
 
     class Meta:
         model = CarModel
-        fields = ["mark", "id"]
+        fields = ["mark", "car_model"]
 
 
 class CarModelSerializer(serializers.ModelSerializer):
-    car_model = ModelModelSerializer(source='*')
+    mark = ModelModelSerializer
+    car_model = ModelModelSerializer(source="model")
 
     class Meta:
         model = Car
-        fields = ["id", "car_model", "year"]
+        fields = ["year", "car_model"]
 
 
 class AdvertModelSerializer(serializers.HyperlinkedModelSerializer):
-    car = CarModelSerializer(source='*')
+    car_ = CarModelSerializer(source="car")
 
     class Meta:
         model = Advert
-        fields = ["id", "car", "engine_type", "engine_capacity", "drive", "gear_box", "description", "win", "image",
+        fields = ["car_", "engine_type", "engine_capacity", "drive", "gear_box", "description", "win", "image",
                   "price", "price_usd", "phone_number", "created_at"]
