@@ -9,7 +9,7 @@ from showbill.models import Advert, Car, CarModel, CarMark
 
 @pytest.mark.django_db
 class TestAdvertsAPI:
-    def test_auctions_view(self):
+    def test_advert_view(self):
         client = Client()
 
         user = User.objects.create(
