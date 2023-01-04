@@ -63,3 +63,4 @@ services:
       - POSTGRES_HOST=postgres
     command: |
       python manage.py rqscheduler default
+      

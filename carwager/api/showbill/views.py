@@ -2,9 +2,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from django_filters import FilterSet, NumberFilter
 from rest_framework import filters as rest_filters
-from rest_framework.generics import ListAPIView
-from rest_framework.response import Response
-
 from api.showbill.serializers import AdvertModelSerializer, CarModelSerializer
 from showbill.models import Advert, Car
 # from rest_framework.permissions import IsAuthenticated
@@ -51,7 +48,7 @@ class AdvertViewSet(viewsets.ModelViewSet):
     ordering_fields = ["car", "price"]
 
     def get_queryset(self):
-        queryset = Advert.objects.all()
+        queryset = Advert.objects.order_by("-id").all()
         mark = self.request.query_params.get("mark")
         if mark is not None:
             queryset = queryset.filter(car__mark__car_mark=mark)
@@ -59,23 +56,3 @@ class AdvertViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-
-
-"""
-class CombineListView(viewsets.GenericViewSet):
-    serializer_class_Car = CarModelSerializer
-    serializer_class_Advert = AdvertModelSerializer
-
-    def get_queryset_Cars(self):
-        return Car.objects.all()
-
-    def get_queryset_Adverts(self):
-        return Advert.objects.all()
-
-    def list(self, request, *args, **kwargs):
-        car = self.serializer_class_Car(self.get_queryset_Cars(), many=True)
-        advert = self.serializer_class_Advert(self.get_queryset_Adverts(), many=True)
-        return Response({
-            "Adverts": advert.data["car": car.data]
-        })
-"""
