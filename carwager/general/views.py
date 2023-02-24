@@ -22,44 +22,8 @@ logger = logging.getLogger(__name__)
 
 account_activation_token = PasswordResetTokenGenerator
 
-"""
-class RegisterView(UpdateView):
-    template_name = "register.html"
-    success_url = reverse_lazy("login")
 
-    def get_context_data(self, **response_kwargs,):
-
-        form = RegisterForm(self.request.POST)
-        if form.is_valid():
-            logger.info(form.cleaned_data)
-            user = User(
-                username=form.cleaned_data["username"],
-                email=form.cleaned_data["email"],
-                first_name=form.cleaned_data["first_name"],
-                last_name=form.cleaned_data["last_name"],
-            )
-            user.set_password(form.cleaned_data["password"])
-            user.is_active = False
-            user.save()
-            # to get the domain of the current site
-            current_site = get_current_site(self.request)
-            mail_subject = 'Activation link has been sent to your email id'
-            token_generator = PasswordResetTokenGenerator()
-            message = render_to_string('acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': token_generator.make_token(user),
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
-            )
-            email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
-        return {"form": form}"""
-
-
+# user registry in our up
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -96,6 +60,7 @@ def register(request):
     return render(request, "register.html", {"form": form})
 
 
+# activate user's account, take token from register function
 def activate(request, uidb64, token):
     User = get_user_model()
     token_cheker = PasswordResetTokenGenerator()
@@ -112,6 +77,7 @@ def activate(request, uidb64, token):
         return HttpResponse('Activation link is invalid!')
 
 
+# sign user in profile
 def sign_in(request):
     if request.method == "POST":
         form = AuthForm(request.POST)
@@ -133,6 +99,7 @@ def sign_in(request):
     return render(request, "sign_in.html", {"form": form})
 
 
+# logout user from system
 def logout_view(request):
     logout(request)
     return render(
@@ -141,6 +108,7 @@ def logout_view(request):
     )
 
 
+# profile view, show user's profile
 def profile_view(request):
     if request.user.is_anonymous:
         return redirect("auth")
