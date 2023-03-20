@@ -102,8 +102,7 @@
                         {% for favorite_auction in favorite_auctions %}
                         <tr>
                             <td>
-                                <a href="{% url 'auction_details' favorite_auction.id %}">{{ favorite_auction.car.mark
-                                    }}
+                                <a href="{% url 'auction_details' favorite_auction.id %}">{{ favorite_auction.car.mark }}
                                     - {{ favorite_auction.car.model.car_model }}</a></td>
                             <td>{{ favorite_auction.price }} BYN</td>
                             <td>{{ favorite_auction.date_start }}</td>
