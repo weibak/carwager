@@ -2,8 +2,6 @@ import pytest
 import requests
 import logging
 from django.test import Client
-from showbill.models import Advert, Car, CarModel, CarMark
-from showbill.models import CAR_MARK, ENGINE_TYPE, DRIVE, GEAR_BOX
 
 logger = logging.getLogger(__name__)
 
