@@ -1,138 +1,141 @@
 {% extends "base.html" %}
 {% load i18n static crispy_forms_filters %}
 {% block content %}
-    <br>
-    <div class="container">
-        <div class="page-content page-container" id="page-content">
-            <div class="padding">
-                <div class="row container d-flex justify-content-center">
-                    <div class="col-xl-12 col-md-14">
-                        <div class="card user-card-full">
-                            <div class="row m-l-0 m-r-0">
-                                <div class="col-sm-4 bg-c-lite-green user-profile">
-                                    <div class="card-block text-center text-white">
-                                        <h6 class="f-w-600"> {{ user.first_name }} {{ user.last_name }}</h6>
-                                    </div>
+<br>
+<div class="container">
+    <div class="page-content page-container" id="page-content">
+        <div class="padding">
+            <div class="row container d-flex justify-content-center">
+                <div class="col-xl-12 col-md-14">
+                    <div class="card user-card-full">
+                        <div class="row m-l-0 m-r-0">
+                            <div class="col-sm-4 bg-c-lite-green user-profile">
+                                <div class="card-block text-center text-white">
+                                    <h6 class="f-w-600"> {{ user.first_name }} {{ user.last_name }}</h6>
                                 </div>
-                                <div class="col-sm-8">
-                                    <div class="card-block">
-                                        <h6 class="m-b-20 p-b-5 b-b-default f-w-600">Information</h6>
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <p class="m-b-10 f-w-600">Email</p>
-                                                <h6 class="text-muted f-w-400">{{ user.email }}</h6>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p class="m-b-10 f-w-600">Register at </p>
-                                                <h6 class="text-muted f-w-400">{{ user.date_joined }}</h6>
-                                            </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="card-block">
+                                    <h6 class="m-b-20 p-b-5 b-b-default f-w-600">Information</h6>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <p class="m-b-10 f-w-600">Email</p>
+                                            <h6 class="text-muted f-w-400">{{ user.email }}</h6>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="m-b-10 f-w-600">Register at </p>
+                                            <h6 class="text-muted f-w-400">{{ user.date_joined }}</h6>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-3">
-                        <div class="filters-form mb-4">
-                            <h3>{% translate "Filters" %}</h3>
-                            <form class="form-inline">
-                                {{ filters_form|crispy }}
-                                <button type="submit" class="save btn btn-primary">{% translate "Search" %}</button>
-                            </form>
-                        </div>
+                </div>
+                <div class="col-3">
+                    <div class="filters-form mb-4">
+                        <h3>{% translate "Filters" %}</h3>
+                        <form class="form-inline">
+                            {{ filters_form|crispy }}
+                            <button type="submit" class="save btn btn-primary">{% translate "Search" %}</button>
+                        </form>
                     </div>
-                    <div class="user-adverts">
-                        <h1>Your adverts</h1>
-                        <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                               class="table">
-                            <tr>
-                                <th>Car</th>
-                                <th>Price</th>
-                                <th>Year</th>
-                                <th>Date</th>
-                            </tr>
-                            {% for advert in adverts %}
-                                <tr>
-                                    <td><a href="{% url 'car_details' advert.id %}">{{ advert.car.mark }}
-                                        - {{ advert.car.model.car_model }}</a></td>
-                                    <td>{{ advert.price }} BYN | {{ advert.price_usd }}</td>
-                                    <td>{{ advert.car.year }}</td>
-                                    <td>{{ advert.created_at }}</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <div class="user-bids">
-                        <h1>Your bids in auction</h1>
-                        <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                               class="table">
-                            <tr>
-                                <th>Car</th>
-                                <th>Current price</th>
-                                <th>Bid</th>
-                                <th>Bid at</th>
-                                <th>Started at</th>
-                                <th>Date end</th>
-                            </tr>
-                            {% for auction in auctions %}
-                                <tr>
-                                    <td><a href="{% url 'auction_details' auction.id %}">{{ auction.auction.car.mark }}
-                                        - {{ auction.auction.car.model.car_model }}</a></td>
-                                    <td>{{ auction.auction.price }} BYN</td>
-                                    <td>{{ auction.bid }}</td>
-                                    <td>{{ auction.created_at }}</td>
-                                    <td>{{ auction.auction.date_start }}</td>
-                                    <td>{{ auction.auction.date_end }}</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <div class="favorite-auctions">
-                        <h1>Your favorite auctions</h1>
-                        <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                               class="table">
-                            <tr>
-                                <th>Car</th>
-                                <th>Current price</th>
-                                <th>Started at</th>
-                                <th>Date end</th>
-                            </tr>
-                            {% for favorite_auction in favorite_auctions %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'auction_details' favorite_auction.id %}">{{ favorite_auction.car.mark }}
-                                            - {{ favorite_auction.car.model.car_model }}</a></td>
-                                    <td>{{ favorite_auction.price }} BYN</td>
-                                    <td>{{ favorite_auction.date_start }}</td>
-                                    <td>{{ favorite_auction.date_end }}</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <div class="favorite-adverts">
-                        <h1>Your favorite adverts</h1>
-                        <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                               class="table">
-                            <tr>
-                                <th>Car</th>
-                                <th>Price</th>
-                                <th>Year</th>
-                                <th>Date</th>
-                            </tr>
-                            {% for favorite_advert in favorite_adverts %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'car_details' favorite_advert.id %}">{{ favorite_advert.car.mark }}
-                                            - {{ favorite_advert.car.model.car_model }}</a></td>
-                                    <td>{{ favorite_advert.price }} BYN</td>
-                                    <td>{{ favorite_advert.car.year }}</td>
-                                    <td>{{ favorite_advert.created_at }}</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
+                </div>
+                <div class="user-adverts">
+                    <h1>Your adverts</h1>
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                           class="table">
+                        <tr>
+                            <th>Car</th>
+                            <th>Price</th>
+                            <th>Year</th>
+                            <th>Date</th>
+                        </tr>
+                        {% for advert in adverts %}
+                        <tr>
+                            <td><a href="{% url 'car_details' advert.id %}">{{ advert.car.mark }}
+                                - {{ advert.car.model.car_model }}</a></td>
+                            <td>{{ advert.price }} BYN | {{ advert.price_usd }}</td>
+                            <td>{{ advert.car.year }}</td>
+                            <td>{{ advert.created_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="user-bids">
+                    <h1>Your bids in auction</h1>
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                           class="table">
+                        <tr>
+                            <th>Car</th>
+                            <th>Current price</th>
+                            <th>Bid</th>
+                            <th>Bid at</th>
+                            <th>Started at</th>
+                            <th>Date end</th>
+                        </tr>
+                        {% for auction in auctions %}
+                        {% if auction.date_end < time%}
+                        <tr>
+                            <td><a href="{% url 'auction_details' auction.id %}">{{ auction.auction.car.mark }}
+                                - {{ auction.auction.car.model.car_model }}</a></td>
+                            <td>{{ auction.auction.price }} BYN</td>
+                            <td>{{ auction.bid }}</td>
+                            <td>{{ auction.created_at }}</td>
+                            <td>{{ auction.auction.date_start }}</td>
+                            <td>{{ auction.auction.date_end }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="favorite-auctions">
+                    <h1>Your favorite auctions</h1>
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                           class="table">
+                        <tr>
+                            <th>Car</th>
+                            <th>Current price</th>
+                            <th>Started at</th>
+                            <th>Date end</th>
+                        </tr>
+                        {% for favorite_auction in favorite_auctions %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'auction_details' favorite_auction.id %}">{{ favorite_auction.car.mark
+                                    }}
+                                    - {{ favorite_auction.car.model.car_model }}</a></td>
+                            <td>{{ favorite_auction.price }} BYN</td>
+                            <td>{{ favorite_auction.date_start }}</td>
+                            <td>{{ favorite_auction.date_end }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="favorite-adverts">
+                    <h1>Your favorite adverts</h1>
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                           class="table">
+                        <tr>
+                            <th>Car</th>
+                            <th>Price</th>
+                            <th>Year</th>
+                            <th>Date</th>
+                        </tr>
+                        {% for favorite_advert in favorite_adverts %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'car_details' favorite_advert.id %}">{{ favorite_advert.car.mark }}
+                                    - {{ favorite_advert.car.model.car_model }}</a></td>
+                            <td>{{ favorite_advert.price }} BYN</td>
+                            <td>{{ favorite_advert.car.year }}</td>
+                            <td>{{ favorite_advert.created_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

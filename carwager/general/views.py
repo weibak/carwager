@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -123,6 +124,7 @@ def profile_view(request):
     logger.info(f"Bids of {request.user}: {auctions}")
     filters_form = AdvertFiltersForm(request.GET)
     auc_filter_form = AdvertFiltersForm(request.GET)
+    time = datetime.datetime.now()
 
     if filters_form.is_valid():
         order_date = filters_form.cleaned_data["order_date"]
@@ -142,5 +144,6 @@ def profile_view(request):
             "auc_filters_form": auc_filter_form,
             "favorite_auctions": favorite_auctions,
             "favorite_adverts": favorite_adverts,
+            "time": time,
         },
     )
