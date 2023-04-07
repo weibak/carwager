@@ -11,6 +11,7 @@ from showbill.queries import filter_cars, filter_adverts
 logger = logging.getLogger(__name__)
 
 
+# view for show all adverts on the showbill
 class CarView(TemplateView):
     template_name = "showbill/car_list.html"
 
@@ -32,7 +33,7 @@ class CarView(TemplateView):
         if car_date.is_valid():
             order_date = car_date.cleaned_data["order_date"]
             adverts = filter_adverts(adverts, order_date)
-
+        # settings of page size
         paginator = Paginator(adverts, 30)
         page_number = "page"
         adverts = paginator.get_page(page_number)
@@ -61,6 +62,7 @@ def create_advert(request, *args, **kwargs):
         return redirect("auth")
 
 
+# show current advert
 def advert_view(request, advert_id):
     advert = get_object_or_404(Advert, id=advert_id)
     if request.method == "POST":

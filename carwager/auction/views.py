@@ -21,7 +21,7 @@ class CarAuctionView(TemplateView):
     def get_context_data(self, **kwargs, ):
         auctions = Auction.objects.all()
         filters_form = AuctionFiltersForm(self.request.GET)
-
+        # validate filter form
         if filters_form.is_valid():
             price__gt = filters_form.cleaned_data["price__gt"]
             price__lt = filters_form.cleaned_data["price__lt"]
@@ -33,7 +33,7 @@ class CarAuctionView(TemplateView):
             auctions = filter_cars_auction(
                 auctions,  price__gt, price__lt, order_price, engine_type, drive, gear_box, status
             )
-
+        # settings of page size
         paginator = Paginator(auctions, 30)
         page_number = "page"
         auctions = paginator.get_page(page_number)
