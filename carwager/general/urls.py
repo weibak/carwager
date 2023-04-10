@@ -19,7 +19,7 @@ from django.urls import path, include
 
 from auction.views import CarAuctionView, auction_view, create_auction
 from general.views import register, sign_in, logout_view, profile_view, activate
-from news.views import news_list_all, news_view
+from news.views import news_list_all, news_view, create_new
 from showbill.views import CarView, create_advert, advert_view
 
 urlpatterns = [
@@ -33,6 +33,7 @@ urlpatterns = [
     path('showbill/', CarView.as_view(), name="showbill"),
     path('news/', news_list_all, name="news"),
     path('news/<str:slug>/', news_view, name="news_view"),
+    path('create_new', create_new, name="create_new"),
     path('profile/', profile_view, name="profile"),
     path("advert/<int:advert_id>", advert_view, name="car_details"),
     path('showbill/add/', create_advert, name="add_advert"),

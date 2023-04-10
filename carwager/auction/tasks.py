@@ -6,6 +6,7 @@ from auction.models import Auction, Winner
 logger = logging.getLogger(__name__)
 
 
+# function to update auctions statuses
 @job
 def run_status_update():
     auctions = Auction.objects.all()
@@ -24,6 +25,7 @@ def run_status_update():
             auction.save()
 
 
+# function to search winners in all auctions, where status is stop
 @job
 def search_winners():
     end_auctions = Auction.objects.filter(status="stop").all()
