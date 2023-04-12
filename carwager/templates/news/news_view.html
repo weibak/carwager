@@ -11,8 +11,11 @@
                     <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}">
                 {% endif %}
                 <div class="news-body">
-                    <h5 class="news-title">{{ news.title }}</h5>
-                    <p class="news-text">{{ news.text }}</p>
+                    <h4 class="news-title">{{ news.title }}</h4>
+                    <h5 class="news-text">{{ news.text }}</h5>
+                    <br>
+                    <br>
+                    <p class="news-date">Published: {{news.created_at}} </p>
                 </div>
             </div>
         </div>
