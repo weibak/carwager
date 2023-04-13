@@ -77,6 +77,17 @@ body {
     color: red;
 }
 
+.button {
+    background-color: #666666;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
 .user-card-full .user-profile {
     border-radius: 5px 0 0 5px;
 }

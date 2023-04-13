@@ -23,7 +23,9 @@
                 {{ new.text|cut_text:550 }}
               </p>
               <p class="post-link">
-                 <a href="{% url "news_view" new.slug %}">Go to post</a>
+                  <form action="{% url "news_view" new.slug %}" target="_blank">
+                    <button>Go to post</button>
+                  </form>
               </p>
             </div>
           </div>
