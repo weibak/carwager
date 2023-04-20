@@ -88,6 +88,11 @@ body {
     font-size: 16px;
 }
 
+.link {
+  color: #000 !important;
+  text-decoration: none
+}
+
 .user-card-full .user-profile {
     border-radius: 5px 0 0 5px;
 }
