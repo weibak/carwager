@@ -1,8 +1,9 @@
 {% load static %}
 {% load text_tags%}
 
+<a class="link" href="{% url 'car_details' advert.id %}">
 <div class="card mb-4">
-    <div class="card-body" href="{% url 'car_details' advert.id %}">
+    <div class="card-body">
         <h5 class="card-title">{{ advert.car.mark }}</h5>
         <h5 class="card-title">{{ advert.car.model.car_model }} | {{ advert.car.year }}</h5>
         {% if advert.image %}
@@ -19,6 +20,7 @@
         {% endif %}
         <br>
         <p class="date"><strong>Date:</strong> {{ advert.created_at }}</p>
-        <a href="{% url 'car_details' advert.id %}" class="btn btn-primary">Details</a>
+        <!-- <a href="{% url 'car_details' advert.id %}" class="btn btn-primary">Details</a> -->
     </div>
 </div>
+</a>

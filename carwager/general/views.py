@@ -126,24 +126,24 @@ def profile_view(request):
     auc_filter_form = AdvertFiltersForm(request.GET)
     time = datetime.datetime.now()
 
-    if filters_form.is_valid():
-        order_date = filters_form.cleaned_data["order_date"]
-        cars = filter_adverts(cars, order_date)
-
-    if auc_filter_form.is_valid():
-        order_date = auc_filter_form.cleaned_data["order_date"]
-        auctions = filter_adverts(auctions, order_date)
-
     return render(
         request,
         "profile.html", {
             "user": user,
             "adverts": cars,
             "auctions": auctions[0:4],
-            "filters_form": filters_form,
-            "auc_filters_form": auc_filter_form,
             "favorite_auctions": favorite_auctions,
             "favorite_adverts": favorite_adverts,
             "time": time,
         },
     )
+
+
+
+"""    if filters_form.is_valid():
+        order_date = filters_form.cleaned_data["order_date"]
+        cars = filter_adverts(cars, order_date)
+
+    if auc_filter_form.is_valid():
+        order_date = auc_filter_form.cleaned_data["order_date"]
+        auctions = filter_adverts(auctions, order_date)"""

@@ -1,9 +1,9 @@
 {% load static %}
 {% load text_tags %}
-<a target="_blank" href="{% url 'auction_details' auction.id %}">
+
+<a class="link" href="{% url 'auction_details' auction.id %}">
     <div class="card mb-4">
         <div class="card-body">
-
             <h5 class="card-title">{{ auction.car.mark }}</h5>
             <h5 class="card-title">{{ auction.car.model.car_model }} | {{ auction.get_status_display }}</h5>
             {% if auction.image %}
@@ -12,8 +12,7 @@
             <img src="{% static 'no-image.jpg' %}" class="card-img-top mb-2" alt="No image">
             {% endif %}
             <h6 class="card-subtitle"><strong>Current price:</strong> {{ auction.price }} BYN</h6>
-            <p class="card-engine"><strong>Engine:</strong> {{ auction.get_engine_type_display }} - {{
-                auction.get_engine_capacity_display }}l.</p>
+            <p class="card-engine"><strong>Engine:</strong> {{ auction.get_engine_type_display }} - {{auction.get_engine_capacity_display }}l.</p>
             <p class="card-transmission"><strong>Transmission:</strong> {{ auction.get_gear_box_display }}</p>
             <p class="card-drive"><strong>Drive:</strong> {{ auction.get_drive_display }}</p>
             {% if auction.description %}
@@ -21,10 +20,6 @@
             {% endif %}
             <p class="date"><strong>Date start:</strong> {{ auction.date_start }}</p>
             <p class="date"><strong>Date end:</strong> {{ auction.date_end }}</p>
-            <div class="bottom" aria-live="off">
-                <a href="{% url 'auction_details' auction.id %}" class="btn btn-primary">Details</a>
-            </div>
-
         </div>
     </div>
 </a>
