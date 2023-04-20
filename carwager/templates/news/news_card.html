@@ -1,0 +1,20 @@
+{% load static %}
+{% load text_tags%}
+
+<a class="link" href="{% url 'news_view' new.slug %}">
+          <div class="card">
+            <div class="image-container">
+              {% if new.image %}
+                <img src="{{ new.image.url }}" class="card-img-top img-thumbnail" alt="{{ new.title }}">
+              {% else %}
+                <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
+              {% endif %}
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">{{ new.title }}</h5>
+              <p class="news-text">
+                {{ new.text|cut_text:550 }}
+              </p>
+            </div>
+          </div>
+</a>

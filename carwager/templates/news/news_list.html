@@ -2,35 +2,16 @@
 {% load static crispy_forms_filters text_tags %}
 
 {% block content %}
-    <br>
-    <br>
+<br>
+<br>
   <div class="posts">
     <h1 class="my-4">Latest car news</h1>
-    <div class="row">
-      {% for new in news %}
-        <div class="col-6 post-item">
-          <div class="card">
-            <div class="image-container">
-              {% if new.image %}
-                <img src="{{ new.image.url }}" class="card-img-top img-thumbnail" alt="{{ new.title }}">
-              {% else %}
-                <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
-              {% endif %}
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">{{ new.title }}</h5>
-              <p class="news-text">
-                {{ new.text|cut_text:550 }}
-              </p>
-              <p class="post-link">
-                  <form action="{% url "news_view" new.slug %}" target="_blank">
-                    <button>Go to post</button>
-                  </form>
-              </p>
-            </div>
+      <div class="row">
+          {% for new in news %}
+          <div class="col-6 post-item">
+              {% include "news/news_card.html" %}
           </div>
-        </div>
-      {% endfor %}
+          {% endfor %}
+      </div>
     </div>
-  </div>
 {% endblock %}
