@@ -40,6 +40,7 @@ class CarView(TemplateView):
         return {"adverts": adverts, "filters_form": filters_form, "date_filter": car_date}
 
 
+# crete advert on showbill view
 def create_advert(request, *args, **kwargs):
     if request.user.is_authenticated:
         if request.method == "POST":
