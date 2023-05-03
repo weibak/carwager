@@ -48,7 +48,7 @@ def create_auction(request, *args, **kwargs):
             form_car = CarAuctionForm(request.POST)
             now = str(timezone.now())  # time to compare statuses
             if form_car.is_valid():
-                car, _ = CarAuction.objects.get_or_create(mark=form_car.cleaned_data["mark"], **form_car.cleaned_data)
+                car = CarAuction.objects.create(**form_car.cleaned_data)
                 if form.is_valid():
                     # take status to auction advert
                     status = ""
