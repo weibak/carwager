@@ -1,15 +1,18 @@
-FROM python:3.8-slim
+FROM python:3.10-slim
 
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends vim
-
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --trusted-host pypi.org --no-cache-dir --upgrade pip && \
-    pip install --trusted-host pypi.org --no-cache-dir -r /tmp/requirements.txt
-
-RUN apt-get autoremove -y --purge && \
-    apt-get clean -y
+    apt-get install -y --no-install-recommends vim gcc postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-CMD python manage.py runserver 0.0.0.0:8000
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
+
+COPY carwager/ /app/
+
+EXPOSE 8000
+
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 general.asgi:application"]

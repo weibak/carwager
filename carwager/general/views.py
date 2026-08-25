@@ -30,6 +30,9 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             logger.info(form.cleaned_data)
+            if User.objects.filter(username=form.cleaned_data["username"]).exists():
+                messages.error(request, "This username is already taken")
+                return redirect("auth")
             user = User(
                 username=form.cleaned_data["username"],
                 email=form.cleaned_data["email"],

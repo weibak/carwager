@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тест чата с аутентификацией</title>
+</head>
+<body>
+    <h1>Тестирование WebSocket чата</h1>
+    
+    <div>
+        <h3>Вход в систему:</h3>
+        <input type="text" id="username" placeholder="Имя пользователя">
+        <input type="password" id="password" placeholder="Пароль">
+        <button onclick="login()">Войти</button>
+        <button onclick="logout()">Выйти</button>
+    </div>
+    
+    <div id="chatSection" style="display: none;">
+        <h3>Чат:</h3>
+        <input type="number" id="advertId" value="1" placeholder="ID объявления">
+        <button onclick="connectWebSocket()">Подключиться к чату</button>
+        
+        <div id="chatContainer" style="display: none; margin-top: 20px;">
+            <div id="messages" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px;"></div>
+            <input type="text" id="messageInput" placeholder="Введите сообщение...">
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+    
+    <script>
+        let socket = null;
+        let csrfToken = '';
+        
+        // Получаем CSRF токен
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        csrfToken = getCookie('csrftoken');
+        
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const response = await fetch('/auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
+                },
+                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+            });
+            
+            if (response.ok) {
+                alert('Вход выполнен успешно!');
+                document.getElementById('chatSection').style.display = 'block';
+            } else {
+                alert('Ошибка входа');
+            }
+        }
+        
+        function logout() {
+            fetch('/logout/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            }).then(() => {
+                alert('Выход выполнен');
+                document.getElementById('chatSection').style.display = 'none';
+                if (socket) {
+                    socket.close();
+                }
+            });
+        }
+        
+        function connectWebSocket() {
+            const advertId = document.getElementById('advertId').value;
+            
+            if (socket) {
+                socket.close();
+            }
+            
+            socket = new WebSocket(`ws://localhost:8000/ws/chat/${advertId}/`);
+            
+            socket.onopen = function() {
+                console.log('✅ WebSocket подключен');
+                document.getElementById('chatContainer').style.display = 'block';
+                addMessage('Система', 'Вы подключились к чату');
+            };
+            
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                addMessage(data.sender_username, data.message);
+            };
+            
+            socket.onerror = function(error) {
+                console.error('❌ WebSocket ошибка:', error);
+                addMessage('Система', 'Ошибка подключения: ' + error.type);
+            };
+            
+            socket.onclose = function(event) {
+                console.log('🔌 WebSocket отключен, код:', event.code, 'причина:', event.reason);
+                addMessage('Система', `Соединение закрыто (код: ${event.code})`);
+            };
+        }
+        
+        function sendMessage() {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                alert('Соединение не установлено');
+                return;
+            }
+            
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                socket.send(JSON.stringify({message: message}));
+                input.value = '';
+            }
+        }
+        
+        function addMessage(sender, message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // Проверяем, авторизован ли пользователь
+        fetch('/api/users/me/', {
+            credentials: 'include'
+        }).then(response => {
+            if (response.ok) {
+                document.getElementById('chatSection').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

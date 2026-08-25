@@ -37,7 +37,6 @@ class AdvertViewSet(viewsets.ModelViewSet):
     serializer_class = AdvertModelSerializer
     logger.info(f"Serializer: {serializer_class}")
 
-    logger.info(f"Queryset: {queryset}")
     filter_backends = [
         rest_filters.SearchFilter,
         rest_filters.OrderingFilter,

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Чат - {{ advert }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h5>
+                            <small class="text-muted">Чат с {{ other_user.username }}</small>
+                        </div>
+                        <a href="{% url 'my_chats' %}" class="btn btn-sm btn-outline-secondary">← Назад</a>
+                    </div>
+                </div>
+                
+                <div id="connectionStatus" style="display: none;" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <span id="statusMessage">Подключение к чату...</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div class="card-body" id="messagesContainer" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1rem; background-color: #f8f9fa;">
+                    <div id="messages"></div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="messageInput" placeholder="Введите сообщение..." autocomplete="off" disabled>
+                        <button class="btn btn-primary" id="sendBtn" type="button" disabled>Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const chatRoomId = {{ chat_room.id }};
+const currentUserId = {{ request.user.id }};
+const currentUsername = "{{ request.user.username }}";
+const otherUsername = "{{ other_user.username }}";
+
+// Определяем протокол WebSocket
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const socket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat/${chatRoomId}/`);
+
+const messagesContainer = document.getElementById('messages');
+const messageInput = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
+const messagesDiv = document.getElementById('messagesContainer');
+const connectionStatus = document.getElementById('connectionStatus');
+const statusMessage = document.getElementById('statusMessage');
+
+socket.onopen = () => {
+    console.log('✅ WebSocket connected');
+    connectionStatus.style.display = 'none';
+    messageInput.disabled = false;
+    sendBtn.disabled = false;
+    loadChatHistory();
+};
+
+socket.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    console.log('📨 Received:', data);
+    
+    if (data.type === 'message') {
+        addMessageToUI(data);
+    } else if (data.type === 'system') {
+        console.log('System:', data.message);
+    }
+};
+
+socket.onerror = (error) => {
+    console.error('❌ WebSocket error:', error);
+    connectionStatus.style.display = 'block';
+    statusMessage.textContent = '⚠️ Ошибка подключения к чату. Попытка переподключения...';
+    messageInput.disabled = true;
+    sendBtn.disabled = true;
+};
+
+socket.onclose = () => {
+    console.log('🔌 WebSocket closed');
+    connectionStatus.style.display = 'block';
+    statusMessage.textContent = '⚠️ Соединение с чатом разорвано';
+    messageInput.disabled = true;
+    sendBtn.disabled = true;
+};
+
+function loadChatHistory() {
+    // Получаем сообщения с сервера
+    fetch(`/chat/api/rooms/${chatRoomId}/messages/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.messages) {
+                data.messages.forEach(msg => {
+                    addMessageToUI(msg);
+                });
+                scrollToBottom();
+            }
+        })
+        .catch(error => console.error('Error loading chat history:', error));
+}
+
+function addMessageToUI(message) {
+    const messageDiv = document.createElement('div');
+    const isCurrentUser = message.sender_id == currentUserId;
+    
+    // Используем 'content' из API или 'message' из WebSocket
+    const messageText = message.content || message.message;
+    
+    messageDiv.className = `mb-2 ${isCurrentUser ? 'text-end' : ''}`;
+    messageDiv.innerHTML = `
+        <div class="d-inline-block ${isCurrentUser ? 'bg-primary text-white' : 'bg-light'} rounded p-2" style="max-width: 70%;">
+            <small class="d-block fw-bold">${isCurrentUser ? 'Вы' : message.sender_username}</small>
+            <div>${escapeHtml(messageText)}</div>
+            <small class="d-block opacity-75 mt-1">${formatTime(message.timestamp)}</small>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function sendMessage() {
+    const message = messageInput.value.trim();
+    if (message && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            message: message
+        }));
+        messageInput.value = '';
+        messageInput.focus();
+    }
+}
+
+function scrollToBottom() {
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function formatTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) {
+        return 'только что';
+    } else if (diff < 3600000) {
+        const minutes = Math.floor(diff / 60000);
+        return `${minutes} мин назад`;
+    } else if (diff < 86400000) {
+        const hours = Math.floor(diff / 3600000);
+        return `${hours} ч назад`;
+    } else {
+        return date.toLocaleString('ru-RU');
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+sendBtn.addEventListener('click', sendMessage);
+messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+// Загружаем сообщения при загрузке страницы
+document.addEventListener('DOMContentLoaded', loadChatHistory);
+</script>
+{% endblock %}

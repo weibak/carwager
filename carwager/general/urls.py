@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from auction.views import CarAuctionView, auction_view, create_auction
+from chat.views import simple_chat
 from general.views import register, sign_in, logout_view, profile_view, activate
 from news.views import news_list_all, news_view, create_new
 from showbill.views import CarView, create_advert, advert_view
@@ -42,6 +43,8 @@ urlpatterns = [
     path('auction/add/', create_auction, name="add_auction"),
     path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',
          activate, name='activate'),
+    path('chat/', include('chat.urls')),
+
 ]
 
 if settings.DEBUG:

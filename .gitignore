@@ -8,3 +8,4 @@ database.sql
 __pycache__/
 *.py[cod]
 *$py.class
+.env

@@ -26,12 +26,19 @@ SECRET_KEY = 'django-insecure-x47s268xj7f(5)-otz^_4+e*&bto6r6g_)nop5p$j4^ayf^aia
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["https://carwager.herokuapp.com", "http://127.0.0.1"]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://0.0.0.0:8080",
+    "https://carwager.herokuapp.com",
+    "http://127.0.0.1",
+]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',  # Добавьте это
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,6 +55,7 @@ INSTALLED_APPS = [
     "news",
     "general",
     "auction",
+    "chat",  # новое приложение для чата
 ]
 
 MIDDLEWARE = [
@@ -59,6 +67,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
 
 ROOT_URLCONF = 'general.urls'
 
@@ -79,6 +96,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'general.wsgi.application'
+ASGI_APPLICATION = "general.asgi.application"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
@@ -160,11 +178,12 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-
-# STATIC_ROOT = BASE_DIR / "static"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+# Static files (CSS, JavaScript, Images)
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
+# Media files (Uploads)
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 

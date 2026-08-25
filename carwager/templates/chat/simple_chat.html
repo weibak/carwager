@@ -1,0 +1,30 @@
+<!-- templates/chat/simple_chat.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Чат для объявления #{{ advert_id }}</title>
+</head>
+<body>
+    <h1>Чат для объявления #{{ advert_id }}</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput">
+    <button onclick="sendMessage()">Отправить</button>
+    
+    <script>
+        const socket = new WebSocket(`ws://localhost:8000/ws/chat/{{ advert_id }}/`);
+        
+        socket.onopen = () => console.log('Connected');
+        socket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            document.getElementById('messages').innerHTML += 
+                `<div><strong>${data.sender_username}:</strong> ${data.message}</div>`;
+        };
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            socket.send(JSON.stringify({message: input.value}));
+            input.value = '';
+        }
+    </script>
+</body>
+</html>

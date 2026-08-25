@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Мои чаты{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>💬 Мои чаты</h1>
+    
+    {% if chat_rooms %}
+        <div class="list-group mt-3">
+            {% for room in chat_rooms %}
+            <a href="{% url 'view_chat' room.id %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ room.advert.car.mark }} {{ room.advert.car.model.car_model }}</h5>
+                    <small>{{ room.updated_at|timesince }} назад</small>
+                </div>
+                <p class="mb-1">
+                    <strong>Собеседник:</strong> {{ room.other_user.username }}
+                    {% if room.unread_count > 0 %}
+                        <span class="badge bg-danger float-end">{{ room.unread_count }} новых</span>
+                    {% endif %}
+                </p>
+                {% if room.last_message %}
+                    <small class="text-muted">
+                        Последнее сообщение: {{ room.last_message.content|truncatechars:50 }}
+                    </small>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-3">
+            У вас пока нет активных чатов. Начните общение с другим пользователем на странице объявления!
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Автоматическое обновление списка чатов
+    setInterval(() => {
+        fetch('/chat/api/rooms/')
+            .then(response => response.json())
+            .then(data => {
+                // Можно обновлять список динамически
+                console.log('Chat rooms updated', data);
+            });
+    }, 30000); // Обновлять каждые 30 секунд
+</script>
+{% endblock %}
