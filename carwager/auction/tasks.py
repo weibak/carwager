@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 def run_status_update():
     auctions = Auction.objects.all()
     now = timezone.now()
-    logger.info("Update statuses...")
-    logger.info(now)
+    logger.info(f"Time: {now}. Update statuses...")
     for auction in auctions:
         if auction.date_start <= now <= auction.date_end:
             auction.status = "go"

@@ -1,121 +1,270 @@
-version: '3.9'
-
-networks:
-  carwager-network:
-    driver: bridge
-
 services:
+
   postgres:
     image: postgres:15-alpine
+    restart: unless-stopped
+
     environment:
-      POSTGRES_DB: carwager
-      POSTGRES_USER: carwager
-      POSTGRES_PASSWORD: carwager
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U carwager"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
       interval: 5s
       timeout: 3s
       retries: 5
+      start_period: 5s
+
     networks:
       - carwager-network
 
+
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
+
+    command: redis-server --appendonly yes
+
+    volumes:
+      - redis_data:/data
+
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
-    ports:
-      - "6379:6379"
+      start_period: 5s
+
+    networks:
+      - carwager-network
+
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    command: python manage.py migrate
+
+    environment:
+      DEBUG: "False"
+
+      POSTGRES_NAME: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASS: ${POSTGRES_PASS}
+      POSTGRES_HOST: postgres
+
+      REDIS_HOST: redis
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - carwager-network
+
+
+  collectstatic:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    command: python manage.py collectstatic --noinput
+
+    environment:
+      DEBUG: "False"
+
+      POSTGRES_NAME: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASS: ${POSTGRES_PASS}
+      POSTGRES_HOST: postgres
+
+      REDIS_HOST: redis
+
+    volumes:
+      - static_volume:/app/staticfiles
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
     networks:
       - carwager-network
 
 
   django:
-   build: .
-   command: sh -c "sleep 3 && python manage.py runserver 0.0.0.0:8000 && 
-            python manage.py run_status_update &&
-            python manage.py search_winners"
-   volumes:
-     - ./carwager/:/app/
-     - static_volume:/app/staticfiles
-     - media_volume:/app/media
-   depends_on:
-     postgres:
-       condition: service_healthy
-     redis:
-       condition: service_healthy
-   environment:
-     DEBUG: "True"
-     POSTGRES_NAME: carwager
-     POSTGRES_USER: carwager
-     POSTGRES_PASS: carwager
-     POSTGRES_HOST: postgres
-     REDIS_HOST: redis
-   expose:
-     - 8000
-   restart: on-failure
-   networks:
-     - carwager-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+    init: true
+
+    command:
+      [
+        "daphne",
+        "-b",
+        "0.0.0.0",
+        "-p",
+        "8000",
+        "general.asgi:application"
+      ]
+
+    environment:
+      DEBUG: "False"
+
+      POSTGRES_NAME: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASS: ${POSTGRES_PASS}
+      POSTGRES_HOST: postgres
+
+      REDIS_HOST: redis
+
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS}
+
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+
+    expose:
+      - "8000"
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+      collectstatic:
+        condition: service_completed_successfully
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    networks:
+      - carwager-network
+
 
   worker:
-   build: .
-   command: sh -c 'sleep 5 && python manage.py start_worker default'
-   volumes:
-     - ./carwager/:/app/
-   depends_on:
-     postgres:
-       condition: service_healthy
-     redis:
-       condition: service_healthy
-   environment:
-     POSTGRES_NAME: carwager
-     POSTGRES_USER: carwager
-     POSTGRES_PASS: carwager
-     POSTGRES_HOST: postgres
-     REDIS_HOST: redis
-   restart: on-failure
-   networks:
-     - carwager-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+    init: true
+
+    command:
+      [
+        "python",
+        "manage.py",
+        "start_worker",
+        "default"
+      ]
+
+    environment:
+      DEBUG: "False"
+
+      POSTGRES_NAME: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASS: ${POSTGRES_PASS}
+      POSTGRES_HOST: postgres
+
+      REDIS_HOST: redis
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+      redis:
+        condition: service_healthy
+
+    networks:
+      - carwager-network
+
 
   scheduler:
-   build: .
-   command: sh -c 'sleep 10 && python manage.py start_scheduler default'
-   volumes:
-     - ./carwager/:/app/
-   depends_on:
-     postgres:
-       condition: service_healthy
-     redis:
-       condition: service_healthy
-   environment:
-     POSTGRES_NAME: carwager
-     POSTGRES_USER: carwager
-     POSTGRES_PASS: carwager
-     POSTGRES_HOST: postgres
-     REDIS_HOST: redis
-   restart: on-failure
-   networks:
-     - carwager-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+    init: true
+
+    command: >
+      sh -c "
+      python manage.py run_status_update &&
+      python manage.py search_winners &&
+      python manage.py start_scheduler default
+      "
+
+    environment:
+      DEBUG: "False"
+
+      POSTGRES_NAME: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASS: ${POSTGRES_PASS}
+      POSTGRES_HOST: postgres
+
+      REDIS_HOST: redis
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+      redis:
+        condition: service_healthy
+
+    networks:
+      - carwager-network
+
 
   nginx:
     image: nginx:alpine
-    restart: always
+    restart: unless-stopped
+
     ports:
-     - "8080:80"
+      - "8080:80"
+
     volumes:
-     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-     - static_volume:/app/staticfiles:ro
-     - media_volume:/app/media:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+
     depends_on:
-     - django
+      django:
+        condition: service_healthy
+
     networks:
-     - carwager-network
+      - carwager-network
+
 
 volumes:
   postgres_data:
+  redis_data:
   static_volume:
   media_volume:
+
+
+networks:
+  carwager-network:
+    driver: bridge
