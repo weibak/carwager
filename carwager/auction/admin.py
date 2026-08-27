@@ -1,5 +1,5 @@
 from django.contrib import admin
-from auction.models import CarAuction, Auction, CarMarkAuction, CarModelAuction, Winner
+from auction.models import CarAuction, Auction, CarMarkAuction, CarModelAuction, Winner, Bid
 
 
 @admin.register(CarMarkAuction)
@@ -44,3 +44,9 @@ class AuctionAdmin(admin.ModelAdmin):
 class WinnerAdmin(admin.ModelAdmin):
     list_display = ("user", "auction")
     fields = ("user", "auction")
+
+@admin.register(Bid)
+class BidAdmin(admin.ModelAdmin):
+    list_display = ("user", "auction", "bid", "created_at")
+    fields = ("user", "auction", "bef_bid_price", "bid")
+    readonly_fields = ("created_at",)

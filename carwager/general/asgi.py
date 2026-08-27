@@ -10,12 +10,13 @@ django.setup()  # Важно: вызываем setup ДО импорта при�
 
 # Теперь импортируем routing
 import chat.routing
+import auction.routing
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(
         URLRouter(
-            chat.routing.websocket_urlpatterns
+            chat.routing.websocket_urlpatterns + auction.routing.websocket_urlpatterns
         )
     ),
 })

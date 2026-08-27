@@ -1,5 +1,9 @@
 version: '3.9'
 
+networks:
+  carwager-network:
+    driver: bridge
+
 services:
   postgres:
     image: postgres:15-alpine
@@ -14,6 +18,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - carwager-network
 
   redis:
     image: redis:7-alpine
@@ -24,10 +30,15 @@ services:
       retries: 5
     ports:
       - "6379:6379"
+    networks:
+      - carwager-network
 
 
   django:
    build: .
+   command: sh -c "sleep 3 && python manage.py runserver 0.0.0.0:8000 && 
+            python manage.py run_status_update &&
+            python manage.py search_winners"
    volumes:
      - ./carwager/:/app/
      - static_volume:/app/staticfiles
@@ -46,10 +57,13 @@ services:
      REDIS_HOST: redis
    expose:
      - 8000
+   restart: on-failure
+   networks:
+     - carwager-network
 
   worker:
    build: .
-   command: python manage.py rqworker default
+   command: sh -c 'sleep 5 && python manage.py start_worker default'
    volumes:
      - ./carwager/:/app/
    depends_on:
@@ -63,10 +77,13 @@ services:
      POSTGRES_PASS: carwager
      POSTGRES_HOST: postgres
      REDIS_HOST: redis
+   restart: on-failure
+   networks:
+     - carwager-network
 
   scheduler:
    build: .
-   command: python manage.py rqscheduler default
+   command: sh -c 'sleep 10 && python manage.py start_scheduler default'
    volumes:
      - ./carwager/:/app/
    depends_on:
@@ -80,6 +97,9 @@ services:
      POSTGRES_PASS: carwager
      POSTGRES_HOST: postgres
      REDIS_HOST: redis
+   restart: on-failure
+   networks:
+     - carwager-network
 
   nginx:
     image: nginx:alpine
@@ -93,7 +113,7 @@ services:
     depends_on:
      - django
     networks:
-     - default
+     - carwager-network
 
 volumes:
   postgres_data:

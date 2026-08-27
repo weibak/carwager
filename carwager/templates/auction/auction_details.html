@@ -5,7 +5,7 @@
 
 <br>
     <main class="auction-details">
-        <h1 class="my-4">{{ auction.car.mark }} {{ auction.car.model.car_model }} {{ time }}</h1>
+        <h1 class="my-4">{{ auction.car.mark }} {{ auction.car.model.car_model }}</h1>
         <div class="row">
             <div class="col-4">
                 {% if auction.image %}
@@ -15,7 +15,7 @@
                 {% endif %}
             </div>
             <div class="col-6">
-                <h3 class="mb-1">Current Price: {{ auction.price }} BYN</h3>
+                <h3 class="mb-1">Current Price: <span id="current-price">{{ auction.price }}</span> BYN</h3>
                 <h5 class="mb-1">{{ auction.get_status_display }}</h5>
                 <h8 class="mb-1">Started at: {{ auction.date_start }}</h8>
                 <br>
@@ -26,14 +26,13 @@
                 {% endif %}
                 {% if auction.status == "go" %}
                     {% if user.is_authenticated %}
-                        <meta http-equiv="refresh" content="5">
-                        <form method="post">
+                        <form id="bid-form" method="post">
                             {% csrf_token %}
                             <h7 class="mb-2">Auction bid</h7>
                             <div class="row">
                                 <div class="col-6">
                                     <div class="input-group mb-3">
-                                        <input name="bid" type="number" class="bid form-control" required minlength="1"
+                                        <input id="bid-amount" name="bid" type="number" class="bid form-control" required minlength="1"
                                                value="1" step="0.01" placeholder="Bid"
                                                aria-label="Bid"
                                                aria-describedby="bid">
@@ -44,6 +43,7 @@
                                 </div>
                             </div>
                         </form>
+                        <div id="bid-message" class="alert d-none"></div>
                     {% endif %}
                 {% endif %}
                 <h4 class="mb-3">Information: </h4>
@@ -80,7 +80,7 @@
             {% if auction.bids.exists %}
                 <div class="bids col-2">
                     <h3 class="mb-3">Users previously take a bid to this auction:</h3>
-                    <ul>
+                    <ul id="bids-list">
                         {% for bid in bids.all %}
                             <li>{{ bid.bid }} BYN by {{ bid.user.username }}
                                 at {{ bid.created_at }}</li>
@@ -90,4 +90,147 @@
             {% endif %}
         </div>
     </main>
+    
+    <script>
+        // WebSocket connection for real-time updates
+        const auctionId = {{ auction.id }};
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/ws/auction/${auctionId}/`;
+        
+        const auctionSocket = new WebSocket(wsUrl);
+        
+        auctionSocket.onopen = function(e) {
+            console.log('WebSocket connection established');
+        };
+        
+        auctionSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('WebSocket message received:', data);
+            
+            if (data.type === 'price_update') {
+                // Update current price
+                document.getElementById('current-price').textContent = data.new_price;
+                
+                // Show notification
+                showBidMessage(`New bid placed! Current price: ${data.new_price} BYN`, 'success');
+                
+                // Reset submitting flag (this comes from traditional form submission)
+                isSubmitting = false;
+            }
+            else if (data.type === 'bid_update') {
+                // Update current price
+                document.getElementById('current-price').textContent = data.new_price;
+                
+                // Add bid to bids list
+                const bidsList = document.getElementById('bids-list');
+                if (bidsList) {
+                    const newBidItem = document.createElement('li');
+                    newBidItem.textContent = `${data.bid_amount} BYN by ${data.user_username} just now`;
+                    bidsList.prepend(newBidItem);
+                }
+                
+                // Show notification
+                showBidMessage(`${data.user_username} placed a bid of ${data.bid_amount} BYN`, 'success');
+                
+                // Reset submitting flag
+                isSubmitting = false;
+            }
+            else if (data.type === 'bid_error') {
+                // Show error message
+                showBidMessage(data.message, 'danger');
+                
+                // Reset submitting flag
+                isSubmitting = false;
+                
+                // Check if this is a "bid outbid" error (price changed)
+                if (data.message.includes('Ставка перебита') || data.message.includes('Price has changed')) {
+                    // For outbid errors, don't fall back to traditional submission
+                    // Instead, suggest refreshing or making a new bid
+                    setTimeout(() => {
+                        showBidMessage('Цена изменилась. Введите новую ставку.', 'info');
+                    }, 3000);
+                } else {
+                    // For other errors, fall back to traditional form submission
+                    setTimeout(() => {
+                        const bidForm = document.getElementById('bid-form');
+                        if (bidForm) {
+                            showBidMessage('Пробуем традиционный способ...', 'warning');
+                            bidForm.submit();
+                        }
+                    }, 2000);
+                }
+            }
+            else if (data.type === 'auction_info') {
+                console.log('Connected to auction:', data.message);
+            }
+        };
+        
+        auctionSocket.onclose = function(e) {
+            console.log('WebSocket connection closed');
+        };
+        
+        auctionSocket.onerror = function(e) {
+            console.error('WebSocket error:', e);
+            showBidMessage('Connection error. Page refresh required for real-time updates.', 'warning');
+        };
+        
+        // Handle bid form submission with WebSocket primary, traditional fallback
+        const bidForm = document.getElementById('bid-form');
+        let isSubmitting = false;
+        
+        if (bidForm) {
+            bidForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (isSubmitting) {
+                    showBidMessage('Already submitting bid, please wait...', 'warning');
+                    return;
+                }
+                
+                const bidAmount = document.getElementById('bid-amount').value;
+                
+                if (bidAmount && parseFloat(bidAmount) > 0) {
+                    isSubmitting = true;
+                    
+                    // Try WebSocket first
+                    if (auctionSocket.readyState === WebSocket.OPEN) {
+                        auctionSocket.send(JSON.stringify({
+                            type: 'bid',
+                            bid_amount: bidAmount
+                        }));
+                        
+                        // Clear the input field after sending
+                        document.getElementById('bid-amount').value = '1';
+                        
+                        // Reset submitting flag after 5 seconds if no response
+                        setTimeout(() => {
+                            isSubmitting = false;
+                        }, 5000);
+                    } else {
+                        // WebSocket not available, use traditional form submission
+                        showBidMessage('WebSocket not connected, submitting traditionally...', 'warning');
+                        setTimeout(() => {
+                            bidForm.submit();
+                        }, 100);
+                    }
+                } else {
+                    showBidMessage('Please enter a valid bid amount', 'danger');
+                }
+            });
+        }
+        
+        function showBidMessage(message, type) {
+            const messageDiv = document.getElementById('bid-message');
+            if (messageDiv) {
+                messageDiv.textContent = message;
+                messageDiv.className = `alert alert-${type}`;
+                messageDiv.classList.remove('d-none');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    messageDiv.classList.add('d-none');
+                }, 5000);
+            }
+        }
+    </script>
 {% endblock %}

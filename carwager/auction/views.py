@@ -1,14 +1,14 @@
 import logging
-import datetime
-from django.db.models import F
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from auction.forms import AuctionForm, CarAuctionForm, AuctionFiltersForm
-from auction.models import Auction, CarAuction, Bid, Winner
+from auction.models import Auction, CarAuction, Winner
 from auction.queries import filter_cars_auction
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class CarAuctionView(TemplateView):
             drive = filters_form.cleaned_data["drive"]
             status = filters_form.cleaned_data["status"]
             auctions = filter_cars_auction(
-                auctions,  price__gt, price__lt, order_price, engine_type, drive, gear_box, status
+                auctions, price__gt, price__lt, order_price, engine_type, drive, gear_box, status
             )
         # settings of page size
         paginator = Paginator(auctions, 30)
@@ -65,6 +65,9 @@ def create_auction(request, *args, **kwargs):
                 return redirect(
                     "auction",
                 )
+            return redirect(
+                    "auction",
+                )
         else:
             form = AuctionForm()
             form_car = CarAuctionForm()
@@ -77,23 +80,41 @@ def create_auction(request, *args, **kwargs):
 # details of auction, info, bids, take bid
 def auction_view(request, auction_id):
     auction = get_object_or_404(Auction, id=auction_id)
-    time = datetime.datetime.now()
-    winn = Winner.objects.filter(auction=auction).first()  # search winners of auction
-    winner = ""
-    if winn is not None:
-        winner = winn.user
+    winner = winn.user.username if (winn := Winner.objects.filter(auction=auction).first()) else "No winner"
+
     if request.method == "POST":
         if request.POST.get("bid"):
-            # try to do validate of bid. if two user take a bid from one start price
-            bids = Bid.objects.filter(auction=auction, bef_bid_price=auction.price).all()
-            if bids.exists():
-                messages.info(request, "Oops... Update price, and take a new bid")
-                redirect("auction_details", auction_id=auction.id)
-            else:
-                Bid.objects.create(
-                    auction=auction, user=request.user, bid=request.POST.get("bid"), bef_bid_price=auction.price
+            from .bid_processor import process_bid_with_retry
+
+            bid_amount_str = request.POST.get("bid")
+
+            # Use atomic bid processor with retry
+            success, message, new_price, bid_id = process_bid_with_retry(
+                auction_id=auction_id,
+                user_id=request.user.id,
+                bid_amount_str=bid_amount_str,
+                max_retries=3
+            )
+
+            if success:
+                # Refresh auction to get updated price
+                auction.refresh_from_db()
+
+                # Send WebSocket update to all connected clients
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'auction_{auction.id}',
+                    {
+                        'type': 'price_update',
+                        'new_price': new_price,
+                        'auction_id': auction.id,
+                    }
                 )
-                Auction.objects.filter(id=auction_id).update(price=F("price") + request.POST.get("bid"))
+
+                messages.success(request, 'Bid placed successfully!')
+            else:
+                messages.error(request, message)
+
             return redirect("auction_details", auction_id=auction_id)
         if request.user.is_authenticated and request.method == "POST":
             if request.POST["action"] == "add":
@@ -110,7 +131,6 @@ def auction_view(request, auction_id):
             "auction": auction,
             "is_auction_in_favorites": request.user in auction.favorites.all(),
             "bids": auction.bids.order_by("-created_at")[0:10],
-            "time": time,
             "winner": winner,
         },
     )

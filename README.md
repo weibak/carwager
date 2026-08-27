@@ -41,3 +41,14 @@ Requirements:
         $ python manage.py migrate
         $ python manage.py runserver
 
+
+# Run using docker-compose
+1. Install
+
+        $ sudo apt install docker
+        $ sudo apt install docker compose
+
+2.
+
+       $ sudo docker compose build
+       $ sudo docker compose up
