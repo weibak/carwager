@@ -1,5 +1,6 @@
 import logging
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -41,6 +42,7 @@ class CarAuctionView(TemplateView):
 
 
 # view to create auction
+@login_required
 def create_auction(request, *args, **kwargs):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -82,9 +84,17 @@ def auction_view(request, auction_id):
     auction = get_object_or_404(Auction, id=auction_id)
     winner = winn.user.username if (winn := Winner.objects.filter(auction=auction).first()) else "No winner"
 
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         if request.POST.get("bid"):
             from .bid_processor import process_bid_with_retry
+
+            if not request.user.is_authenticated:
+                messages.error(request, "You must be logged in to place a bid.")
+                return redirect("auction_details", auction_id=auction_id)
+            
+            if auction.owner_id == request.user.id:
+                messages.error(request, "You can't bid on your own auction.")
+                return redirect("auction_details", auction_id=auction_id)
 
             bid_amount_str = request.POST.get("bid")
 
@@ -115,15 +125,14 @@ def auction_view(request, auction_id):
             else:
                 messages.error(request, message)
 
-            return redirect("auction_details", auction_id=auction_id)
-        if request.user.is_authenticated and request.method == "POST":
             if request.POST["action"] == "add":
                 auction.favorites.add(request.user)
                 messages.info(request, "Auction successfully added to favorites")
             elif request.POST["action"] == "remove":
                 auction.favorites.remove(request.user)
                 messages.info(request, "Auction successfully removed to favorites")
-            redirect("auction_details", auction_id=auction.id)
+            return redirect("auction_details", auction_id=auction_id)
+
     return render(
         request,
         "auction/auction_details.html",
