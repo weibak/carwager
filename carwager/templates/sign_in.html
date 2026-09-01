@@ -1,13 +1,36 @@
 {% extends "base.html" %}
 {% load crispy_forms_filters %}
 
+{% block title %}Sign In - CarWager{% endblock %}
+
 {% block content %}
-    <br>
-    <br>
-  <h1>Authorise user</h1>
-  <form method="POST" class="post-form">
-    {% csrf_token %}
-    {{ form | crispy}}
-    <button type="submit" class="sign in btn btn-primary">Sign In</button>
-  </form>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center py-3">
+          <h3 class="mb-0">Sign In</h3>
+          <p class="mb-0 small">Access your CarWager account</p>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" class="post-form">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+              </button>
+            </div>
+          </form>
+          <div class="text-center mt-4">
+            <p class="mb-2">Don't have an account?</p>
+            <a href="{% url 'register' %}" class="btn btn-outline-primary">
+              Create Account
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

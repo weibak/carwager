@@ -1,220 +1,462 @@
+/* Серо-зеленая цветовая схема */
+:root {
+  --primary-green: #2d5a4d;
+  --secondary-green: #3a7a68;
+  --light-green: #4a9c85;
+  --dark-gray: #333333;
+  --medium-gray: #666666;
+  --light-gray: #f5f5f5;
+  --accent-gray: #8a9a9a;
+  --white: #ffffff;
+}
+
+/* Основные стили с новым шрифтом */
 body {
-  max-width: 1280px;
-  margin: auto;
-  background-color: #fff;
-  font-family: Bookman, "URW Bookman L", serif;
+  background-color: var(--light-gray);
+  font-family: 'Frank Ruhl Libre', serif;
+  color: var(--dark-gray);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.container {
-  background-color: #c29287;
+/* Контейнер для основного контента */
+main {
+  flex: 1 0 auto;
 }
 
-.news .news-item {
-  margin-bottom: 15px;
+/* Навигация */
+.navbar {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.card-img,
-.card-img-bottom,
-.card-img-top {
-  max-height: 120px;
-  min-height: 120px;
-  max-width: 250px;
+.navbar-brand {
+  font-size: 1.5rem;
 }
 
-.news-details .text {
-  white-space: pre-line;
+.nav-link {
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
-.padding {
-  padding: 3rem !important;
+.nav-link:hover {
+  color: var(--light-green) !important;
 }
 
-.user-card-full {
-  overflow: hidden;
-}
-
+/* Карточки */
 .card {
-  max-height: 570px;
-  min-height: 570px;
-  margin-bottom: 30px;
-  background-color: #c6b9b7;
-  border-radius: 20px;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
-    rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-}
-
-.card-body a {
-  display: block;
-  height: 100%;
-  width: 100%;
-}
-
-.card-text {
-  min-height: 100px;
-  max-height: 100px;
-}
-
-.date {
-  font-size: x-small;
-  min-height: 15px;
-  max-height: 15px;
-}
-
-.news-item {
-  margin-bottom: 15px;
-}
-
-.col-6 {
-  max-width: 500px;
-  min-width: 500px;
-}
-
-.description {
-  max-width: 400px;
-}
-
-.bids {
-  max-width: 250px;
-  min-width: 250px;
-}
-
-.input-group .bid {
-  max-width: 200px;
-}
-
-.winner {
-  color: red;
-}
-
-.button {
-  background-color: #666666;
   border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: var(--white);
+  margin-bottom: 25px;
 }
 
-.link {
-  color: #000 !important;
-  text-decoration: none;
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.user-card-full .user-profile {
-  border-radius: 5px 0 0 5px;
-}
-
-.bg-c-lite-green {
-  background: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    from(#b3696c),
-    to(#666666)
-  );
-  background: linear-gradient(to right, #7d453a, #967c73);
-}
-
-.user-profile {
-  padding: 20px 0;
-}
-
-.card-block {
-  padding: 1.25rem;
-}
-
-h6 {
-  font-size: 14px;
-}
-
-.news .news-card p {
-  line-height: 25px;
-}
-
-.b-b-default {
-  border-bottom: 1px solid #645d5d;
-}
-
-.m-b-20 {
-  margin-bottom: 20px;
-}
-
-.p-b-5 {
-  padding-bottom: 5px !important;
-}
-
-.card .card-block p {
-  line-height: 25px;
-}
-
-.m-b-10 {
-  margin-bottom: 10px;
-}
-
-.text-muted {
-  color: #919aa3 !important;
-}
-
-.b-b-default {
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.f-w-600 {
+.card-header {
+  background-color: var(--primary-green);
+  color: var(--white);
+  border-radius: 12px 12px 0 0 !important;
+  padding: 1rem 1.25rem;
   font-weight: 600;
 }
 
-.m-b-20 {
-  margin-bottom: 20px;
+.card-body {
+  padding: 1.5rem;
 }
 
-.m-t-40 {
-  margin-top: 20px;
+.card-title {
+  color: var(--primary-green);
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
-.p-b-5 {
-  padding-bottom: 5px !important;
+.card-text {
+  color: var(--medium-gray);
 }
 
-.m-b-10 {
-  margin-bottom: 10px;
+/* Кнопки */
+.btn-primary {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  border-radius: 8px;
 }
 
-.m-t-40 {
-  margin-top: 20px;
+.btn-primary:hover {
+  background-color: var(--secondary-green);
+  border-color: var(--secondary-green);
 }
 
-.user-card-full .social-link li {
-  display: inline-block;
+.btn-secondary {
+  background-color: var(--accent-gray);
+  border-color: var(--accent-gray);
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  border-radius: 8px;
 }
 
-.user-card-full .social-link li a {
-  font-size: 20px;
-  margin: 0 10px 0 0;
-  -webkit-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
+.btn-success {
+  background-color: var(--light-green);
+  border-color: var(--light-green);
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  border-radius: 8px;
 }
 
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #725a7a;
-  min-width: 160px;
-  box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
-  z-index: 1;
+.btn-outline-primary {
+  color: var(--primary-green);
+  border-color: var(--primary-green);
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  border-radius: 8px;
 }
 
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
+.btn-outline-primary:hover {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+}
+
+/* Формы */
+.form-control {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--light-green);
+  box-shadow: 0 0 0 0.25rem rgba(45, 90, 77, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--dark-gray);
+  margin-bottom: 0.5rem;
+}
+
+/* Заголовки с новым шрифтом */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-green);
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  border-bottom: 2px solid var(--light-green);
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+h2 {
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+h3, h4, h5, h6 {
+  font-weight: 500;
+}
+
+.display-5, .display-6 {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 700;
+}
+
+.lead {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 300;
+  font-size: 1.25rem;
+}
+
+/* Карточки с новым шрифтом */
+.card-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 600;
+}
+
+.card-text {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 300;
+}
+
+/* Навигация с новым шрифтом */
+.navbar-brand {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.nav-link {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 400;
+}
+
+/* Кнопки с новым шрифтом */
+.btn {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Формы с новым шрифтом */
+.form-control, .form-label {
+  font-family: 'Frank Ruhl Libre', serif;
+}
+
+/* Баджи с новым шрифтом */
+.badge {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+}
+
+/* Алерты с новым шрифтом */
+.alert {
+  font-family: 'Frank Ruhl Libre', serif;
+}
+
+/* Таблицы с новым шрифтом */
+.table {
+  font-family: 'Frank Ruhl Libre', serif;
+}
+
+/* Списки с новым шрифтом */
+.list-group-item {
+  font-family: 'Frank Ruhl Libre', serif;
+}
+
+/* Таблицы */
+.table {
+  background-color: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+  background-color: var(--primary-green);
+  color: var(--white);
+  border: none;
+  padding: 1rem;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(45, 90, 77, 0.05);
+}
+
+/* Списки */
+.list-group-item {
+  border: 1px solid #eee;
+  padding: 1rem 1.25rem;
+  transition: background-color 0.3s ease;
+}
+
+.list-group-item:hover {
+  background-color: rgba(45, 90, 77, 0.05);
+}
+
+/* Баджи */
+.badge {
+  padding: 0.35em 0.65em;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.badge.bg-primary {
+  background-color: var(--primary-green) !important;
+}
+
+.badge.bg-success {
+  background-color: var(--light-green) !important;
+}
+
+/* Алерты */
+.alert {
+  border-radius: 8px;
+  border: none;
+  padding: 1rem 1.25rem;
+}
+
+.alert-success {
+  background-color: rgba(74, 156, 133, 0.1);
+  color: var(--light-green);
+  border-left: 4px solid var(--light-green);
+}
+
+.alert-info {
+  background-color: rgba(138, 154, 154, 0.1);
+  color: var(--accent-gray);
+  border-left: 4px solid var(--accent-gray);
+}
+
+.alert-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #856404;
+  border-left: 4px solid #ffc107;
+}
+
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+/* Изображения */
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+}
+
+.img-thumbnail {
+  border-radius: 8px;
+  border: 1px solid #eee;
+  padding: 0.25rem;
+}
+
+/* Ссылки */
+a {
+  color: var(--primary-green);
   text-decoration: none;
-  display: block;
+  transition: color 0.3s ease;
 }
 
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {
-  background-color: #ddd;
+a:hover {
+  color: var(--light-green);
+  text-decoration: underline;
+}
+
+/* Футер - гарантированные стили */
+footer.footer {
+  background-color: #333333 !important;
+  color: #ffffff !important;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  margin-top: auto;
+}
+
+.bg-dark-gray {
+  background-color: #333333 !important;
+}
+
+/* Дополнительные гарантии */
+footer {
+  background-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+footer.bg-dark-gray {
+  background-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+.footer a {
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: var(--light-green);
+  text-decoration: underline;
+}
+
+.footer h4, .footer h5 {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.footer ul li {
+  margin-bottom: 0.5rem;
+}
+
+.footer .social-links a {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.footer .social-links a:hover {
+  background-color: var(--light-green);
+  color: var(--white);
+  transform: translateY(-3px);
+}
+
+.footer hr {
+  opacity: 0.1;
+}
+
+/* Иконки в футере */
+.footer i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Утилиты */
+.bg-light {
+  background-color: var(--light-gray) !important;
+}
+
+.text-primary {
+  color: var(--primary-green) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-green) !important;
+}
+.bg-primary {
+  background-color: var(--primary-green) !important;
+}
+/* Адаптивность */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 20px;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* ========================================
+   Profile Header
+   ======================================== */
+
+.card-header.bg-primary {
+    background-color: var(--primary-green) !important;
+    color: var(--white) !important;
+}
+
+.card-header.bg-primary h1,
+.card-header.bg-primary h2,
+.card-header.bg-primary h3,
+.card-header.bg-primary h4,
+.card-header.bg-primary h5,
+.card-header.bg-primary h6 {
+    color: var(--white) !important;
+}
+
+.card-header.bg-primary .text-primary {
+    color: var(--primary-green) !important;
 }

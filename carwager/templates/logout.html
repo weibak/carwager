@@ -1,9 +1,30 @@
 {% extends "base.html" %}
-{% block title %}Logged out{% endblock %}
+{% block title %}Logged Out - CarWager{% endblock %}
+
 {% block content %}
-    <br>
-    <br>
-    <form action="" method="post"></form>
-    <h1>Logged out</h1>
-    <p>You have been successfully logged out. You can <a href="{% url "auth" %}">log-in again</a>.</p>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-lg border-0 text-center py-5">
+        <div class="card-body">
+          <div class="mb-4">
+            <i class="fas fa-sign-out-alt fa-4x text-primary"></i>
+          </div>
+          <h2 class="mb-3">Logged Out</h2>
+          <p class="text-muted mb-4">
+            You have been successfully logged out of your CarWager account.
+          </p>
+          <div class="d-grid gap-2">
+            <a href="{% url "auth" %}" class="btn btn-primary btn-lg">
+              <i class="fas fa-sign-in-alt me-2"></i>Log In Again
+            </a>
+            <a href="{% url 'news' %}" class="btn btn-outline-primary">
+              <i class="fas fa-home me-2"></i>Return to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,20 +1,29 @@
 {% load static %}
-{% load text_tags%}
+{% load text_tags %}
 
-<a class="link" href="{% url 'news_view' new.slug %}">
-          <div class="card">
-            <div class="image-container">
-              {% if new.image %}
-                <img src="{{ new.image.url }}" class="card-img-top img-thumbnail" alt="{{ new.title }}">
-              {% else %}
-                <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
-              {% endif %}
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">{{ new.title }}</h5>
-              <p class="news-text">
-                {{ new.text|cut_text:550 }}
-              </p>
-            </div>
-          </div>
-</a>
+<div class="card h-100">
+  <div class="image-container">
+    {% if new.image %}
+      <img src="{{ new.image.url }}" class="card-img-top" alt="{{ new.title }}">
+    {% else %}
+      <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">
+    {% endif %}
+  </div>
+  <div class="card-body d-flex flex-column">
+    <h5 class="card-title">{{ new.title }}</h5>
+    <p class="card-text text-muted mb-3">
+      {{ new.text|cut_text:200 }}
+    </p>
+    <div class="mt-auto">
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          <i class="far fa-calendar-alt me-1"></i>
+          {{ new.created_at|date:"M d, Y" }}
+        </small>
+        <a href="{% url 'news_view' new.slug %}" class="btn btn-primary btn-sm">
+          Read More <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,66 +1,97 @@
 {% extends "base.html" %}
-{% load pagination_tags text_tags%}
+{% load pagination_tags text_tags %}
 {% load i18n static crispy_forms_filters %}
 
-{% block title %}Auctions{% endblock %}
+{% block title %}Live Auctions - CarWager{% endblock %}
 
 {% block content %}
-    <div class="auction">
-    <br>
-        <h1 class="my-4">{% translate "AUCTION" %}</h1>
-        <div class="row">
-            <div class="col-3">
-                <div class="filters-form mb-4">
-                    <h3>{% translate "Filters" %}</h3>
-                    <form class="form-inline">
-                        {{ filters_form|crispy }}
-                        <button type="submit" class="save btn btn-primary">{% translate "Search" %}</button>
-                    </form>
-                </div>
-            </div>
-            <nav class="col-9">
-                <div class="row">
-                    {% for auction in auctions %}
-                        <div class="col-4">
-                            {% include "auction/auction_car_card.html" %}
-                        </div>
-                    {% endfor %}
-                </div>
-            </nav>
-            <nav aria-label="Page navigation example" class="my-3">
-                <ul class="pagination justify-content-center">
-                    {% if auctions.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=1 %}">
-                                &laquo; {% translate "First" %}
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=auctions.previous_page_number %}">
-                                {% translate "Previous" %}
-                            </a>
-                        </li>
-                    {% endif %}
-                    <li class="page-item disabled">
-                <span class="page-link">
-                  {% translate "Page" %} {{ auctions.number }}
-                  {% translate "of" %} {{ auctions.paginator.num_pages }}.
-                </span>
-                    </li>
-                    {% if auctions.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=auctions.next_page_number %}">
-                                {% translate "Next" %}
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=auctions.paginator.num_pages %}">
-                                {% translate "Last" %} &raquo;
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="display-5 fw-bold mb-3">Live Auctions</h1>
+      <p class="lead text-muted">Bid on exclusive vehicles and get the best deals</p>
     </div>
+  </div>
+  
+  <div class="row">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white py-3">
+          <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Auction Filters</h5>
+        </div>
+        <div class="card-body">
+          <form class="form-inline" method="get">
+            {{ filters_form|crispy }}
+            <div class="d-grid gap-2 mt-3">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Search Auctions
+              </button>
+              <a href="{% url 'auction' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-redo me-2"></i>Reset Filters
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Auction Listings -->
+    <div class="col-lg-9">
+      {% if auctions %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          {% for auction in auctions %}
+            <div class="col">
+              {% include "auction/auction_car_card.html" %}
+            </div>
+          {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if auctions.paginator.num_pages > 1 %}
+          <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+              {% if auctions.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=1 %}">
+                    <i class="fas fa-angle-double-left"></i> First
+                  </a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=auctions.previous_page_number %}">
+                    <i class="fas fa-angle-left"></i> Previous
+                  </a>
+                </li>
+              {% endif %}
+              
+              <li class="page-item disabled">
+                <span class="page-link">
+                  Page {{ auctions.number }} of {{ auctions.paginator.num_pages }}
+                </span>
+              </li>
+              
+              {% if auctions.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=auctions.next_page_number %}">
+                    Next <i class="fas fa-angle-right"></i>
+                  </a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=auctions.paginator.num_pages %}">
+                    Last <i class="fas fa-angle-double-right"></i>
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info text-center py-5">
+          <h4 class="alert-heading">No active auctions</h4>
+          <p class="mb-0">Check back later for new auction listings.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}

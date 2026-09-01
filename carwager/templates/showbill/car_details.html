@@ -1,408 +1,519 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %} Advert {{ advert.car.model }}{% endblock %}
+
+{% block title %}{{ advert.car.mark }} {{ advert.car.model.car_model }} - CarWager{% endblock %}
+
 {% block content %}
-    <br>
-    <br>
-    <main class="car-details">
-        <h1 class="my-4">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h1>
-        <div class="row">
-            <div class="col-4">
-                {% if advert.image %}
-                    <img src="{{ advert.image.url }}" alt="{{ advert.car.model }}" class="w-100">
-                {% else %}
-                    <img src="{% static 'no-image.jpg' %}" class="card-img-top img-thumbnail" alt="No image">
-                {% endif %}
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-5 fw-bold mb-2">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h1>
+                <p class="lead text-muted">{{ advert.car.year }} • {{ advert.get_engine_type_display }}</p>
             </div>
-            <div class="col-8">
-                <h3 class="mb-3">Price: {{ advert.price }} BYN | {{ advert.price_usd }} USD</h3>
-                <div class="mb-3">
-                    <h4 class="mb-3">Information: </h4>
-                    <h6 class="mb-3">Engine type: {{ advert.get_engine_type_display }}</h6>
-                    <h6 class="mb-3">Engine capacity: {{ advert.engine_capacity }} l.</h6>
-                    <h6 class="mb-3">Gear box: {{ advert.get_gear_box_display }}</h6>
-                    <h6 class="mb-3">Drive: {{ advert.get_drive_display }}</h6>
-                    <h6 class="mb-3">Win: {{ advert.win }}</h6>
-                    <h6 class="mb-3">Phone number: {{ advert.phone_number }}</h6>
-                    <div class="description mb-3">
-                        <h3 class="mb-3">Description:</h3>
-                        <h6 class="mb-3">{{ advert.description }}</h6>
+        </div>
+
+        <div class="row">
+            <!-- Car Image -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        {% if advert.image %}
+                            <img src="{{ advert.image.url }}"
+                                 alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}" class="img-fluid rounded">
+                        {% else %}
+                            <img src="{% static 'no-image.jpg' %}" alt="No image" class="img-fluid rounded">
+                        {% endif %}
                     </div>
                 </div>
-                {% if user.is_authenticated and user != advert.owner %}
-                    <form method="POST" class="mt-4">
-                        {% csrf_token %}
-                        {% if is_advert_in_favorites %}
-                            <input type="hidden" name="action" value="remove">
-                            <button type="submit" class="btn btn-primary">Remove from favorites</button>
-                        {% else %}
-                            <input type="hidden" name="action" value="add">
-                            <button type="submit" class="btn btn-primary">Add to favorites</button>
-                        {% endif %}
-                    </form>
+            </div>
 
-                    <!-- Кнопка открытия чата (не показываем владельцу) -->
-                    {% if user != advert.owner %}
-                        <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal"
-                                data-bs-target="#chatModal">
-                            💬 Чат с продавцом
-                        </button>
-                    {% endif %}
-
-                    <!-- Модальное окно чата -->
-                    <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
-                         aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="chatModalLabel">
-                                        💬 Чат с продавцом: {{ advert.car.mark }} {{ advert.car.model.car_model }}
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
+            <!-- Car Details -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h4 class="mb-0">Vehicle Details</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Price Section -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light rounded p-3 me-3">
+                                    <small class="text-muted d-block">Price in BYN</small>
+                                    <h3 class="mb-0 text-primary">{{ advert.price }} BYN</h3>
                                 </div>
-                                <div class="modal-body">
-                                    <div class="chat-container">
-                                        <!-- Сообщения чата -->
-                                        <div id="chatMessages" class="chat-messages"
-                                             style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
-                                            <div class="text-center text-muted" id="loadingMessages">
-                                                Загрузка сообщений...
-                                            </div>
-                                        </div>
-
-                                        <!-- Форма отправки сообщения -->
-                                        <div class="chat-input">
-                                            <div class="input-group">
-                                                <input type="text" id="messageInput" class="form-control"
-                                                       placeholder="Введите сообщение..." autocomplete="off">
-                                                <button class="btn btn-primary" type="button" id="sendButton"
-                                                        onclick="sendMessage()">
-                                                    Отправить
-                                                </button>
-                                            </div>
-                                            <small class="text-muted">Нажмите Enter для отправки</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть
-                                    </button>
+                                <div class="bg-light rounded p-3">
+                                    <small class="text-muted d-block">Price in USD</small>
+                                    <h3 class="mb-0 text-primary">{{ advert.price_usd }} USD</h3>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Specifications -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Specifications</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cogs text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Engine Type</small>
+                                            <strong>{{ advert.get_engine_type_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-gas-pump text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Engine Capacity</small>
+                                            <strong>{{ advert.engine_capacity }}L</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cog text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Transmission</small>
+                                            <strong>{{ advert.get_gear_box_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-car text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Drive Type</small>
+                                            <strong>{{ advert.get_drive_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-barcode text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">VIN</small>
+                                            <strong>{{ advert.win|default:"Not provided" }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-phone text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Contact Phone</small>
+                                            <strong>{{ advert.phone_number|default:"Not provided" }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        {% if advert.description %}
+                            <div class="mb-4">
+                                <h5 class="mb-3">Description</h5>
+                                <div class="bg-light rounded p-3">
+                                    <p class="mb-0">{{ advert.description }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="mt-4">
+                            {% if user.is_authenticated and user != advert.owner %}
+                                <div class="d-grid gap-2">
+                                    <form method="POST" class="d-grid gap-2">
+                                        {% csrf_token %}
+                                        {% if is_advert_in_favorites %}
+                                            <input type="hidden" name="action" value="remove">
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                <i class="fas fa-heart-broken me-2"></i>Remove from Favorites
+                                            </button>
+                                        {% else %}
+                                            <input type="hidden" name="action" value="add">
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                <i class="fas fa-heart me-2"></i>Add to Favorites
+                                            </button>
+                                        {% endif %}
+                                    </form>
+
+                                    <!-- Chat Button -->
+                                    {% if user != advert.owner %}
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#chatModal">
+                                            <i class="fas fa-comments me-2"></i>Chat with Seller
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% elif not user.is_authenticated %}
+                                <div class="alert alert-info">
+                                    <p class="mb-2">Sign in to save this vehicle to favorites or chat with the
+                                        seller.</p>
+                                    <a href="{% url 'auth' %}" class="btn btn-primary btn-sm">Sign In</a>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-
-                    <!-- Стили для чата -->
-                    <style>
-                        .chat-messages {
-                            background-color: #f8f9fa;
-                            border-radius: 5px;
-                        }
-
-                        .message {
-                            margin-bottom: 10px;
-                            padding: 8px 12px;
-                            border-radius: 10px;
-                            max-width: 80%;
-                            word-wrap: break-word;
-                        }
-
-                        .message-own {
-                            background-color: #007bff;
-                            color: white;
-                            margin-left: auto;
-                            text-align: right;
-                        }
-
-                        .message-other {
-                            background-color: #e9ecef;
-                            color: #333;
-                            margin-right: auto;
-                        }
-
-                        .message-sender {
-                            font-weight: bold;
-                            font-size: 0.9em;
-                            margin-bottom: 3px;
-                        }
-
-                        .message-time {
-                            font-size: 0.8em;
-                            opacity: 0.7;
-                            margin-top: 3px;
-                        }
-
-                        .chat-input {
-                            margin-top: 15px;
-                        }
-                    </style>
-
-                    <!-- JavaScript для чата -->
-                    <script>
-                        let chatSocket = null;
-                        const advertId = {{ advert.id }};
-                        const currentUserId = {{ user.id|default:"null" }};
-                        const currentUsername = "{{ user.username|default:'Аноним' }}";
-
-                        // Функция для форматирования времени
-                        function formatTime(timestamp) {
-                            const date = new Date(timestamp);
-                            return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-                        }
-
-                        function getCookie(name) {
-                            var cookieValue = null;
-                            if (document.cookie && document.cookie !== '') {
-                                var cookies = document.cookie.split(';');
-                                for (var i = 0; i < cookies.length; i++) {
-                                    var cookie = jQuery.trim(cookies[i]);
-                                    // Does this cookie string begin with the name we want?
-                                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                        break;
-                                    }
-                                }
-                            }
-                            return cookieValue;
-                        }
-                        // Функция добавления сообщения в чат
-                        function addMessage(senderId, senderName, message, timestamp, isOwn = false) {
-                            const messagesDiv = document.getElementById('chatMessages');
-                            const loadingDiv = document.getElementById('loadingMessages');
-
-                            // Убираем индикатор загрузки при первом сообщении
-                            if (loadingDiv && loadingDiv.parentNode) {
-                                loadingDiv.remove();
-                            }
-
-                            const messageDiv = document.createElement('div');
-                            messageDiv.className = `message ${isOwn ? 'message-own' : 'message-other'}`;
-
-                            const senderSpan = document.createElement('div');
-                            senderSpan.className = 'message-sender';
-                            senderSpan.textContent = isOwn ? 'Вы' : senderName;
-
-                            const contentDiv = document.createElement('div');
-                            contentDiv.textContent = message;
-
-                            const timeDiv = document.createElement('div');
-                            timeDiv.className = 'message-time';
-                            timeDiv.textContent = formatTime(timestamp || new Date().toISOString());
-
-                            messageDiv.appendChild(senderSpan);
-                            messageDiv.appendChild(contentDiv);
-                            messageDiv.appendChild(timeDiv);
-                            messagesDiv.appendChild(messageDiv);
-
-                            // Прокручиваем вниз
-                            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                        }
-
-                        // Функция подключения к WebSocket
-                        function connectWebSocket(chatRoomId) {
-                            if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-                                return;
-                            }
-
-                            // Закрываем предыдущее соединение если есть
-                            if (chatSocket) {
-                                chatSocket.close();
-                            }
-
-                            // Определяем протокол WebSocket
-                            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-
-                            // Подключаемся к WebSocket с chat_room_id
-                            chatSocket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat/${chatRoomId}/`);
-
-                            chatSocket.onopen = function () {
-                                console.log('✅ WebSocket подключен к чату ID', chatRoomId);
-
-                                // Загружаем историю сообщений
-                                loadChatHistory(chatRoomId);
-                            };
-
-                            chatSocket.onmessage = function (event) {
-                                const data = JSON.parse(event.data);
-                                console.log('📨 Получено сообщение:', data);
-
-                                const isOwn = data.sender_id === currentUserId;
-                                addMessage(
-                                    data.sender_id,
-                                    data.sender_username,
-                                    data.content,
-                                    data.timestamp,
-                                    isOwn
-                                );
-                            };
-
-                            chatSocket.onerror = function (error) {
-                                console.error('❌ WebSocket ошибка:', error);
-                                addMessage(null, 'Система', 'Ошибка подключения к чату', new Date().toISOString());
-                            };
-
-                            chatSocket.onclose = function (event) {
-                                console.log('🔌 WebSocket отключен, код:', event.code);
-
-                                // Пытаемся переподключиться через 3 секунды
-                                if (event.code !== 1000) { // 1000 = нормальное закрытие
-                                    setTimeout(() => {
-                                        console.log('🔄 Попытка переподключения...');
-                                        if (currentChatRoomId) {
-                                            connectWebSocket(currentChatRoomId);
-                                        }
-                                    }, 3000);
-                                }
-                            };
-                        }
-
-                        // Функция загрузки истории сообщений
-                        async function loadChatHistory(chatRoomId) {
-                            try {
-                                const response = await fetch(`/chat/api/rooms/${chatRoomId}/messages/`, {
-                                    credentials: 'include'
-                                });
-
-                                if (response.ok) {
-                                    const data = await response.json();
-                                    const messagesDiv = document.getElementById('chatMessages');
-                                    const loadingDiv = document.getElementById('loadingMessages');
-
-                                    if (loadingDiv && loadingDiv.parentNode) {
-                                        loadingDiv.remove();
-                                    }
-
-                                    if (data.messages && data.messages.length > 0) {
-                                        data.messages.forEach(msg => {
-                                            const isOwn = msg.sender_id === currentUserId;
-                                            addMessage(
-                                                msg.sender_id,
-                                                msg.sender_username,
-                                                msg.content,
-                                                msg.timestamp,
-                                                isOwn
-                                            );
-                                        });
-
-                                        // Помечаем сообщения как прочитанные
-                                        await markMessagesAsRead(chatRoomId);
-                                    } else {
-                                        // Нет сообщений
-                                        const noMessages = document.createElement('div');
-                                        noMessages.className = 'text-center text-muted';
-                                        noMessages.textContent = 'Нет сообщений. Начните общение!';
-                                        messagesDiv.appendChild(noMessages);
-                                    }
-                                }
-                            } catch (error) {
-                                console.error('Ошибка загрузки истории:', error);
-                            }
-                        }
-
-                        // Функция отметки сообщений как прочитанных
-                        async function markMessagesAsRead(chatRoomId) {
-                            try {
-                                await fetch(`/chat/api/rooms/${chatRoomId}/read/`, {
-                                    method: 'POST',
-                                    credentials: 'include',
-                                    headers: {
-                                        "X-CSRFToken": getCookie("csrftoken")
-                                    }
-                                });
-                            } catch (error) {
-                                console.error('Ошибка отметки сообщений:', error);
-                            }
-                        }
-
-                        // Функция отправки сообщения
-                        function sendMessage() {
-                            if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
-                                alert('Соединение не установлено. Пожалуйста, подождите...');
-                                return;
-                            }
-
-                            const input = document.getElementById('messageInput');
-                            const message = input.value.trim();
-
-                            if (!message) {
-                                return;
-                            }
-
-                            // Отправляем сообщение через WebSocket
-                            chatSocket.send(JSON.stringify({
-                                message: message
-                            }));
-
-                            // Очищаем поле ввода
-                            input.value = '';
-
-                            // Фокусируемся обратно на поле ввода
-                            input.focus();
-                        }
-
-                        // Переменная для сохранения текущего chat_room_id
-                        let currentChatRoomId = null;
-
-                        // Функция открытия чата и подключения WebSocket
-                        async function openChatAndConnect() {
-                            try {
-                                console.log('📞 Открытие чата для объявления', advertId);
-
-                                // Открываем чат через /chat/open/<advert_id>/
-                                const response = await fetch(`/chat/open/${advertId}/`, {
-                                    method: 'GET',
-                                    credentials: 'include'
-                                });
-
-                                if (response.redirected) {
-                                    // Сервер перенаправил нас на /chat/<chat_room_id>/
-                                    // Извлекаем chat_room_id из URL
-                                    const url = new URL(response.url);
-                                    const pathParts = url.pathname.split('/');
-                                    const chatRoomId = pathParts[pathParts.length - 2]; // /chat/<id>/
-
-                                    console.log('✅ Чат открыт, Chat Room ID:', chatRoomId);
-                                    currentChatRoomId = chatRoomId;
-
-                                    // Подключаемся к WebSocket
-                                    connectWebSocket(parseInt(chatRoomId));
-                                } else {
-                                    console.error('❌ Ошибка открытия чата:', response.status);
-                                }
-                            } catch (error) {
-                                console.error('❌ Ошибка при открытии чата:', error);
-                                addMessage(null, 'Система', 'Ошибка при открытии чата: ' + error.message, new Date().toISOString());
-                            }
-                        }
-
-                        // Обработка нажатия Enter
-                        document.getElementById('messageInput').addEventListener('keypress', function (e) {
-                            if (e.key === 'Enter') {
-                                sendMessage();
-                            }
-                        });
-
-                        // Подключаем WebSocket при открытии модального окна
-                        document.getElementById('chatModal').addEventListener('shown.bs.modal', function () {
-                            openChatAndConnect();
-                        });
-
-                        // Закрываем WebSocket при закрытии модального окна
-                        document.getElementById('chatModal').addEventListener('hidden.bs.modal', function () {
-                            if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-                                chatSocket.close(1000); // 1000 = нормальное закрытие
-                            }
-                        });
-
-                        // Инициализация при загрузке страницы
-                        document.addEventListener('DOMContentLoaded', function () {
-                            // Предзагрузка если нужно
-                        });
-                    </script>
-
-                {% endif %}
+                </div>
             </div>
         </div>
-    </main>
+    </div>
+    {% if user.is_authenticated and user != advert.owner %}
+
+        <!-- Chat Modal -->
+        <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="chatModalLabel">
+                            <i class="fas fa-comments me-2"></i>
+                            Chat with Seller: {{ advert.car.mark }} {{ advert.car.model.car_model }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="chat-container">
+                            <!-- Chat Messages -->
+                            <div id="chatMessages" class="chat-messages bg-light rounded p-3 mb-3"
+                                 style="height: 400px; overflow-y: auto;">
+                                <div class="text-center text-muted" id="loadingMessages">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading messages...
+                                </div>
+                            </div>
+
+                            <!-- Message Input -->
+                            <div class="chat-input">
+                                <div class="input-group">
+                                    <input type="text" id="messageInput" class="form-control"
+                                           placeholder="Type your message..." autocomplete="off">
+                                    <button class="btn btn-primary" type="button" id="sendButton"
+                                            onclick="sendMessage()">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted mt-1 d-block">Press Enter to send</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Styles -->
+        <style>
+            .chat-messages {
+                background-color: #f8f9fa;
+                border-radius: 8px;
+            }
+
+            .message {
+                margin-bottom: 12px;
+                padding: 10px 14px;
+                border-radius: 12px;
+                max-width: 80%;
+                word-wrap: break-word;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .message-own {
+                background-color: var(--primary-green);
+                color: white;
+                margin-left: auto;
+                text-align: right;
+            }
+
+            .message-other {
+                background-color: #e9ecef;
+                color: #333;
+                margin-right: auto;
+                border: 1px solid #dee2e6;
+            }
+
+            .message-sender {
+                font-weight: 600;
+                font-size: 0.85em;
+                margin-bottom: 4px;
+            }
+
+            .message-time {
+                font-size: 0.75em;
+                opacity: 0.7;
+                margin-top: 4px;
+            }
+
+            .chat-input {
+                margin-top: 15px;
+            }
+        </style>
+
+        <!-- JavaScript для чата -->
+        <script>
+            let chatSocket = null;
+            const advertId = {{ advert.id }};
+            const currentUserId = {{ user.id|default:"null" }};
+            const currentUsername = "{{ user.username|default:'Anonymous' }}";
+
+            // Time formatting function
+            function formatTime(timestamp) {
+                const date = new Date(timestamp);
+                return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            }
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Function to add message to chat
+            function addMessage(senderId, senderName, message, timestamp, isOwn = false) {
+                const messagesDiv = document.getElementById('chatMessages');
+                const loadingDiv = document.getElementById('loadingMessages');
+
+                // Remove loading indicator on first message
+                if (loadingDiv && loadingDiv.parentNode) {
+                    loadingDiv.remove();
+                }
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isOwn ? 'message-own' : 'message-other'}`;
+
+                const senderSpan = document.createElement('div');
+                senderSpan.className = 'message-sender';
+                senderSpan.textContent = isOwn ? 'You' : senderName;
+
+                const contentDiv = document.createElement('div');
+                contentDiv.textContent = message;
+
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = formatTime(timestamp || new Date().toISOString());
+
+                messageDiv.appendChild(senderSpan);
+                messageDiv.appendChild(contentDiv);
+                messageDiv.appendChild(timeDiv);
+                messagesDiv.appendChild(messageDiv);
+
+                // Scroll to bottom
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+
+            // WebSocket connection function
+            function connectWebSocket(chatRoomId) {
+                if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                    return;
+                }
+
+                // Close previous connection if exists
+                if (chatSocket) {
+                    chatSocket.close();
+                }
+
+                // Determine WebSocket protocol
+                const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+                // Connect to WebSocket with chat_room_id
+                chatSocket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat/${chatRoomId}/`);
+
+                chatSocket.onopen = function () {
+                    console.log('✅ WebSocket connected to chat ID', chatRoomId);
+
+                    // Load message history
+                    loadChatHistory(chatRoomId);
+                };
+
+                chatSocket.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    console.log('📨 Message received:', data);
+
+                    const isOwn = data.sender_id === currentUserId;
+                    addMessage(
+                        data.sender_id,
+                        data.sender_username,
+                        data.content,
+                        data.timestamp,
+                        isOwn
+                    );
+                };
+
+                chatSocket.onerror = function (error) {
+                    console.error('❌ WebSocket error:', error);
+                    addMessage(null, 'System', 'Connection error', new Date().toISOString());
+                };
+
+                chatSocket.onclose = function (event) {
+                    console.log('🔌 WebSocket disconnected, code:', event.code);
+
+                    // Try to reconnect after 3 seconds
+                    if (event.code !== 1000) { // 1000 = normal closure
+                        setTimeout(() => {
+                            console.log('🔄 Reconnecting...');
+                            if (currentChatRoomId) {
+                                connectWebSocket(currentChatRoomId);
+                            }
+                        }, 3000);
+                    }
+                };
+            }
+
+            // Function to load chat history
+            async function loadChatHistory(chatRoomId) {
+                try {
+                    const response = await fetch(`/chat/api/rooms/${chatRoomId}/messages/`, {
+                        credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const messagesDiv = document.getElementById('chatMessages');
+                        const loadingDiv = document.getElementById('loadingMessages');
+
+                        if (loadingDiv && loadingDiv.parentNode) {
+                            loadingDiv.remove();
+                        }
+
+                        if (data.messages && data.messages.length > 0) {
+                            data.messages.forEach(msg => {
+                                const isOwn = msg.sender_id === currentUserId;
+                                addMessage(
+                                    msg.sender_id,
+                                    msg.sender_username,
+                                    msg.content,
+                                    msg.timestamp,
+                                    isOwn
+                                );
+                            });
+
+                            // Mark messages as read
+                            await markMessagesAsRead(chatRoomId);
+                        } else {
+                            // No messages
+                            const noMessages = document.createElement('div');
+                            noMessages.className = 'text-center text-muted';
+                            noMessages.textContent = 'No messages yet. Start the conversation!';
+                            messagesDiv.appendChild(noMessages);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading history:', error);
+                }
+            }
+
+            // Function to mark messages as read
+            async function markMessagesAsRead(chatRoomId) {
+                try {
+                    await fetch(`/chat/api/rooms/${chatRoomId}/read/`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            "X-CSRFToken": getCookie("csrftoken")
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error marking messages:', error);
+                }
+            }
+
+            // Function to send message
+            function sendMessage() {
+                if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
+                    alert('Connection not established. Please wait...');
+                    return;
+                }
+
+                const input = document.getElementById('messageInput');
+                const message = input.value.trim();
+
+                if (!message) {
+                    return;
+                }
+
+                // Send message via WebSocket
+                chatSocket.send(JSON.stringify({
+                    message: message
+                }));
+
+                // Clear input field
+                input.value = '';
+
+                // Focus back on input field
+                input.focus();
+            }
+
+            // Variable to store current chat_room_id
+            let currentChatRoomId = null;
+
+            // Function to open chat and connect WebSocket
+            async function openChatAndConnect() {
+                try {
+                    console.log('📞 Opening chat for advert', advertId);
+
+                    // Open chat via /chat/open/<advert_id>/
+                    const response = await fetch(`/chat/open/${advertId}/`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+
+                    if (response.redirected) {
+                        // Server redirected us to /chat/<chat_room_id>/
+                        // Extract chat_room_id from URL
+                        const url = new URL(response.url);
+                        const pathParts = url.pathname.split('/');
+                        const chatRoomId = pathParts[pathParts.length - 2]; // /chat/<id>/
+
+                        console.log('✅ Chat opened, Chat Room ID:', chatRoomId);
+                        currentChatRoomId = chatRoomId;
+
+                        // Connect to WebSocket
+                        connectWebSocket(parseInt(chatRoomId));
+                    } else {
+                        console.error('❌ Error opening chat:', response.status);
+                    }
+                } catch (error) {
+                    console.error('❌ Error opening chat:', error);
+                    addMessage(null, 'System', 'Error opening chat: ' + error.message, new Date().toISOString());
+                }
+            }
+
+            // Handle Enter key press
+            document.getElementById('messageInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Connect WebSocket when modal opens
+            document.getElementById('chatModal').addEventListener('shown.bs.modal', function () {
+                openChatAndConnect();
+            });
+
+            // Close WebSocket when modal closes
+            document.getElementById('chatModal').addEventListener('hidden.bs.modal', function () {
+                if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                    chatSocket.close(1000); // 1000 = normal closure
+                }
+            });
+
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function () {
+                // Preload if needed
+            });
+        </script>
+    {% endif %}
 {% endblock %}
