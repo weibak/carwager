@@ -1,0 +1,132 @@
+name: Ruff
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ruff:
+    name: Ruff linter check
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Retrieve current Date & Time in Moscow TimeZone
+        shell: bash
+        run: echo "TIMESTAMP=$(TZ=":Europe/Moscow" date -R|sed 's/.....$//')" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed .py files
+        id: changed-py-files
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46
+        with:
+          files: /**/*.py
+      - name: Echo the list of changes
+        if: steps.changed-py-files.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-py-files.outputs.all_changed_files }}
+        run: |
+          echo "One or more files in the docs folder has changed."
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
+
+      - name: Install Ruff
+        if: steps.changed-py-files.outputs.any_changed == 'true'
+        uses: astral-sh/ruff-action@v3.4
+        with:
+          version-file: ".github/workflows/requirements.txt"
+          args: "--version"
+
+      - name: Lint with Ruff
+        if: steps.changed-py-files.outputs.any_changed == 'true'
+        id: lint
+        uses: mathiasvr/command-output@v2.0.0
+        with:
+          run: |
+            ruff check --unsafe-fixes --output-format full ${{ steps.changed-py-files.outputs.all_changed_files }}
+
+      # - name: Format with Ruff
+      #   id: format
+      #   if: failure() && (steps.lint.outcome == 'success' || steps.lint.outcome == 'failure') && steps.changed-py-files.outputs.any_changed == 'true'
+      #   run: |
+      #     ruff format --check --diff ${{ steps.changed-py-files.outputs.all_changed_files }}
+
+      # - name: List changes
+      #   if: (failure() || success())
+      #   run: git status
+
+      # - name: Suggest Changes Action
+      #   if: failure() || success()
+      #   uses: parkerbxyz/suggest-changes@v2.0.1
+      #   with:
+      #     comment: |
+      #       Предложены автоматические исправления линтинга и форматирования.
+      #     event: "COMMENT"
+
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find-comment
+        if: failure() || success()
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+
+      - name: Create comment if Ruff has no remaining errors
+        if: (steps.lint.outcome == 'success') && steps.find-comment.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Нет ошибок линтера! :heart:
+
+      - name: Create comment if Ruff has remaining errors
+        if: failure() && !(steps.lint.outcome == 'success') && steps.find-comment.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <details>
+            <summary>Необходимо внести исправления от линтера.</summary>
+
+            ```python
+            ${{ steps.lint.outputs.stdout }}
+            ```
+
+             </details>
+
+      - name: Update comment if Ruff has no remaining errors
+        if: (steps.lint.outcome == 'success') && steps.find-comment.outputs.comment-id != ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            Нет ошибок линтера! :heart:
+
+            Время последнего обновления: ${{ env.TIMESTAMP }}
+
+      - name: Update comment if Ruff has remaining errors
+        if: failure() && !(steps.lint.outcome == 'success') && steps.find-comment.outputs.comment-id != ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            <details>
+            <summary>Необходимо внести исправления от линтера.</summary>
+
+            ```python
+            ${{ steps.lint.outputs.stdout }}
+            ```
+
+             </details>
+
+            Время последнего обновления: ${{ env.TIMESTAMP }}
