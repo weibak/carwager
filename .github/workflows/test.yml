@@ -1,30 +1,107 @@
-- name: Install dependencies
-  run: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    pip install pytest pytest-django
+name: Django Tests
 
-- name: Check Django configuration
-  working-directory: carwager
-  run: |
-    python manage.py check
+on:
+  push:
+    branches:
+      - master
+      - dev
 
-- name: Run database migrations
-  working-directory: carwager
-  run: |
-    python manage.py migrate --noinput
+  pull_request:
+    branches:
+      - master
+      - dev
 
-- name: Run Django tests
-  working-directory: carwager
-  run: |
-    python manage.py test --verbosity=2
+  workflow_dispatch:
 
-- name: Check Django migrations
-  working-directory: carwager
-  run: |
-    python manage.py makemigrations --check --dry-run
+env:
+  PYTHON_VERSION: "3.10"
 
-- name: Check static files
-  working-directory: carwager
-  run: |
-    python manage.py collectstatic --noinput --dry-run
+jobs:
+  test:
+    name: Run Django Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: carwager
+          POSTGRES_PASSWORD: carwager
+          POSTGRES_DB: carwager_test
+        options: >-
+          --health-cmd="pg_isready -U carwager -d carwager_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:6
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+
+      - name: Create test environment
+        run: |
+          cat > .env.test << EOF
+          DEBUG=True
+          SECRET_KEY=test-secret-key
+          POSTGRES_NAME=carwager_test
+          POSTGRES_USER=carwager
+          POSTGRES_PASS=carwager
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
+          ALLOWED_HOSTS=localhost,127.0.0.1
+          EOF
+
+      - name: Load test environment
+        run: |
+          cat .env.test >> "$GITHUB_ENV"
+
+      - name: Check Django configuration
+        working-directory: carwager
+        run: |
+          python manage.py check
+
+      - name: Run database migrations
+        working-directory: carwager
+        run: |
+          python manage.py migrate --noinput
+
+      - name: Run Django tests
+        working-directory: carwager
+        run: |
+          python manage.py test --verbosity=2
+
+      - name: Check Django migrations
+        working-directory: carwager
+        run: |
+          python manage.py makemigrations --check --dry-run
+
+      - name: Check static files
+        working-directory: carwager
+        run: |
+          python manage.py collectstatic --noinput --dry-run
