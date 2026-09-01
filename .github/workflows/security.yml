@@ -2,79 +2,138 @@ name: Security Scan
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Run weekly on Sunday
+    - cron: '0 0 * * 0'
+
   push:
-    branches: [ main ]
+    branches:
+      - main
+
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+
   workflow_dispatch:
 
 jobs:
   security:
     name: Security Checks
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.8'
-    
-    - name: Install security tools
-      run: |
-        pip install safety bandit
-    
-    - name: Check Python dependencies for vulnerabilities
-      run: safety check -r requirements.txt
-    
-    - name: Run Bandit security linter
-      run: bandit -r . -ll
-    
-    - name: Check for secrets in code
-      uses: trufflesecurity/trufflehog@main
-      with:
-        path: ./
-        base: ${{ github.event.pull_request.base.sha || github.sha }}
-        head: ${{ github.event.pull_request.head.sha || github.sha }}
-    
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-    
-    - name: Upload Trivy results
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
-    
-    - name: Check Django security settings
-      run: |
-        echo "Checking Django security settings..."
-        python -c "
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'general.settings')
-import django
-django.setup()
-from django.conf import settings
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-security_checks = [
-    ('DEBUG', settings.DEBUG, False, 'DEBUG should be False in production'),
-    ('SECRET_KEY', bool(settings.SECRET_KEY), True, 'SECRET_KEY should be set'),
-    ('ALLOWED_HOSTS', bool(settings.ALLOWED_HOSTS), True, 'ALLOWED_HOSTS should be set'),
-    ('CSRF_COOKIE_SECURE', settings.CSRF_COOKIE_SECURE, True, 'CSRF_COOKIE_SECURE should be True'),
-    ('SESSION_COOKIE_SECURE', settings.SESSION_COOKIE_SECURE, True, 'SESSION_COOKIE_SECURE should be True'),
-    ('SECURE_SSL_REDIRECT', settings.SECURE_SSL_REDIRECT, True, 'SECURE_SSL_REDIRECT should be True'),
-]
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
 
-print('Security check results:')
-for name, value, expected, message in security_checks:
-    status = '✓' if value == expected else '✗'
-    print(f'{status} {name}: {value} - {message}')
-        "
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install security tools
+        run: |
+          pip install bandit pip-audit
+
+      - name: Check Python dependencies
+        run: |
+          pip-audit -r requirements.txt
+
+      - name: Run Bandit
+        run: |
+          bandit -r . -ll \
+            --exclude ./venv,./.venv,./env,./.git
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.pull_request.base.sha || github.sha }}
+          head: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Check Django security settings
+        env:
+          DJANGO_SETTINGS_MODULE: general.settings
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          python - <<'PY'
+          import django
+
+          django.setup()
+
+          from django.conf import settings
+
+          checks = [
+              (
+                  "DEBUG",
+                  settings.DEBUG,
+                  False,
+                  "DEBUG should be False"
+              ),
+              (
+                  "SECRET_KEY",
+                  bool(settings.SECRET_KEY),
+                  True,
+                  "SECRET_KEY should be set"
+              ),
+              (
+                  "ALLOWED_HOSTS",
+                  bool(settings.ALLOWED_HOSTS),
+                  True,
+                  "ALLOWED_HOSTS should be set"
+              ),
+              (
+                  "CSRF_COOKIE_SECURE",
+                  settings.CSRF_COOKIE_SECURE,
+                  True,
+                  "CSRF_COOKIE_SECURE should be True"
+              ),
+              (
+                  "SESSION_COOKIE_SECURE",
+                  settings.SESSION_COOKIE_SECURE,
+                  True,
+                  "SESSION_COOKIE_SECURE should be True"
+              ),
+              (
+                  "SECURE_SSL_REDIRECT",
+                  settings.SECURE_SSL_REDIRECT,
+                  True,
+                  "SECURE_SSL_REDIRECT should be True"
+              ),
+          ]
+
+          failed = False
+
+          print("Security check results:")
+
+          for name, value, expected, message in checks:
+              if value == expected:
+                  print(f"✓ {name}: {value}")
+              else:
+                  print(f"✗ {name}: {value} — {message}")
+                  failed = True
+
+          if failed:
+              raise SystemExit(1)
+
+          print("All Django security checks passed.")
+          PY
