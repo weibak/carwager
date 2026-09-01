@@ -1,4 +1,7 @@
 import logging
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -6,8 +9,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+
 from auction.forms import AuctionForm, CarAuctionForm, AuctionFiltersForm
 from auction.models import Auction, CarAuction, Winner
 from auction.queries import filter_cars_auction
@@ -68,8 +70,8 @@ def create_auction(request, *args, **kwargs):
                     "auction",
                 )
             return redirect(
-                    "auction",
-                )
+                "auction",
+            )
         else:
             form = AuctionForm()
             form_car = CarAuctionForm()
@@ -91,7 +93,7 @@ def auction_view(request, auction_id):
             if not request.user.is_authenticated:
                 messages.error(request, "You must be logged in to place a bid.")
                 return redirect("auction_details", auction_id=auction_id)
-            
+
             if auction.owner_id == request.user.id:
                 messages.error(request, "You can't bid on your own auction.")
                 return redirect("auction_details", auction_id=auction_id)
@@ -132,7 +134,6 @@ def auction_view(request, auction_id):
                 auction.favorites.remove(request.user)
                 messages.info(request, "Auction successfully removed to favorites")
             return redirect("auction_details", auction_id=auction_id)
-
 
     return render(
         request,
