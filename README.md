@@ -1,54 +1,113 @@
-CarWager applicaation
-====
+# CarWager - Auto Realization and Auction Platform
 
-About
------
+## О проекте
+CarWager - современная платформа для продажи автомобилей и проведения аукционов. Проект построен на Django с использованием PostgreSQL, Redis, WebSockets (Django Channels) и Docker.
 
-CarWager applicaation.
-Auto realization and auction.
+**Автор:** Artem Sheibak <sheibakaa@gmail.com>
 
+## Быстрый старт
 
-Author: Artem Sheibak <sheibakaa@gmail.com>
+### Варианты запуска:
+1. **Локальный запуск (без Docker)** - для разработки и тестирования
+2. **Запуск с Docker** - для быстрого развертывания
+3. **Запуск с Docker Compose** - для production-окружения
 
+### Требования:
+- Python 3.8+
+- PostgreSQL 12+
+- Redis 6+
+- Docker 20.10+ (для Docker варианта)
+- Docker Compose 2.0+ (для Docker Compose)
 
-Requirements:
+## 📖 Подробные инструкции
 
-    Python 3.8, PostgreSql, Docker, Docker-compose, Django, DjangoRQ.
+Для подробных инструкций по каждому варианту запуска смотрите:
 
+- **[README_LOCAL_DOCKER.md](README_LOCAL_DOCKER.md)** - Полное руководство по запуску
+  - Локальный запуск (без Docker)
+  - Запуск с Docker
+  - Запуск с Docker Compose
+  - Настройка окружения
+  - Администрирование
+  - Устранение неполадок
 
-## Setup development environment  
+## 🚀 Краткая инструкция
 
-1. Install virtualenv and PostgreSQL
+### Локальный запуск (рекомендуется для разработки):
+```bash
+# Установка зависимостей
+sudo apt install -y python3.8 python3.8-venv postgresql redis-server
 
-        $ sudo apt install virtualenv
-        $ sudo apt install -y postgresql postgresql-contrib
-        $ sudo pg_ctlcluster 12 main start
-        $ sudo apt install -y libpq-dev python3-dev
+# Настройка базы данных
+sudo -u postgres psql -c "CREATE DATABASE carwager;"
+sudo -u postgres psql -c "CREATE USER carwager WITH PASSWORD 'carwager';"
 
-2. Install, create and activate virtualenv
+# Настройка проекта
+python3.8 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 
-        $ pip install virtualenv  
-        $ virtualenv -p python3.8 --prompt=carwager- venv/
-        $ source venv/bin/activate  
+# Миграции и запуск
+python manage.py migrate
+python manage.py runserver
+```
 
-3. Clone sources and install pip packages
-  
-        $ git clone git@github.com:weibak/carwager.git && cd carwager/
-        $ pip install -r requirements.txt
+### Запуск с Docker Compose (рекомендуется для production):
+```bash
+# Клонирование и запуск
+git clone <repository-url>
+cd carwager
+docker-compose build
+docker-compose up -d
 
-4. Run migration and local dev server
+# Настройка базы данных
+docker-compose exec django python manage.py migrate
+docker-compose exec django python manage.py createsuperuser
+```
 
-        $ python manage.py migrate
-        $ python manage.py runserver
+## 🌐 Доступ к приложению
 
+После запуска:
+- **Основное приложение:** http://localhost:8000 (локально) или http://localhost:8080 (Docker)
+- **Админ-панель:** http://localhost:8000/admin
+- **WebSocket endpoint:** ws://localhost:8001/ws/
 
-# Run using docker-compose
-1. Install
+## 📁 Структура проекта
 
-        $ sudo apt install docker
-        $ sudo apt install docker compose
+```
+carwager/
+├── carwager/          # Основное Django приложение
+│   ├── static/       # Статические файлы (CSS, JS, изображения)
+│   ├── templates/    # HTML шаблоны
+│   └── ...
+├── general/          # Настройки проекта
+├── showbill/         # Приложение объявлений
+├── auction/          # Приложение аукционов
+├── chat/            # Приложение чатов (WebSocket)
+├── news/            # Приложение новостей
+├── docker/          # Docker конфигурации
+├── docker-compose.yml
+├── requirements.txt
+└── README_LOCAL_DOCKER.md  # Полное руководство
+```
 
-2.
+## 🔧 Технологический стек
 
-       $ sudo docker compose build
-       $ sudo docker compose up
+- **Backend:** Django 4.0, Django REST Framework
+- **База данных:** PostgreSQL
+- **Кэш и очереди:** Redis, Django RQ
+- **WebSockets:** Django Channels, Daphne
+- **Фронтенд:** Bootstrap 5, JavaScript, jQuery
+- **Сервер:** Nginx, Gunicorn, Daphne
+- **Контейнеризация:** Docker, Docker Compose
+- **Шрифты:** Frank Ruhl Libre
+
+## 📞 Контакты и поддержка
+
+- **Автор:** Artem Sheibak
+- **Email:** sheibakaa@gmail.com
+- **LinkedIn:** [Artem Sheibak](https://www.linkedin.com/in/artem-sheibak-a12923227/)
+
+## 📄 Лицензия
+
+Проект распространяется под лицензией MIT. Подробнее см. в файле LICENSE.
