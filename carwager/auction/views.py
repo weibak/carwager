@@ -5,14 +5,15 @@ from channels.layers import get_channel_layer
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 
-from auction.forms import AuctionForm, CarAuctionForm, AuctionFiltersForm
+from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
 from auction.models import Auction, CarAuction, Winner
 from auction.queries import filter_cars_auction
+
 
 logger = logging.getLogger(__name__)
 
