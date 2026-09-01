@@ -1,0 +1,24 @@
+name: "CarWager CodeQL Config"
+
+paths:
+  - carwager/
+  - general/
+  - showbill/
+  - auction/
+  - chat/
+  - news/
+
+paths-ignore:
+  - "**/tests/"
+  - "**/test/"
+  - "**/__pycache__/"
+  - "**/*.pyc"
+  - "**/.venv/"
+  - "**/venv/"
+  - "**/node_modules/"
+  - "**/bower_components/"
+  - "**/dist/"
+  - "**/build/"
+
+queries:
+  - uses: security-and-quality

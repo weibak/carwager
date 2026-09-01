@@ -1,0 +1,80 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sunday
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  security:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    
+    - name: Install security tools
+      run: |
+        pip install safety bandit
+    
+    - name: Check Python dependencies for vulnerabilities
+      run: safety check -r requirements.txt
+    
+    - name: Run Bandit security linter
+      run: bandit -r . -ll
+    
+    - name: Check for secrets in code
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.pull_request.base.sha || github.sha }}
+        head: ${{ github.event.pull_request.head.sha || github.sha }}
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+    
+    - name: Check Django security settings
+      run: |
+        echo "Checking Django security settings..."
+        python -c "
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'general.settings')
+import django
+django.setup()
+from django.conf import settings
+
+security_checks = [
+    ('DEBUG', settings.DEBUG, False, 'DEBUG should be False in production'),
+    ('SECRET_KEY', bool(settings.SECRET_KEY), True, 'SECRET_KEY should be set'),
+    ('ALLOWED_HOSTS', bool(settings.ALLOWED_HOSTS), True, 'ALLOWED_HOSTS should be set'),
+    ('CSRF_COOKIE_SECURE', settings.CSRF_COOKIE_SECURE, True, 'CSRF_COOKIE_SECURE should be True'),
+    ('SESSION_COOKIE_SECURE', settings.SESSION_COOKIE_SECURE, True, 'SESSION_COOKIE_SECURE should be True'),
+    ('SECURE_SSL_REDIRECT', settings.SECURE_SSL_REDIRECT, True, 'SECURE_SSL_REDIRECT should be True'),
+]
+
+print('Security check results:')
+for name, value, expected, message in security_checks:
+    status = '✓' if value == expected else '✗'
+    print(f'{status} {name}: {value} - {message}')
+        "
