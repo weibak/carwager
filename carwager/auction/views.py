@@ -14,7 +14,6 @@ from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
 from auction.models import Auction, CarAuction, Winner
 from auction.queries import filter_cars_auction
 
-
 logger = logging.getLogger(__name__)
 
 
