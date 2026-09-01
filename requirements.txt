@@ -3,7 +3,7 @@ pytest==6.2.5
 pytest-django==4.5.2
 psycopg2-binary==2.9.3
 Pillow==9.0.0
-crispy-bootstrap5==0.6
+crispy-bootstrap5==2026.3
 djangorestframework==3.13.1
 ipython==8.0.1
 factory_boy>=3.2.0
