@@ -14,9 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.10'
-  POSTGRES_VERSION: '12'
-  REDIS_VERSION: '6'
+  PYTHON_VERSION: "3.10"
 
 jobs:
   test:
@@ -25,7 +23,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:${{ env.POSTGRES_VERSION }}
+        image: postgres:12
         env:
           POSTGRES_USER: carwager
           POSTGRES_PASSWORD: carwager
@@ -39,7 +37,7 @@ jobs:
           - 5432:5432
 
       redis:
-        image: redis:${{ env.REDIS_VERSION }}
+        image: redis:6
         options: >-
           --health-cmd="redis-cli ping"
           --health-interval=10s
@@ -79,51 +77,31 @@ jobs:
           ALLOWED_HOSTS=localhost,127.0.0.1
           EOF
 
-      - name: Load environment
+      - name: Load test environment
         run: |
-          set -a
-          source .env.test
-          set +a
-
-          python -c "import os; print('POSTGRES_HOST=', os.getenv('POSTGRES_HOST'))"
-          python -c "import os; print('POSTGRES_NAME=', os.getenv('POSTGRES_NAME'))"
+          cat .env.test >> "$GITHUB_ENV"
 
       - name: Check Django configuration
+        working-directory: carwager
         run: |
-          set -a
-          source .env.test
-          set +a
-
           python manage.py check
 
-      - name: Run migrations
+      - name: Run database migrations
+        working-directory: carwager
         run: |
-          set -a
-          source .env.test
-          set +a
-
           python manage.py migrate --noinput
 
-      - name: Run tests
+      - name: Run Django tests
+        working-directory: carwager
         run: |
-          set -a
-          source .env.test
-          set +a
-
           python manage.py test --verbosity=2
 
-      - name: Check migrations
+      - name: Check Django migrations
+        working-directory: carwager
         run: |
-          set -a
-          source .env.test
-          set +a
-
           python manage.py makemigrations --check --dry-run
 
       - name: Check static files
+        working-directory: carwager
         run: |
-          set -a
-          source .env.test
-          set +a
-
           python manage.py collectstatic --noinput --dry-run
