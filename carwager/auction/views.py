@@ -1,14 +1,16 @@
 import logging
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from auction.forms import AuctionForm, CarAuctionForm, AuctionFiltersForm
+
+from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
 from auction.models import Auction, CarAuction, Winner
 from auction.queries import filter_cars_auction
 
@@ -68,8 +70,8 @@ def create_auction(request, *args, **kwargs):
                     "auction",
                 )
             return redirect(
-                    "auction",
-                )
+                "auction",
+            )
         else:
             form = AuctionForm()
             form_car = CarAuctionForm()
@@ -84,54 +86,53 @@ def auction_view(request, auction_id):
     auction = get_object_or_404(Auction, id=auction_id)
     winner = winn.user.username if (winn := Winner.objects.filter(auction=auction).first()) else "No winner"
 
-    if request.method == "POST" and request.user.is_authenticated:
-        if request.POST.get("bid"):
-            from .bid_processor import process_bid_with_retry
+    if request.method == "POST" and request.user.is_authenticated and request.POST.get("bid"):
+        from .bid_processor import process_bid_with_retry
 
-            if not request.user.is_authenticated:
-                messages.error(request, "You must be logged in to place a bid.")
-                return redirect("auction_details", auction_id=auction_id)
-            
-            if auction.owner_id == request.user.id:
-                messages.error(request, "You can't bid on your own auction.")
-                return redirect("auction_details", auction_id=auction_id)
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to place a bid.")
+            return redirect("auction_details", auction_id=auction_id)
 
-            bid_amount_str = request.POST.get("bid")
+        if auction.owner_id == request.user.id:
+            messages.error(request, "You can't bid on your own auction.")
+            return redirect("auction_details", auction_id=auction_id)
 
-            # Use atomic bid processor with retry
-            success, message, new_price, bid_id = process_bid_with_retry(
-                auction_id=auction_id,
-                user_id=request.user.id,
-                bid_amount_str=bid_amount_str,
-                max_retries=3
+        bid_amount_str = request.POST.get("bid")
+
+        # Use atomic bid processor with retry
+        success, message, new_price, _ = process_bid_with_retry(
+            auction_id=auction_id,
+            user_id=request.user.id,
+            bid_amount_str=bid_amount_str,
+            max_retries=3
+        )
+
+        if success:
+            # Refresh auction to get updated price
+            auction.refresh_from_db()
+
+            # Send WebSocket update to all connected clients
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'auction_{auction.id}',
+                {
+                    'type': 'price_update',
+                    'new_price': new_price,
+                    'auction_id': auction.id,
+                }
             )
 
-            if success:
-                # Refresh auction to get updated price
-                auction.refresh_from_db()
+            messages.success(request, 'Bid placed successfully!')
+        else:
+            messages.error(request, message)
 
-                # Send WebSocket update to all connected clients
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
-                    f'auction_{auction.id}',
-                    {
-                        'type': 'price_update',
-                        'new_price': new_price,
-                        'auction_id': auction.id,
-                    }
-                )
-
-                messages.success(request, 'Bid placed successfully!')
-            else:
-                messages.error(request, message)
-
-            if request.POST["action"] == "add":
-                auction.favorites.add(request.user)
-                messages.info(request, "Auction successfully added to favorites")
-            elif request.POST["action"] == "remove":
-                auction.favorites.remove(request.user)
-                messages.info(request, "Auction successfully removed to favorites")
-            return redirect("auction_details", auction_id=auction_id)
+        if request.POST["action"] == "add":
+            auction.favorites.add(request.user)
+            messages.info(request, "Auction successfully added to favorites")
+        elif request.POST["action"] == "remove":
+            auction.favorites.remove(request.user)
+            messages.info(request, "Auction successfully removed to favorites")
+        return redirect("auction_details", auction_id=auction_id)
 
     return render(
         request,

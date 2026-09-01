@@ -26,7 +26,7 @@ jobs:
         id: changed-py-files
         uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46
         with:
-          files: /**/*.py
+          files: carwager/**/*.py
       - name: Echo the list of changes
         if: steps.changed-py-files.outputs.any_changed == 'true'
         env:
