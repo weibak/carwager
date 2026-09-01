@@ -11,7 +11,7 @@ scrapy==2.5.1
 django-rq==2.5.1
 rq-scheduler==0.11.0
 rq==1.13.0
-requests==2.27.1
+requests==2.34.2
 faker==13.2.0
 schedule==1.1.0
 six==1.16.0
