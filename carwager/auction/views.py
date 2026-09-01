@@ -133,6 +133,7 @@ def auction_view(request, auction_id):
                 messages.info(request, "Auction successfully removed to favorites")
             return redirect("auction_details", auction_id=auction_id)
 
+
     return render(
         request,
         "auction/auction_details.html",
