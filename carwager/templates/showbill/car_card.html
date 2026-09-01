@@ -1,26 +1,63 @@
 {% load static %}
-{% load text_tags%}
+{% load text_tags %}
 
-<a class="link" href="{% url 'car_details' advert.id %}">
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title">{{ advert.car.mark }}</h5>
-        <h5 class="card-title">{{ advert.car.model.car_model }} | {{ advert.car.year }}</h5>
-        {% if advert.image %}
-            <img class="card-img-top mb-2" src="{{ advert.image.url}}" alt="{{ advert.car.mark }}">
-        {% else %}
-            <img src="{% static 'no-image.jpg' %}" class="card-img-top mb-2" alt="No image">
-        {% endif %}
-        <h6 class="card-subtitle"><strong>Price:</strong> {{ advert.price }} BYN - {{ advert.price_usd }} USD</h6>
-        <p class="card-engine"><strong>Engine:</strong> {{ advert.get_engine_type_display }} - {{ advert.engine_capacity }}l.</p>
-        <p class="card-transmission"><strong>Transmission:</strong> {{ advert.get_gear_box_display }}</p>
-        <p class="card-drive"><strong>Drive:</strong> {{ advert.get_drive_display }}</p>
-        {% if advert.description %}
-            <p class="card-text">{{ advert.description|cut_text:200 }}</p>
-        {% endif %}
-        <br>
-        <p class="date"><strong>Date:</strong> {{ advert.created_at }}</p>
-        <!-- <a href="{% url 'car_details' advert.id %}" class="btn btn-primary">Details</a> -->
+<div class="card h-100">
+  {% if advert.image %}
+    <img class="card-img-top" src="{{ advert.image.url }}" alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}">
+  {% else %}
+    <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">
+  {% endif %}
+  
+  <div class="card-body d-flex flex-column">
+    <div class="mb-3">
+      <h5 class="card-title mb-1">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h5>
+      <h6 class="card-subtitle text-muted mb-3">{{ advert.car.year }} • {{ advert.get_engine_type_display }}</h6>
+      
+      <div class="d-flex align-items-center mb-3">
+        <span class="badge bg-primary me-2">{{ advert.price }} BYN</span>
+        <span class="badge bg-secondary">{{ advert.price_usd }} USD</span>
+      </div>
     </div>
+    
+    <div class="mb-3">
+      <div class="row g-2">
+        <div class="col-6">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-cogs text-primary me-2"></i>
+            <small class="text-muted">{{ advert.engine_capacity }}L</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-cog text-primary me-2"></i>
+            <small class="text-muted">{{ advert.get_gear_box_display }}</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-car text-primary me-2"></i>
+            <small class="text-muted">{{ advert.get_drive_display }}</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="d-flex align-items-center">
+            <i class="far fa-calendar-alt text-primary me-2"></i>
+            <small class="text-muted">{{ advert.created_at|date:"M d, Y" }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% if advert.description %}
+      <p class="card-text text-muted mb-3 flex-grow-1">
+        {{ advert.description|cut_text:120 }}
+      </p>
+    {% endif %}
+    
+    <div class="mt-auto">
+      <a href="{% url 'car_details' advert.id %}" class="btn btn-primary w-100">
+        <i class="fas fa-eye me-2"></i>View Details
+      </a>
+    </div>
+  </div>
 </div>
-</a>

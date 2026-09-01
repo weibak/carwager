@@ -1,14 +1,43 @@
 {% extends "base.html" %}
 {% load crispy_forms_filters %}
 
+{% block title %}Create Auction - CarWager{% endblock %}
+
 {% block content %}
-    <br>
-    <br>
-    <h1>Add car auction</h1>
-    <form enctype="multipart/form-data" method="POST" class="post-form">
-        {% csrf_token %}
-        {{ form_car | crispy }}
-        {{ form | crispy }}
-        <button type="submit" class="save btn btn-primary">Save</button>
-    </form>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-3">
+          <h3 class="mb-0">Create Car Auction</h3>
+          <p class="mb-0 small">Start a new auction for your vehicle</p>
+        </div>
+        <div class="card-body p-4">
+          <form enctype="multipart/form-data" method="POST" class="post-form">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+              <h5 class="text-primary mb-3">Car Information</h5>
+              {{ form_car | crispy }}
+            </div>
+            
+            <div class="mb-4">
+              <h5 class="text-primary mb-3">Auction Details</h5>
+              {{ form | crispy }}
+            </div>
+            
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-gavel me-2"></i>Start Auction
+              </button>
+              <a href="{% url 'auction' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-2"></i>Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

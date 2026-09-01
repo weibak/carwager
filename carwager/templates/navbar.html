@@ -1,58 +1,66 @@
 {% load static %}{% load tz %}
 
-<nav class="navbar navbar-expand-lg navbar-light text-white fixed-top" style="background-color: #EC8D78">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #2d5a4d">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'news' %}">
-            <img src="{% static 'car.svg' %}" alt="" width="30" height="24" class="d-inline-block align-text-top">
+        <a class="navbar-brand fw-bold" href="{% url 'news' %}">
+            <img src="{% static 'car.svg' %}" alt="CarWager Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
             CarWager
         </a>
-        <div class="navbar-collapse" id="navbarSupportedContent">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url "news" %}">News</a>
-                </li>
-                {% if request.user.is_superuser %}
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url "create_new" %}">Create new</a>
-                    </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url "showbill" %}">Sale ads</a>
+                    <a class="nav-link" href="{% url "news" %}">News</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url "auction" %}">Auction</a>
+                    <a class="nav-link" href="{% url "showbill" %}">Sale Ads</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "auction" %}">Auction</a>
+                </li>
+                
                 {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "create_new" %}">Create News</a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url "add_advert" %}">Create advert</a>
+                        <a class="nav-link" href="{% url "add_advert" %}">Create Advert</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url "add_auction" %}">Create Auction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page"
-                           href="{% url "profile" %}">{{ request.user.username }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url "logout" %}">Logout</a>
+                        <a class="nav-link" href="{% url "add_auction" %}">Create Auction</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'my_chats' %}">
-                            💬 Мои чаты
+                            💬 Chats
                             {% if unread_messages_count > 0 %}
                                 <span class="badge bg-danger">{{ unread_messages_count }}</span>
                             {% endif %}
                         </a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ request.user.username }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url "profile" %}">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url "logout" %}">Logout</a></li>
+                        </ul>
+                    </li>
                 {% else %}
-                    <li>
-                        <a class="nav-link active" aria-current="page" href="{% url "auth" %}">Login</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url "auth" %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url "register" %}">Register</a>
                     </li>
                 {% endif %}
-                <li>
-                </li>
             </ul>
         </div>
     </div>
 </nav>
-<br>
+<div style="height: 70px;"></div>

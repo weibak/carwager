@@ -1,68 +1,98 @@
 {% extends "base.html" %}
-{% load pagination_tags text_tags%}
+{% load pagination_tags text_tags %}
 {% load i18n static crispy_forms_filters %}
 
-{% block title %}Cars for sale{% endblock %}
+{% block title %}Cars for Sale - CarWager{% endblock %}
 
 {% block content %}
-    <br>
-    <br>
-    <div class="cars">
-        <h1 class="my-4">{% translate "Cars" %}</h1>
-        <div class="row">
-            <div class="col-3">
-                <div class="filters-form mb-4">
-                    <h3>{% translate "Filters" %}</h3>
-                    <form class="form-inline">
-                        {{ date_filter|crispy }}
-                        {{ filters_form|crispy }}
-                        <button type="submit" class="save btn btn-primary">{% translate "Search" %}</button>
-                    </form>
-                </div>
-            </div>
-            <nav class="col-9">
-                <div class="row">
-                    {% for advert in adverts %}
-                        <div class="col-4">
-                            {% include "showbill/car_card.html" %}
-                        </div>
-                    {% endfor %}
-                </div>
-            </nav>
-            <nav aria-label="Page navigation example" class="my-3">
-                <ul class="pagination justify-content-center">
-                    {% if cars.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=1 %}">
-                                &laquo; {% translate "First" %}
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=adverts.previous_page_number %}">
-                                {% translate "Previous" %}
-                            </a>
-                        </li>
-                    {% endif %}
-                    <li class="page-item disabled">
-                <span class="page-link">
-                  {% translate "Page" %} {{ adverts.number }}
-                  {% translate "of" %} {{ adverts.paginator.num_pages }}.
-                </span>
-                    </li>
-                    {% if adverts.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=adverts.next_page_number %}">
-                                {% translate "Next" %}
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="{% url_replace page=adverts.paginator.num_pages %}">
-                                {% translate "Last" %} &raquo;
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="display-5 fw-bold mb-3">Cars for Sale</h1>
+      <p class="lead text-muted">Browse our selection of quality vehicles</p>
     </div>
+  </div>
+  
+  <div class="row">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white py-3">
+          <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filters</h5>
+        </div>
+        <div class="card-body">
+          <form class="form-inline" method="get">
+            {{ date_filter|crispy }}
+            {{ filters_form|crispy }}
+            <div class="d-grid gap-2 mt-3">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Search
+              </button>
+              <a href="{% url 'showbill' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-redo me-2"></i>Reset Filters
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Car Listings -->
+    <div class="col-lg-9">
+      {% if adverts %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          {% for advert in adverts %}
+            <div class="col">
+              {% include "showbill/car_card.html" %}
+            </div>
+          {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if adverts.paginator.num_pages > 1 %}
+          <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+              {% if adverts.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=1 %}">
+                    <i class="fas fa-angle-double-left"></i> First
+                  </a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=adverts.previous_page_number %}">
+                    <i class="fas fa-angle-left"></i> Previous
+                  </a>
+                </li>
+              {% endif %}
+              
+              <li class="page-item disabled">
+                <span class="page-link">
+                  Page {{ adverts.number }} of {{ adverts.paginator.num_pages }}
+                </span>
+              </li>
+              
+              {% if adverts.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=adverts.next_page_number %}">
+                    Next <i class="fas fa-angle-right"></i>
+                  </a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="{% url_replace page=adverts.paginator.num_pages %}">
+                    Last <i class="fas fa-angle-double-right"></i>
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info text-center py-5">
+          <h4 class="alert-heading">No cars found</h4>
+          <p class="mb-0">Try adjusting your filters or check back later for new listings.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}

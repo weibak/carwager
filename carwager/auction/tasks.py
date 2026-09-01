@@ -32,15 +32,24 @@ def run_status_update():
 # function to search winners in all auctions, where status is stop
 @job
 def search_winners():
-    end_auctions = Auction.objects.filter(status="stop").exclude(
-        bids__isnull=False)
     logger.info("Search winners...")
+
+    end_auctions = Auction.objects.filter(
+        status="stop",
+        bids__isnull=False,
+    ).distinct()
     for auction in end_auctions:
-        winner = Winner.objects.filter(auction=auction)
-        if winner is not None:
+        if Winner.objects.filter(auction=auction).exists():
             continue
-        winner = auction.bids.filter(auction=auction).order_by("-created_at").first()
-        if winner:
-            winn = winner.user
-            Winner.objects.update_or_create(auction=auction, user=winn)
-            logger.info(f"For Auction id: {auction.id} - winner: user_id {winner.id}")
+
+        last_bid = auction.bids.order_by("-created_at").first()
+
+        if last_bid:
+            Winner.objects.create(
+                auction=auction,
+                user=last_bid.user,
+            )
+
+            logger.info(
+                f"For Auction id: {auction.id} - winner: user_id {last_bid.user.id}"
+            )

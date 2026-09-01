@@ -1,131 +1,204 @@
 {% extends "base.html" %}
 {% load i18n static crispy_forms_filters %}
+
+{% block title %}Profile - {{ user.username }} - CarWager{% endblock %}
+
 {% block content %}
-<br>
-<div class="container">
-    <div class="page-content page-container" id="page-content">
-        <div class="padding">
-            <div class="row container d-flex justify-content-center">
-                <div class="col-xl-12 col-md-14">
-                    <div class="card user-card-full">
-                        <div class="row m-l-0 m-r-0">
-                            <div class="col-sm-4 bg-c-lite-green user-profile">
-                                <div class="card-block text-center text-white">
-                                    <h6 class="f-w-600"> {{ user.first_name }} {{ user.last_name }}</h6>
-                                </div>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="card-block">
-                                    <h6 class="m-b-20 p-b-5 b-b-default f-w-600">Information</h6>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <p class="m-b-10 f-w-600">Email</p>
-                                            <h6 class="text-muted f-w-400">{{ user.email }}</h6>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="m-b-10 f-w-600">Register at </p>
-                                            <h6 class="text-muted f-w-400">{{ user.date_joined }}</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="user-adverts">
-                    <h1>Your adverts</h1>
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                           class="table">
-                        <tr>
-                            <th>Car</th>
-                            <th>Price</th>
-                            <th>Year</th>
-                            <th>Date</th>
-                        </tr>
-                        {% for advert in adverts %}
-                        <tr>
-                            <td><a href="{% url 'car_details' advert.id %}">{{ advert.car.mark }}
-                                - {{ advert.car.model.car_model }}</a></td>
-                            <td>{{ advert.price }} BYN | {{ advert.price_usd }}</td>
-                            <td>{{ advert.car.year }}</td>
-                            <td>{{ advert.created_at }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="user-bids">
-                    <h1>Your bids in auction</h1>
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                           class="table">
-                        <tr>
-                            <th>Car</th>
-                            <th>Current price</th>
-                            <th>Bid</th>
-                            <th>Bid at</th>
-                            <th>Started at</th>
-                            <th>Date end</th>
-                        </tr>
-                        {% for auction in auctions %}
-                        {% if auction.date_end < time%}
-                        <tr>
-                            <td><a href="{% url 'auction_details' auction.id %}">{{ auction.auction.car.mark }}
-                                - {{ auction.auction.car.model.car_model }}</a></td>
-                            <td>{{ auction.auction.price }} BYN</td>
-                            <td>{{ auction.bid }}</td>
-                            <td>{{ auction.created_at }}</td>
-                            <td>{{ auction.auction.date_start }}</td>
-                            <td>{{ auction.auction.date_end }}</td>
-                        </tr>
-                        {% endif %}
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="favorite-auctions">
-                    <h1>Your favorite auctions</h1>
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                           class="table">
-                        <tr>
-                            <th>Car</th>
-                            <th>Current price</th>
-                            <th>Started at</th>
-                            <th>Date end</th>
-                        </tr>
-                        {% for favorite_auction in favorite_auctions %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'auction_details' favorite_auction.id %}">{{ favorite_auction.car.mark }}
-                                    - {{ favorite_auction.car.model.car_model }}</a></td>
-                            <td>{{ favorite_auction.price }} BYN</td>
-                            <td>{{ favorite_auction.date_start }}</td>
-                            <td>{{ favorite_auction.date_end }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="favorite-adverts">
-                    <h1>Your favorite adverts</h1>
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                           class="table">
-                        <tr>
-                            <th>Car</th>
-                            <th>Price</th>
-                            <th>Year</th>
-                            <th>Date</th>
-                        </tr>
-                        {% for favorite_advert in favorite_adverts %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'car_details' favorite_advert.id %}">{{ favorite_advert.car.mark }}
-                                    - {{ favorite_advert.car.model.car_model }}</a></td>
-                            <td>{{ favorite_advert.price }} BYN</td>
-                            <td>{{ favorite_advert.car.year }}</td>
-                            <td>{{ favorite_advert.created_at }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
+<div class="container py-5">
+  <!-- Profile Header -->
+  <div class="row mb-4">
+    <div class="col">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">User Profile</h3>
+            <span class="badge bg-light text-primary">{{ user.username }}</span>
+          </div>
         </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4 text-center mb-4 mb-md-0">
+              <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                <i class="fas fa-user fa-3x text-primary"></i>
+              </div>
+              <h4 class="mt-3 mb-0">{{ user.first_name }} {{ user.last_name }}</h4>
+              <p class="text-muted">Member since {{ user.date_joined|date:"M d, Y" }}</p>
+            </div>
+            <div class="col-md-8">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-muted mb-2">Email Address</h6>
+                  <p class="mb-0">{{ user.email }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-muted mb-2">Account Status</h6>
+                  <span class="badge bg-success">Active</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-muted mb-2">First Name</h6>
+                  <p class="mb-0">{{ user.first_name|default:"Not set" }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-muted mb-2">Last Name</h6>
+                  <p class="mb-0">{{ user.last_name|default:"Not set" }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+  
+  <!-- User Adverts -->
+  <div class="row mb-4">
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light py-3">
+          <h4 class="mb-0">Your Adverts</h4>
+        </div>
+        <div class="card-body">
+          {% if adverts %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Car</th>
+                    <th>Price</th>
+                    <th>Year</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for advert in adverts %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'car_details' advert.id %}" class="text-decoration-none">
+                        {{ advert.car.mark }} - {{ advert.car.model.car_model }}
+                      </a>
+                    </td>
+                    <td>{{ advert.price }} BYN | {{ advert.price_usd }}</td>
+                    <td>{{ advert.car.year }}</td>
+                    <td>{{ advert.created_at|date:"M d, Y" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-4">
+              <p class="text-muted mb-0">You don't have any adverts yet.</p>
+              <a href="{% url 'add_advert' %}" class="btn btn-primary mt-2">Create Your First Advert</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- User Bids -->
+  <div class="row mb-4">
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light py-3">
+          <h4 class="mb-0">Your Auction Bids</h4>
+        </div>
+        <div class="card-body">
+          {% if auctions %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Car</th>
+                    <th>Current Price</th>
+                    <th>Your Bid</th>
+                    <th>Bid Date</th>
+                    <th>Auction End</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for auction in auctions %}
+                    {% if auction.date_end < time %}
+                    <tr>
+                      <td>
+                        <a href="{% url 'auction_details' auction.id %}" class="text-decoration-none">
+                          {{ auction.auction.car.mark }} - {{ auction.auction.car.model.car_model }}
+                        </a>
+                      </td>
+                      <td>{{ auction.auction.price }} BYN</td>
+                      <td><strong>{{ auction.bid }} BYN</strong></td>
+                      <td>{{ auction.created_at|date:"M d, Y" }}</td>
+                      <td>{{ auction.auction.date_end|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-4">
+              <p class="text-muted mb-0">You haven't placed any bids yet.</p>
+              <a href="{% url 'auction' %}" class="btn btn-primary mt-2">Browse Auctions</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Favorites -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-light py-3">
+          <h4 class="mb-0">Favorite Auctions</h4>
+        </div>
+        <div class="card-body">
+          {% if favorite_auctions %}
+            <div class="list-group list-group-flush">
+              {% for favorite_auction in favorite_auctions %}
+                <a href="{% url 'auction_details' favorite_auction.id %}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">{{ favorite_auction.car.mark }} - {{ favorite_auction.car.model.car_model }}</h6>
+                    <small>{{ favorite_auction.price }} BYN</small>
+                  </div>
+                  <small class="text-muted">Ends: {{ favorite_auction.date_end|date:"M d, Y" }}</small>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted text-center py-3">No favorite auctions yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-light py-3">
+          <h4 class="mb-0">Favorite Adverts</h4>
+        </div>
+        <div class="card-body">
+          {% if favorite_adverts %}
+            <div class="list-group list-group-flush">
+              {% for favorite_advert in favorite_adverts %}
+                <a href="{% url 'car_details' favorite_advert.id %}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">{{ favorite_advert.car.mark }} - {{ favorite_advert.car.model.car_model }}</h6>
+                    <small>{{ favorite_advert.price }} BYN</small>
+                  </div>
+                  <small class="text-muted">{{ favorite_advert.car.year }} • {{ favorite_advert.created_at|date:"M d, Y" }}</small>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted text-center py-3">No favorite adverts yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

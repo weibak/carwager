@@ -1,17 +1,30 @@
 {% extends "base.html" %}
 {% load static crispy_forms_filters text_tags %}
 
+{% block title %}Latest Car News - CarWager{% endblock %}
+
 {% block content %}
-<br>
-<br>
-  <div class="posts">
-    <h1 class="my-4">Latest car news</h1>
-      <div class="row">
-          {% for new in news %}
-          <div class="col-6 post-item">
-              {% include "news/news_card.html" %}
-          </div>
-          {% endfor %}
-      </div>
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="display-5 fw-bold mb-3">Latest Car News</h1>
+      <p class="lead text-muted">Stay updated with the latest automotive news and announcements</p>
     </div>
+  </div>
+  
+  {% if news %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for new in news %}
+        <div class="col">
+          {% include "news/news_card.html" %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center py-4">
+      <h4 class="alert-heading">No news available</h4>
+      <p class="mb-0">Check back later for the latest automotive news.</p>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}

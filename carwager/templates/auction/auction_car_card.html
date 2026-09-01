@@ -1,25 +1,92 @@
 {% load static %}
 {% load text_tags %}
 
-<a class="link" href="{% url 'auction_details' auction.id %}">
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">{{ auction.car.mark }}</h5>
-            <h5 class="card-title">{{ auction.car.model.car_model }} | {{ auction.get_status_display }}</h5>
-            {% if auction.image %}
-            <img class="card-img-top mb-2" src="{{ auction.image.url }}" alt="{{ auction.car.mark }}">
-            {% else %}
-            <img src="{% static 'no-image.jpg' %}" class="card-img-top mb-2" alt="No image">
-            {% endif %}
-            <h6 class="card-subtitle"><strong>Current price:</strong> {{ auction.price }} BYN</h6>
-            <p class="card-engine"><strong>Engine:</strong> {{ auction.get_engine_type_display }} - {{auction.get_engine_capacity_display }}l.</p>
-            <p class="card-transmission"><strong>Transmission:</strong> {{ auction.get_gear_box_display }}</p>
-            <p class="card-drive"><strong>Drive:</strong> {{ auction.get_drive_display }}</p>
-            {% if auction.description %}
-            <p class="card-text"><strong>Description:</strong> {{ auction.description|cut_text:180 }}</p>
-            {% endif %}
-            <p class="date"><strong>Date start:</strong> {{ auction.date_start }}</p>
-            <p class="date"><strong>Date end:</strong> {{ auction.date_end }}</p>
+<div class="card h-100">
+    {% if auction.image %}
+        <img class="card-img-top" src="{{ auction.image.url }}"
+             alt="{{ auction.car.mark }} {{ auction.car.model.car_model }}">
+    {% else %}
+        <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">
+    {% endif %}
+
+    <div class="card-body d-flex flex-column">
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title mb-0">{{ auction.car.mark }} {{ auction.car.model.car_model }}</h5>
+                <span class="badge {% if auction.get_status_display == 'Auction going' %}bg-success{% else %}bg-secondary{% endif %}">
+          {{ auction.get_status_display }}
+        </span>
+            </div>
+
+            <div class="d-flex align-items-center mb-3">
+                <div class="bg-light rounded p-2 me-2">
+                    {% if auction.get_status_display == "Auction going" %}
+                        <small class="text-muted d-block">Current Price</small>
+                    {% elif auction.get_status_display == "Soon" %}
+                        <small class="text-muted d-block">Start Price</small>
+                    {% else %}
+                        <small class="text-muted d-block">Last Price</small>
+                    {% endif %}
+                    <strong class="text-primary">{{ auction.price }} BYN</strong>
+                </div>
+                <div class="bg-light rounded p-2">
+                    <small class="text-muted d-block">Ends</small>
+                    <strong>{{ auction.date_end|date:"M d" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-cogs text-primary me-2"></i>
+                        <small class="text-muted">{{ auction.get_engine_type_display }}</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-cog text-primary me-2"></i>
+                        <small class="text-muted">{{ auction.get_gear_box_display }}</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-car text-primary me-2"></i>
+                        <small class="text-muted">{{ auction.get_drive_display }}</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-gas-pump text-primary me-2"></i>
+                        <small class="text-muted">{{ auction.get_engine_capacity_display }}L</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if auction.description %}
+            <p class="card-text text-muted mb-3 flex-grow-1">
+                {{ auction.description|cut_text:100 }}
+            </p>
+        {% endif %}
+
+        <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    <i class="far fa-calendar-alt me-1"></i>
+                    Started: {{ auction.date_start|date:"M d" }}
+                </small>
+                {% if auction.get_status_display == "Auction going" %}
+                    <a href="{% url 'auction_details' auction.id %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-gavel me-1"></i>Bid Now
+                    </a>
+                {% else %}
+                    <a href="{% url 'auction_details' auction.id %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-gavel me-1"></i>Details
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
-</a>
+</div>

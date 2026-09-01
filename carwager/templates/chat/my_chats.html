@@ -1,48 +1,90 @@
 {% extends "base.html" %}
-{% block title %}Мои чаты{% endblock %}
+{% block title %}My Chats - CarWager{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>💬 Мои чаты</h1>
-    
-    {% if chat_rooms %}
-        <div class="list-group mt-3">
-            {% for room in chat_rooms %}
-            <a href="{% url 'view_chat' room.id %}" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ room.advert.car.mark }} {{ room.advert.car.model.car_model }}</h5>
-                    <small>{{ room.updated_at|timesince }} назад</small>
-                </div>
-                <p class="mb-1">
-                    <strong>Собеседник:</strong> {{ room.other_user.username }}
-                    {% if room.unread_count > 0 %}
-                        <span class="badge bg-danger float-end">{{ room.unread_count }} новых</span>
-                    {% endif %}
-                </p>
-                {% if room.last_message %}
-                    <small class="text-muted">
-                        Последнее сообщение: {{ room.last_message.content|truncatechars:50 }}
-                    </small>
-                {% endif %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="display-5 fw-bold mb-3">💬 My Chats</h1>
+      <p class="lead text-muted">Communicate with other users about vehicles</p>
+    </div>
+  </div>
+  
+  {% if chat_rooms %}
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-light py-3">
+            <h5 class="mb-0">Active Conversations</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+              {% for room in chat_rooms %}
+                <a href="{% url 'view_chat' room.id %}" class="list-group-item list-group-item-action py-3">
+                  <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center mb-2">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                          <i class="fas fa-car text-white"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{ room.advert.car.mark }} {{ room.advert.car.model.car_model }}</h6>
+                          <small class="text-muted">Chat with {{ room.other_user.username }}</small>
+                        </div>
+                      </div>
+                      
+                      {% if room.last_message %}
+                        <p class="mb-0 text-muted">
+                          <i class="fas fa-comment me-1"></i>
+                          {{ room.last_message.content|truncatechars:60 }}
+                        </p>
+                      {% endif %}
+                    </div>
+                    
+                    <div class="text-end">
+                      <small class="text-muted d-block mb-1">{{ room.updated_at|timesince }} ago</small>
+                      {% if room.unread_count > 0 %}
+                        <span class="badge bg-danger rounded-pill">{{ room.unread_count }} new</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="col-lg-6 mx-auto">
+        <div class="card shadow-sm border-0 text-center py-5">
+          <div class="card-body">
+            <div class="mb-4">
+              <i class="fas fa-comments fa-4x text-muted"></i>
+            </div>
+            <h4 class="mb-3">No active chats</h4>
+            <p class="text-muted mb-4">
+              You don't have any active conversations yet. Start chatting with other users on vehicle pages!
+            </p>
+            <a href="{% url 'showbill' %}" class="btn btn-primary">
+              <i class="fas fa-car me-2"></i>Browse Vehicles
             </a>
-            {% endfor %}
+          </div>
         </div>
-    {% else %}
-        <div class="alert alert-info mt-3">
-            У вас пока нет активных чатов. Начните общение с другим пользователем на странице объявления!
-        </div>
-    {% endif %}
+      </div>
+    </div>
+  {% endif %}
 </div>
 
 <script>
-    // Автоматическое обновление списка чатов
-    setInterval(() => {
-        fetch('/chat/api/rooms/')
-            .then(response => response.json())
-            .then(data => {
-                // Можно обновлять список динамически
-                console.log('Chat rooms updated', data);
-            });
-    }, 30000); // Обновлять каждые 30 секунд
+  // Automatic chat list refresh
+  setInterval(() => {
+    fetch('/chat/api/rooms/')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Chat rooms updated', data);
+      });
+  }, 30000); // Refresh every 30 seconds
 </script>
 {% endblock %}
