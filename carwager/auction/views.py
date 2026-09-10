@@ -22,6 +22,8 @@ class CarAuctionView(TemplateView):
     template_name = "auction/auction_car_list.html"
 
     def get_context_data(self, **kwargs, ):
+        logger.info("Auctions page opened")
+
         auctions = Auction.objects.all()
         filters_form = AuctionFiltersForm(self.request.GET)
         # validate filter form
@@ -40,6 +42,8 @@ class CarAuctionView(TemplateView):
         paginator = Paginator(auctions, 30)
         page_number = "page"
         auctions = paginator.get_page(page_number)
+        logger.info("Auctions loaded")
+
         return {"auctions": auctions, "filters_form": filters_form}
 
 
