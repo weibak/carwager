@@ -1,0 +1,42 @@
+filebeat.inputs:
+  - type: filestream
+    id: docker-containers
+
+    paths:
+      - /var/lib/docker/containers/*/*.log
+
+    parsers:
+      - container:
+          stream: all
+          format: docker
+
+
+processors:
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+
+  - drop_event:
+      when:
+        not:
+          and:
+            - equals:
+                container.labels.com_docker_compose_project: "carwager"
+
+            - or:
+                - equals:
+                    container.labels.com_docker_compose_service: "django"
+
+                - equals:
+                    container.labels.com_docker_compose_service: "worker"
+
+                - equals:
+                    container.labels.com_docker_compose_service: "nginx"
+
+
+output.logstash:
+  hosts:
+    - "logstash:5044"
+
+
+logging.to_stderr: true
+logging.level: info

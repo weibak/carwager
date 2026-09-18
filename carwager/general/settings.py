@@ -59,6 +59,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'general.middleware.RequestIDMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -196,24 +197,220 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "logout"
 
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "console": {
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "root": {
+#         "handlers": ["console"],
+#         "level": "INFO",
+#     },
+#     "scrapy.core.scraper": {
+#         "handlers": [],
+#         "level": "ERROR",
+#     },
+#     "django.db.backends": {
+#         "handlers": ["console"],
+#         "level": "ERROR",
+#     },
+# }
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+
+    # ============================================================
+    # FILTERS
+    # ============================================================
+
+    "filters": {
+        "context": {
+            "()": "general.logging.ContextFilter",
+        },
+    },
+
+    # ============================================================
+    # FORMATTERS
+    # ============================================================
+
+    "formatters": {
+        "json": {
+            "()": "pythonjsonlogger.json.JsonFormatter",
+            "format": (
+                "%(asctime)s "
+                "%(levelname)s "
+                "%(name)s "
+                "%(message)s "
+                "%(service)s "
+                "%(environment)s"
+                "%(request_id)s"
+            ),
+        },
+    },
+
+    # ============================================================
+    # HANDLERS
+    # ============================================================
+
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "json",
+            "filters": ["context"],
         },
     },
+
+    # ============================================================
+    # LOGGERS
+    # ============================================================
+
+    "loggers": {
+
+        # --------------------------------------------------------
+        # Django
+        # --------------------------------------------------------
+
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Django HTTP requests
+        # --------------------------------------------------------
+
+        "django.request": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Django development / ASGI server
+        # --------------------------------------------------------
+
+        "django.server": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Django database
+        #
+        # SQL запросы в production обычно не логируем,
+        # поэтому оставляем только ERROR.
+        # --------------------------------------------------------
+
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Django security
+        # --------------------------------------------------------
+
+        "django.security": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Django migrations
+        # --------------------------------------------------------
+
+        "django.db.migrations": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Scrapy
+        # --------------------------------------------------------
+
+        "scrapy.core.scraper": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+
+        # ========================================================
+        # YOUR APPLICATIONS
+        # ========================================================
+
+        # --------------------------------------------------------
+        # Auction
+        # --------------------------------------------------------
+
+        "auction": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Chat
+        # --------------------------------------------------------
+
+        "chat": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # News
+        # --------------------------------------------------------
+
+        "news": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # Showbill
+        # --------------------------------------------------------
+
+        "showbill": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # --------------------------------------------------------
+        # General
+        # --------------------------------------------------------
+
+        "general": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+
+    # ============================================================
+    # ROOT LOGGER
+    # ============================================================
+
     "root": {
         "handlers": ["console"],
         "level": "INFO",
     },
-    "scrapy.core.scraper": {
-        "handlers": [],
-        "level": "ERROR",
-    },
-    "django.db.backends": {
-        "handlers": ["console"],
-        "level": "ERROR",
-    },
 }
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_PORT = os.getenv("EMAIL_PORT")

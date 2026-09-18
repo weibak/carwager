@@ -1,23 +1,21 @@
-import datetime
 import logging
 
-from django.contrib.sites.shortcuts import get_current_site
-from django.http import HttpResponse
-
-from auction.models import Bid, Auction
-from general.forms import RegisterForm, AuthForm
-from django.shortcuts import render, redirect
+from auction.models import Auction, Bid
 from django.contrib import messages
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.template.loader import render_to_string
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from showbill.models import Advert
-# from showbill.queries import filter_adverts
-# from showbill.forms import AdvertFiltersForm
+
+from general.forms import AuthForm, RegisterForm
 
 logger = logging.getLogger(__name__)
 
@@ -44,20 +42,24 @@ def register(request):
             user.save()
             # to get the domain of the current site
             current_site = get_current_site(request)
-            mail_subject = 'Activation link has been sent to your email id'
+            mail_subject = "Activation link has been sent to your email id"
             token_generator = PasswordResetTokenGenerator()
-            message = render_to_string('acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': token_generator.make_token(user),
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
+            message = render_to_string(
+                "acc_active_email.html",
+                {
+                    "user": user,
+                    "domain": current_site.domain,
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "token": token_generator.make_token(user),
+                },
             )
+            to_email = form.cleaned_data.get("email", "")
+            email = EmailMessage(mail_subject, message, to=[to_email])
             email.send()
-            messages.info(request, "Activation link has been sent to your email, please forward link in email")
+            messages.info(
+                request,
+                "Activation link has been sent to your email, please forward link in email",
+            )
             return redirect("auth")
     else:
         form = RegisterForm()
@@ -71,14 +73,14 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     if user is not None and token_checker.check_token(user, token):
         user.is_active = True
         user.save()
         return redirect("auth")
     else:
-        return HttpResponse('Activation link is invalid!')
+        return HttpResponse("Activation link is invalid!")
 
 
 # sign user in profile
@@ -127,11 +129,12 @@ def profile_view(request):
     logger.info(f"Bids of {request.user}: {auctions}")
     # filters_form = AdvertFiltersForm(request.GET)
     # auc_filter_form = AdvertFiltersForm(request.GET)
-    time = datetime.datetime.now()
+    time = timezone.now()
 
     return render(
         request,
-        "profile.html", {
+        "profile.html",
+        {
             "user": user,
             "adverts": cars,
             "auctions": auctions[0:4],
