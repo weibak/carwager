@@ -52,7 +52,7 @@ def register(request):
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': token_generator.make_token(user),
             })
-            to_email = form.cleaned_data.get('email')
+            to_email = form.cleaned_data.get("email", "")
             email = EmailMessage(
                 mail_subject, message, to=[to_email]
             )
