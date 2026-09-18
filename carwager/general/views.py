@@ -1,21 +1,20 @@
 import logging
 
+from auction.models import Auction, Bid
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
-
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-
-from auction.models import Bid, Auction
 from showbill.models import Advert
+
 from general.forms import AuthForm, RegisterForm
 
 logger = logging.getLogger(__name__)
