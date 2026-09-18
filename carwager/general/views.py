@@ -1,23 +1,21 @@
-import datetime
 import logging
 
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from auction.models import Bid, Auction
 from general.forms import RegisterForm, AuthForm
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.template.loader import render_to_string
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.core.mail import EmailMessage
 from showbill.models import Advert
-# from showbill.queries import filter_adverts
-# from showbill.forms import AdvertFiltersForm
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +125,7 @@ def profile_view(request):
     logger.info(f"Bids of {request.user}: {auctions}")
     # filters_form = AdvertFiltersForm(request.GET)
     # auc_filter_form = AdvertFiltersForm(request.GET)
-    time = datetime.datetime.now()
+    time = timezone.now()
 
     return render(
         request,
