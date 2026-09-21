@@ -43,8 +43,18 @@ class AdvertForm(forms.Form):
     drive = forms.ChoiceField(choices=DRIVE)
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
     description = forms.CharField(max_length=500)
-    image = forms.ImageField(required=False)
+    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'multiple': True}), help_text="You can upload up to 8 photos.")
     win = forms.CharField(max_length=17,)
     price = forms.DecimalField(decimal_places=2, max_digits=15)
     price_usd = forms.DecimalField(decimal_places=2, max_digits=15)
     phone_number = forms.CharField(max_length=13)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        files = self.files.getlist('image')
+        if len(files) > 8:
+            raise ValidationError("You can upload up to 8 photos.")
+        cleaned_data['image_list'] = files
+        if files:
+            cleaned_data['image'] = files[0]
+        return cleaned_data

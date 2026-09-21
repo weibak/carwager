@@ -17,9 +17,33 @@
             <div class="col-lg-6 mb-4">
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-0">
-                        {% if advert.image %}
-                            <img src="{{ advert.image.url }}"
-                                 alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}" class="img-fluid rounded">
+                        {% if advert.gallery %}
+                            <div id="advertCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                   {% for image in advert.gallery %}
+                                       <button type="button" data-bs-target="#advertCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+                                   {% endfor %}
+                                </div>
+                                <div class="carousel-inner">
+                                   {% for image in advert.gallery %}
+                                       <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                           <img src="{{ image.url }}"
+                                                alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}"
+                                                class="d-block w-100" style="height: 520px; object-fit: cover;">
+                                       </div>
+                                   {% endfor %}
+                                </div>
+                                {% if advert.gallery|length > 1 %}
+                                   <button class="carousel-control-prev" type="button" data-bs-target="#advertCarousel" data-bs-slide="prev">
+                                       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                       <span class="visually-hidden">Previous</span>
+                                   </button>
+                                   <button class="carousel-control-next" type="button" data-bs-target="#advertCarousel" data-bs-slide="next">
+                                       <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                       <span class="visually-hidden">Next</span>
+                                   </button>
+                                {% endif %}
+                            </div>
                         {% else %}
                             <img src="{% static 'no-image.jpg' %}" alt="No image" class="img-fluid rounded">
                         {% endif %}

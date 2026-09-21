@@ -2,8 +2,8 @@
 {% load text_tags %}
 
 <div class="card h-100">
-  {% if advert.image %}
-    <img class="card-img-top" src="{{ advert.image.url }}" alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}">
+  {% if advert.gallery and advert.gallery.0 %}
+    <img class="card-img-top" src="{{ advert.gallery.0.url }}" alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}">
   {% else %}
     <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">
   {% endif %}

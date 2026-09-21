@@ -54,7 +54,6 @@ class Auction(models.Model):
     drive = models.CharField(max_length=100, choices=DRIVE, default="No type")
     gear_box = models.CharField(max_length=100, choices=GEAR_BOX, default="No type")
     description = models.TextField(null=True, blank=True)
-    image = models.ImageField(null=True, blank=True)
     win = models.CharField(max_length=17, null=True, blank=True)
     price = models.DecimalField(decimal_places=2, max_digits=15)
     owner = models.ForeignKey(
@@ -69,8 +68,24 @@ class Auction(models.Model):
         settings.AUTH_USER_MODEL, related_name="favorite_auctions"
     )
 
+    @property
+    def gallery(self):
+        return [item.image for item in self.images.all()]
+
     def __str__(self):
         return f"{self.car.mark} - {self.car.model} - {self.car.year}"
+
+
+class AuctionImage(models.Model):
+    auction = models.ForeignKey(Auction, related_name="images", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="auction_photos/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"Auction image for {self.auction_id}"
 
 
 class Winner(models.Model):

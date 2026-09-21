@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.views.generic import TemplateView
 
 from showbill.forms import CarFiltersForm, AdvertForm, CarForm, AdvertFiltersForm
-from showbill.models import Advert, Car
+from showbill.models import Advert, AdvertImage, Car
 from showbill.queries import filter_cars, filter_adverts
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class CarView(TemplateView):
     template_name = "showbill/car_list.html"
 
     def get_context_data(self, **kwargs, ):
-        adverts = Advert.objects.all()
+        adverts = Advert.objects.all().order_by("-created_at")
         filters_form = CarFiltersForm(self.request.GET)
         car_date = AdvertFiltersForm(self.request.GET)
 
@@ -49,9 +49,17 @@ def create_advert(request, *args, **kwargs):
             if form_car.is_valid():
                 car = Car.objects.create(**form_car.cleaned_data)
                 if form.is_valid():
-                    logger.info(form.cleaned_data)
-                    advert = Advert.objects.create(car=car, owner=request.user, **form.cleaned_data)
-                    advert.save()
+                    cleaned_data = form.cleaned_data.copy()
+                    uploaded_files = cleaned_data.pop("image_list", [])
+                    advert_data = {key: value for key, value in cleaned_data.items() if key != "image"}
+                    advert = Advert.objects.create(
+                        car=car,
+                        owner=request.user,
+                        **advert_data,
+                    )
+                    for image in uploaded_files[:8]:
+                        AdvertImage.objects.create(advert=advert, image=image)
+                    logger.info("Advert created with %s uploaded images", len(uploaded_files))
                 return redirect(
                     "/",
                 )

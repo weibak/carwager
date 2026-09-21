@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 
 from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
-from auction.models import Auction, CarAuction, Winner
+from auction.models import Auction, AuctionImage, CarAuction, Winner
 from auction.queries import filter_cars_auction
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class CarAuctionView(TemplateView):
     def get_context_data(self, **kwargs, ):
         logger.info("Auctions page opened")
 
-        auctions = Auction.objects.all()
+        auctions = Auction.objects.all().order_by("-created_at")
         filters_form = AuctionFiltersForm(self.request.GET)
         # validate filter form
         if filters_form.is_valid():
@@ -58,7 +58,9 @@ def create_auction(request, *args, **kwargs):
             if form_car.is_valid():
                 car = CarAuction.objects.create(**form_car.cleaned_data)
                 if form.is_valid():
-                    # take status to auction advert
+                    cleaned_data = form.cleaned_data.copy()
+                    uploaded_files = cleaned_data.pop("image_list", [])
+                    auction_data = {key: value for key, value in cleaned_data.items() if key != "image"}
                     status = ""
                     if request.POST.get("date_start") <= now <= request.POST.get("date_end"):
                         status = "go"
@@ -67,8 +69,13 @@ def create_auction(request, *args, **kwargs):
                     if request.POST.get("date_start") > now:
                         status = "soon"
                     auction = Auction.objects.create(
-                        car=car, owner=request.user, status=status, **form.cleaned_data
-                    )  # create auction in DB
+                        car=car,
+                        owner=request.user,
+                        status=status,
+                        **auction_data,
+                    )
+                    for image in uploaded_files[:8]:
+                        AuctionImage.objects.create(auction=auction, image=image)
                     auction.save()
                 return redirect(
                     "auction",

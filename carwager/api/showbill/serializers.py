@@ -28,8 +28,21 @@ class CarModelSerializer(serializers.ModelSerializer):
 
 class AdvertModelSerializer(serializers.HyperlinkedModelSerializer):
     car_ = CarModelSerializer(source="car")
+    image = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        if not obj.gallery:
+            return None
+        request = self.context.get("request")
+        image = obj.gallery[0]
+        return request.build_absolute_uri(image.url) if request else image.url
+
+    def get_images(self, obj):
+        request = self.context.get("request")
+        return [request.build_absolute_uri(image.url) if request else image.url for image in obj.gallery]
 
     class Meta:
         model = Advert
         fields = ["car_", "engine_type", "engine_capacity", "drive", "gear_box", "description", "win", "image",
-                  "price", "price_usd", "phone_number", "created_at"]
+                  "images", "price", "price_usd", "phone_number", "created_at"]
