@@ -40,4 +40,40 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const markSelect = document.getElementById('id_mark');
+  const modelSelect = document.getElementById('id_model');
+  if (!markSelect || !modelSelect) return;
+
+  async function loadModels(markId, preselect) {
+    modelSelect.innerHTML = '<option value="">---------</option>';
+    if (!markId) return;
+    const resp = await fetch(`/ajax/auction/models/${markId}/`);
+    if (!resp.ok) return;
+    const models = await resp.json();
+    models.forEach(function(m) {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.car_model;
+      if (preselect && preselect == String(m.id)) opt.selected = true;
+      modelSelect.appendChild(opt);
+    });
+  }
+
+  markSelect.addEventListener('change', function () {
+    loadModels(this.value);
+  });
+
+  if (markSelect.value) {
+    if (modelSelect.options && modelSelect.options.length > 1) {
+      return;
+    }
+    const pre = modelSelect.getAttribute('data-selected') || null;
+    loadModels(markSelect.value, pre);
+  }
+});
+</script>
+
 {% endblock %}

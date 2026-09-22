@@ -50,7 +50,7 @@ class Auction(models.Model):
         CarAuction, related_name="auctions", on_delete=models.CASCADE
     )
     engine_type = models.CharField(max_length=100, choices=ENGINE_TYPE, default="No type")
-    engine_capacity = models.FloatField(default="No capacity")
+    engine_capacity = models.DecimalField(decimal_places=1, max_digits=5, default="No capacity")
     drive = models.CharField(max_length=100, choices=DRIVE, default="No type")
     gear_box = models.CharField(max_length=100, choices=GEAR_BOX, default="No type")
     description = models.TextField(null=True, blank=True)

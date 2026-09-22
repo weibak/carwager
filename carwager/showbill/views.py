@@ -1,17 +1,22 @@
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect, get_object_or_404
 import logging
+
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
 
-from showbill.forms import CarFiltersForm, AdvertForm, CarForm, AdvertFiltersForm
+from showbill.forms import AdvertFiltersForm, AdvertForm, CarFiltersForm, CarForm
 from showbill.models import Advert, AdvertImage, Car
-from showbill.queries import filter_cars, filter_adverts
+from showbill.queries import filter_adverts, filter_cars
 
 logger = logging.getLogger(__name__)
 
 
 # view for show all adverts on the showbill
+@method_decorator(cache_page(60), name='dispatch')
 class CarView(TemplateView):
     template_name = "showbill/car_list.html"
 
@@ -41,45 +46,53 @@ class CarView(TemplateView):
 
 
 # crete advert on showbill view
+@login_required
 def create_advert(request, *args, **kwargs):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            form = AdvertForm(request.POST, request.FILES)
-            form_car = CarForm(request.POST, )
-            if form_car.is_valid():
-                car = Car.objects.create(**form_car.cleaned_data)
-                if form.is_valid():
-                    cleaned_data = form.cleaned_data.copy()
-                    uploaded_files = cleaned_data.pop("image_list", [])
-                    advert_data = {key: value for key, value in cleaned_data.items() if key != "image"}
-                    advert = Advert.objects.create(
-                        car=car,
-                        owner=request.user,
-                        **advert_data,
-                    )
-                    for image in uploaded_files[:8]:
-                        AdvertImage.objects.create(advert=advert, image=image)
-                    logger.info("Advert created with %s uploaded images", len(uploaded_files))
-                return redirect(
-                    "/",
-                )
-        else:
-            form = AdvertForm()
-            form_car = CarForm()
-            return render(request, "showbill/create_advert.html", {"form": form, "form_car": form_car})
-    else:
+    if not request.user.is_authenticated:
         return redirect("auth")
+
+    if request.method == "POST":
+        form = AdvertForm(request.POST, request.FILES)
+        # supply mark_id so model choices are validated server-side
+        form_car = CarForm(request.POST, mark_id=request.POST.get('mark'))
+        if form_car.is_valid():
+            car = Car.objects.create(**form_car.cleaned_data)
+            if form.is_valid():
+                cleaned_data = form.cleaned_data.copy()
+                uploaded_files = cleaned_data.pop("image_list", [])
+                advert_data = {key: value for key, value in cleaned_data.items() if key != "image"}
+                advert = Advert.objects.create(
+                    car=car,
+                    owner=request.user,
+                    **advert_data,
+                )
+                for image in uploaded_files[:8]:
+                    AdvertImage.objects.create(advert=advert, image=image)
+                logger.info("Advert created with %s uploaded images", len(uploaded_files))
+            return redirect("showbill")
+        else:
+            # if car form invalid, re-render with posted data and mark-specific models
+            form = AdvertForm(request.POST)
+            form_car = CarForm(request.POST, mark_id=request.POST.get('mark'))
+            return render(request, "showbill/create_advert.html", {"form": form, "form_car": form_car})
+
+    else:
+        form = AdvertForm()
+        form_car = CarForm()
+        return render(request, "showbill/create_advert.html", {"form": form, "form_car": form_car})
 
 
 # show current advert
+@cache_page(60 * 15)
 def advert_view(request, advert_id):
     advert = get_object_or_404(Advert, id=advert_id)
     if request.method == "POST":
-        if request.user.is_authenticated and request.method == "POST":
-            if request.POST["action"] == "add":
+        action = request.POST["action"]
+        if request.user.is_authenticated:
+            if action == "add":
                 advert.favorites.add(request.user)
                 messages.info(request, "Car successfully added to favorites")
-            elif request.POST["action"] == "remove":
+            elif action == "remove":
                 advert.favorites.remove(request.user)
                 messages.info(request, "Car successfully removed to favorites")
             redirect("car_details", advert_id=advert.id)
@@ -88,6 +101,15 @@ def advert_view(request, advert_id):
         "showbill/car_details.html",
         {
             "advert": advert,
-            "is_advert_in_favorites": request.user in advert.favorites.all(),
+            "is_advert_in_favorites": advert.favorites.filter(id=request.user.id).exists(),
         },
     )
+
+
+# AJAX endpoint for dependent models (showbill)
+from django.http import JsonResponse
+from showbill.models import CarModel
+
+def models_for_mark(request, mark_id):
+    models = list(CarModel.objects.filter(car_mark_id=mark_id).values('id', 'car_model'))
+    return JsonResponse(models, safe=False)

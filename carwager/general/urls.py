@@ -17,11 +17,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
-from auction.views import CarAuctionView, auction_view, create_auction
+from auction.views import CarAuctionView, auction_view, create_auction, models_for_mark_auction
 from chat.views import simple_chat
 from general.views import register, sign_in, logout_view, profile_view, activate
 from news.views import news_list_all, news_view, create_new
-from showbill.views import CarView, create_advert, advert_view
+from showbill.views import CarView, create_advert, advert_view, models_for_mark
 
 urlpatterns = [
     path("admin/django-rq/", include("django_rq.urls")),
@@ -38,7 +38,9 @@ urlpatterns = [
     path('profile/', profile_view, name="profile"),
     path("advert/<int:advert_id>", advert_view, name="car_details"),
     path('showbill/add/', create_advert, name="add_advert"),
+    path('ajax/showbill/models/<int:mark_id>/', models_for_mark, name='ajax_showbill_models'),
     path('auction/', CarAuctionView.as_view(), name="auction"),
+    path('ajax/auction/models/<int:mark_id>/', models_for_mark_auction, name='ajax_auction_models'),
     path("details/<int:auction_id>/", auction_view, name="auction_details"),
     path('auction/add/', create_auction, name="add_auction"),
     path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',

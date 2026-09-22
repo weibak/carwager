@@ -7,17 +7,22 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 
 from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
 from auction.models import Auction, AuctionImage, CarAuction, Winner
 from auction.queries import filter_cars_auction
+from django.views.decorators.cache import cache_page
+from django.http import JsonResponse
+from auction.models import CarModelAuction
 
 logger = logging.getLogger(__name__)
 
 
 # general page of auctions, auctions going, auctions ended, auctions soon, filter-forms.
+@method_decorator(cache_page(60), name='dispatch')
 class CarAuctionView(TemplateView):
     template_name = "auction/auction_car_list.html"
 
@@ -47,49 +52,57 @@ class CarAuctionView(TemplateView):
         return {"auctions": auctions, "filters_form": filters_form}
 
 
+# AJAX endpoint for auction models
+def models_for_mark_auction(request, mark_id):
+    models = list(CarModelAuction.objects.filter(car_mark_id=mark_id).values('id', 'car_model'))
+    return JsonResponse(models, safe=False)
+
+
 # view to create auction
 @login_required
 def create_auction(request, *args, **kwargs):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            form = AuctionForm(request.POST, request.FILES)
-            form_car = CarAuctionForm(request.POST)
-            now = str(timezone.now())  # time to compare statuses
-            if form_car.is_valid():
-                car = CarAuction.objects.create(**form_car.cleaned_data)
-                if form.is_valid():
-                    cleaned_data = form.cleaned_data.copy()
-                    uploaded_files = cleaned_data.pop("image_list", [])
-                    auction_data = {key: value for key, value in cleaned_data.items() if key != "image"}
-                    status = ""
-                    if request.POST.get("date_start") <= now <= request.POST.get("date_end"):
-                        status = "go"
-                    if request.POST.get("date_end") < now:
-                        status = "stop"
-                    if request.POST.get("date_start") > now:
-                        status = "soon"
-                    auction = Auction.objects.create(
-                        car=car,
-                        owner=request.user,
-                        status=status,
-                        **auction_data,
-                    )
-                    for image in uploaded_files[:8]:
-                        AuctionImage.objects.create(auction=auction, image=image)
-                    auction.save()
-                return redirect(
-                    "auction",
+    if not request.user.is_authenticated:
+        return redirect("auth")
+
+    if request.method == "POST":
+        form = AuctionForm(request.POST, request.FILES)
+        form_car = CarAuctionForm(request.POST, mark_id=request.POST.get('mark'))
+        now = str(timezone.now())  # time to compare statuses
+        if form_car.is_valid():
+            car = CarAuction.objects.create(**form_car.cleaned_data)
+            if form.is_valid():
+                cleaned_data = form.cleaned_data.copy()
+                uploaded_files = cleaned_data.pop("image_list", [])
+                auction_data = {key: value for key, value in cleaned_data.items() if key != "image"}
+                status = ""
+                if request.POST.get("date_start") <= now <= request.POST.get("date_end"):
+                    status = "go"
+                if request.POST.get("date_end") < now:
+                    status = "stop"
+                if request.POST.get("date_start") > now:
+                    status = "soon"
+                auction = Auction.objects.create(
+                    car=car,
+                    owner=request.user,
+                    status=status,
+                    **auction_data,
                 )
+                for image in uploaded_files[:8]:
+                    AuctionImage.objects.create(auction=auction, image=image)
+                auction.save()
             return redirect(
                 "auction",
             )
         else:
-            form = AuctionForm()
-            form_car = CarAuctionForm()
-            return render(request, "auction/create_auction.html", {
-                "form": form, "form_car": form_car})
+            form = AuctionForm(request.POST)
+            form_car = CarAuctionForm(request.POST, mark_id=request.POST.get('mark'))
+            return render(request, "auction/create_auction.html", {"form": form, "form_car": form_car})
+
     else:
-        return redirect("auth")
+        form = AuctionForm()
+        form_car = CarAuctionForm()
+        return render(request, "auction/create_auction.html", {
+            "form": form, "form_car": form_car})
 
 
 # details of auction, info, bids, take bid

@@ -40,4 +40,43 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const markSelect = document.getElementById('id_mark');
+  const modelSelect = document.getElementById('id_model');
+  if (!markSelect || !modelSelect) return;
+
+  async function loadModels(markId, preselect) {
+    modelSelect.innerHTML = '<option value="">---------</option>';
+    if (!markId) return;
+    const resp = await fetch(`/ajax/showbill/models/${markId}/`);
+    if (!resp.ok) return;
+    const models = await resp.json();
+    models.forEach(function(m) {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.car_model;
+      if (preselect && preselect == String(m.id)) opt.selected = true;
+      modelSelect.appendChild(opt);
+    });
+  }
+
+  // on change
+  markSelect.addEventListener('change', function () {
+    loadModels(this.value);
+  });
+
+  // on load, if a mark is already selected (e.g., after POST error), load models
+  if (markSelect.value) {
+    // if server already rendered model options (e.g., form re-render), don't override
+    if (modelSelect.options && modelSelect.options.length > 1) {
+      return;
+    }
+    const pre = modelSelect.getAttribute('data-selected') || null;
+    loadModels(markSelect.value, pre);
+  }
+});
+</script>
+
 {% endblock %}

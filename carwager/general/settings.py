@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',  # Добавьте это
+    'daphne',
     "channels",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -187,6 +187,17 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # Media files (Uploads)
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
+
+# Cache (Redis via django-redis)
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{os.getenv('REDIS_HOST', 'redis')}:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 
 # Default primary key field type

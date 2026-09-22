@@ -23,8 +23,14 @@ class AuctionFiltersForm(forms.Form):
 
 class CarAuctionForm(forms.Form):
     mark = forms.ModelChoiceField(CarMarkAuction.objects.all(), required=True)
-    model = forms.ModelChoiceField(CarModelAuction.objects.all())
+    model = forms.ModelChoiceField(CarModelAuction.objects.all(), required=True)
     year = forms.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        mark_id = kwargs.pop('mark_id', None)
+        super().__init__(*args, **kwargs)
+        if mark_id:
+            self.fields['model'].queryset = CarModelAuction.objects.filter(car_mark_id=mark_id)
 
 
 class AuctionForm(forms.Form):

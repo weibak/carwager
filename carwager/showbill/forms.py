@@ -33,8 +33,15 @@ class AdvertFiltersForm(forms.Form):
 
 class CarForm(forms.Form):
     mark = forms.ModelChoiceField(CarMark.objects.all(), required=True)
-    model = forms.ModelChoiceField(CarModel.objects.all())
+    model = forms.ModelChoiceField(CarModel.objects.all(), required=True)
     year = forms.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        # Accept optional mark_id to limit model choices server-side
+        mark_id = kwargs.pop('mark_id', None)
+        super().__init__(*args, **kwargs)
+        if mark_id:
+            self.fields['model'].queryset = CarModel.objects.filter(car_mark_id=mark_id)
 
 
 class AdvertForm(forms.Form):
