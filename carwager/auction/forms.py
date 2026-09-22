@@ -6,21 +6,27 @@ from django.utils import timezone
 from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX, ORDER_BY_CHOICES, CarMark, CarModel
 from auction.models import STATUS_AUC
 
-CAR_MARKS = (("", ""), *CarMark.objects.values_list("id", "car_mark"))
-
 
 class AuctionFiltersForm(forms.Form):
     price__gt = forms.IntegerField(min_value=0, label="Price Min", required=False)
     price__lt = forms.IntegerField(min_value=0, label="Price Max", required=False)
     order_price = forms.ChoiceField(choices=ORDER_BY_CHOICES, required=False)
     engine_type = forms.ChoiceField(choices=ENGINE_TYPE, required=False)
-    mark = forms.ChoiceField(choices=CAR_MARKS, required=False,)
+    mark = forms.ChoiceField(choices=(), required=False,)
     gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False)
     drive = forms.ChoiceField(choices=DRIVE, required=False)
     status = forms.ChoiceField(choices=STATUS_AUC, required=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["mark"].choices = [
+            ("", ""),
+            *CarMark.objects.values_list("id", "car_mark"),
+        ]
+
     def clean(self):
-        cleaned_data = super().clean()
+        cleaned_data = super().clean() or {}
         price__gt = cleaned_data.get("price__gt")
         price__lt = cleaned_data.get("price__lt")
         if price__gt and price__lt and price__gt > price__lt:

@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "news",
     "general",
     "auction",
-    "chat",  # новое приложение для чата
+    "chat",
 ]
 
 MIDDLEWARE = [
