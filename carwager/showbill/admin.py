@@ -27,9 +27,9 @@ class CarAdmin(admin.ModelAdmin):
 class AdvertAdmin(admin.ModelAdmin):
     list_display = (
         "car", "engine_type", "engine_capacity", "drive", "gear_box", "description",
-        "image", "win", "price", "price_usd", "owner", "phone_number"
+        "win", "price", "price_usd", "owner", "phone_number"
     )
     fields = ("car", "engine_type", "engine_capacity", "drive", "gear_box", "description",
-              "image", "win", "price", "price_usd", "owner", "phone_number")
+              "win", "price", "price_usd", "owner", "phone_number")
     search_fields = ("car", "engine_type", "gear_box")
     readonly_fields = ("created_at", )

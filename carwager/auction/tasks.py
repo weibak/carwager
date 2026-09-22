@@ -1,4 +1,3 @@
-from django.db.models import F
 from django.utils import timezone
 from django_rq import job
 import logging
@@ -26,7 +25,7 @@ def run_status_update():
             continue
 
         auction.status = nex_state
-        auction.save(update_fields=['status'])
+        auction.save(update_fields=["status"])
 
 
 # function to search winners in all auctions, where status is stop

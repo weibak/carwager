@@ -1,0 +1,58 @@
+[tool.ruff]
+target-version = "py39"
+exclude = [
+    ".git/",
+    "__pycache__/",
+    "venv/",
+    ".venv/",
+    "env/",
+    "doc/",
+    "docs/",
+]
+include = [
+    "carwager/**/*.py",
+]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+    "B904",
+    "B023",  # Function definition does not bind loop variable
+    "DJ006",
+    "DJ007",
+    "DJ012",
+    "E501",  # https://beta.ruff.rs/docs/rules/line-too-long/
+]
+select = [
+    "N",  # pep8-naming (N) https://beta.ruff.rs/docs/rules/#pep8-naming-n
+    "DJ",  # flake8-django https://beta.ruff.rs/docs/rules/#flake8-django-dj
+    "B",  # flake8-bugbear (B) https://beta.ruff.rs/docs/rules/#flake8-bugbear-b
+    "Q",  # flake8-quotes (Q) https://beta.ruff.rs/docs/rules/#flake8-quotes-q
+    "W",  # pyflake Warning (W) https://beta.ruff.rs/docs/rules/#warning-w
+#    "I",  # isort (I) https://beta.ruff.rs/docs/rules/#isort-i
+    "A",  # flake8-builtins (A) https://beta.ruff.rs/docs/rules/#flake8-builtins-a
+#    "COM",  # flake8-commas (COM) https://beta.ruff.rs/docs/rules/#flake8-commas-com
+    "T10",  # flake8-debugger (T10) https://beta.ruff.rs/docs/rules/#flake8-debugger-t10
+    "T20",  # flake8-print (T20) https://beta.ruff.rs/docs/rules/#flake8-print-t20
+#    "PT",  # flake8-pytest-style (PT) https://beta.ruff.rs/docs/rules/#flake8-pytest-style-pt
+#    "TID",  # flake8-tidy-imports (TID) https://beta.ruff.rs/docs/rules/#flake8-tidy-imports-tid
+    "TCH",  # flake8-type-checking (TCH) https://beta.ruff.rs/docs/rules/#flake8-type-checking-tch
+#    "ERA",  # eradicate (ERA) https://beta.ruff.rs/docs/rules/#eradicate-era
+    "PIE",  # flake8-pie (PIE) https://beta.ruff.rs/docs/rules/#flake8-pie-pie
+#    "EM",  # flake8-errmsg (EM) https://beta.ruff.rs/docs/rules/#flake8-errmsg-em
+    "F", # Pyflakes (F) https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "E", # Error
+]
+fixable = ["ALL"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.lint.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+# Use a single line after each import block.
+lines-after-imports = 2
+known-first-party = ["apps"]

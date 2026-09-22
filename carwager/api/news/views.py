@@ -3,7 +3,6 @@ from rest_framework import viewsets
 
 from api.news.serializers import NewsModelSerializer
 from news.models import News
-from rest_framework.permissions import IsAuthenticated
 
 
 class NewViewSet(viewsets.ModelViewSet):

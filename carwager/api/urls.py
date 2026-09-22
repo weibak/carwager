@@ -1,6 +1,6 @@
 # api/urls.py
 
-from django.urls import include, path, re_path
+from django.urls import include, path
 from rest_framework import routers
 from api.showbill.views import AdvertViewSet, CarViewSet
 from api.auction.views import AuctionViewSet

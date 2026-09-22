@@ -1,5 +1,7 @@
-from django.shortcuts import render, redirect
 import logging
+
+from django.shortcuts import render, redirect
+from django.views.decorators.cache import cache_page
 
 from news.forms import AddNewForm
 from news.models import News
@@ -8,15 +10,17 @@ logger = logging.getLogger(__name__)
 
 
 # news page
+@cache_page(60)
 def news_list_all(request):
     if request.user.is_anonymous:
         return redirect("auth")
     news = News.objects.order_by("-created_at")
-    logger.info(f"News list")
+    logger.info("News list")
     return render(request, "news/news_list.html", {"news": news})
 
 
 # show current new
+@cache_page(60)
 def news_view(request, slug):
     news = News.objects.get(slug=slug)
     return render(request, "news/news_view.html", {"news": news})

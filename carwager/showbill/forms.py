@@ -1,16 +1,24 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX, CarMark, CarModel, CAR_MARK
+from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX, CarMark, CarModel
 
 
 class CarFiltersForm(forms.Form):
     price__gt = forms.IntegerField(min_value=0, label="Price Min", required=False)
     price__lt = forms.IntegerField(min_value=0, label="Price Max", required=False)
-    mark = forms.ChoiceField(choices=CAR_MARK, required=False,)
+    mark = forms.ChoiceField(choices=(), required=False,)
     order_price = forms.ChoiceField(choices=ORDER_BY_CHOICES, required=False)
     engine_type = forms.ChoiceField(choices=ENGINE_TYPE, required=False,)
     gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False,)
     drive = forms.ChoiceField(choices=DRIVE, required=False,)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["mark"].choices = [
+            ("", ""),
+            *CarMark.objects.values_list("id", "car_mark"),
+        ]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -23,7 +31,7 @@ class CarFiltersForm(forms.Form):
 class AdvertFiltersForm(forms.Form):
     order_date = forms.ChoiceField(
         choices=(
-            ('', ""),
+            ("", ""),
             ("-created_at", "Newest First"),
             ("created_at", "Oldest First"),
         ),
@@ -33,8 +41,15 @@ class AdvertFiltersForm(forms.Form):
 
 class CarForm(forms.Form):
     mark = forms.ModelChoiceField(CarMark.objects.all(), required=True)
-    model = forms.ModelChoiceField(CarModel.objects.all())
+    model = forms.ModelChoiceField(CarModel.objects.all(), required=True)
     year = forms.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        # Accept optional mark_id to limit model choices server-side
+        mark_id = kwargs.pop("mark_id", None)
+        super().__init__(*args, **kwargs)
+        if mark_id:
+            self.fields["model"].queryset = CarModel.objects.filter(car_mark_id=mark_id)
 
 
 class AdvertForm(forms.Form):
@@ -43,8 +58,18 @@ class AdvertForm(forms.Form):
     drive = forms.ChoiceField(choices=DRIVE)
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
     description = forms.CharField(max_length=500)
-    image = forms.ImageField(required=False)
+    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={"multiple": True}), help_text="You can upload up to 8 photos.")
     win = forms.CharField(max_length=17,)
     price = forms.DecimalField(decimal_places=2, max_digits=15)
     price_usd = forms.DecimalField(decimal_places=2, max_digits=15)
     phone_number = forms.CharField(max_length=13)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        files = self.files.getlist("image")
+        if len(files) > 8:
+            raise ValidationError("You can upload up to 8 photos.")
+        cleaned_data["image_list"] = files
+        if files:
+            cleaned_data["image"] = files[0]
+        return cleaned_data

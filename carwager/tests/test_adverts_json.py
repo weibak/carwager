@@ -1,9 +1,6 @@
 import pytest
 import requests
-import logging
 from django.test import Client
-
-logger = logging.getLogger(__name__)
 
 
 @pytest.mark.django_db
@@ -27,19 +24,19 @@ class TestAdvertJSON:
         price_usd = []
         phone_number = []
         for car in json["results"]:
-            mark.append(car['car_']['car_model']['mark']['car_mark'])
-            model.append(car['car_']['car_model']['car_model'])
-            year.append(car['car_']['year'])
-            engine_type.append(car['engine_type'])
-            engine_capacity.append(car['engine_capacity'])
-            drive.append(car['drive'])
-            gear_box.append(car['gear_box'])
-            description.append(car['description'])
-            image.append(car['image'])
-            win.append(car['win'])
-            price.append(car['price'])
-            price_usd.append(car['price_usd'])
-            phone_number.append(car['phone_number'])
+            mark.append(car["car_"]["car_model"]["mark"]["car_mark"])
+            model.append(car["car_"]["car_model"]["car_model"])
+            year.append(car["car_"]["year"])
+            engine_type.append(car["engine_type"])
+            engine_capacity.append(car["engine_capacity"])
+            drive.append(car["drive"])
+            gear_box.append(car["gear_box"])
+            description.append(car["description"])
+            image.append(car["image"])
+            win.append(car["win"])
+            price.append(car["price"])
+            price_usd.append(car["price_usd"])
+            phone_number.append(car["phone_number"])
 
         if (mark, model, year, engine_type, engine_capacity, drive, gear_box, description, image, win, price, price_usd,
                 phone_number) is not None:

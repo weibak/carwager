@@ -2,8 +2,8 @@
 {% load text_tags %}
 
 <div class="card h-100">
-    {% if auction.image %}
-        <img class="card-img-top" src="{{ auction.image.url }}"
+    {% if auction.gallery and auction.gallery.0 %}
+        <img class="card-img-top" src="{{ auction.gallery.0.url }}"
              alt="{{ auction.car.mark }} {{ auction.car.model.car_model }}">
     {% else %}
         <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">

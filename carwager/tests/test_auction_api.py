@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.test import Client
 from django.utils import timezone
 
-from auction.models import Auction, CarAuction, CarModelAuction, CarMarkAuction
+from auction.models import Auction
+from showbill.models import Car, CarModel, CarMark
 
 
 @pytest.mark.django_db
@@ -18,9 +19,9 @@ class TestAuctionsAPI:
             username="test", email="test@test.com", password="testtest"
         )
 
-        mark = CarMarkAuction.objects.create(car_mark="test")
-        model = CarModelAuction.objects.create(car_mark=mark, car_model="test")
-        car = CarAuction.objects.create(mark=mark, model=model, year=random.randint(1800, 2022))
+        mark = CarMark.objects.create(car_mark="test")
+        model = CarModel.objects.create(car_mark=mark, car_model="test")
+        car = Car.objects.create(mark=mark, model=model, year=random.randint(1800, 2022))
         Auction.objects.create(car=car, engine_type="Test", engine_capacity=random.randint(1, 10),
                                drive="No type", gear_box="No type", description="Test",
                                price=random.randrange(9999999999999), owner=user,

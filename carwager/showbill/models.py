@@ -3,22 +3,14 @@ from django.db import models
 
 
 ORDER_BY_CHOICES = (
-    ('', ""),
+    ("", ""),
     ("price_asc", "Price Asc"),
     ("price_desc", "Price Desc"),
 )
 
 
-CAR_MARK = (
-    ('', ""),
-    ("bmw", "BMW"),
-    ("merc", "MERCEDES"),
-    ("toyo", "TOYOTA"),
-)
-
-
 ENGINE_TYPE = (
-    ('', ""),
+    ("", ""),
     ("petr", "Petrol"),
     ("dies", "Diesel"),
     ("hyb", "Hybrid"),
@@ -27,7 +19,7 @@ ENGINE_TYPE = (
 
 
 DRIVE = (
-    ('', ""),
+    ("", ""),
     ("fwd", "Front-wheel drive"),
     ("rwd", "Rear-wheel drive"),
     ("awd", "Automatic 4WD"),
@@ -36,7 +28,7 @@ DRIVE = (
 
 
 GEAR_BOX = (
-    ('', ""),
+    ("", ""),
     ("auto", "Automatic"),
     ("man", "Manual"),
 )
@@ -80,12 +72,11 @@ class Advert(models.Model):
         Car, related_name="adverts", on_delete=models.CASCADE
     )
     engine_type = models.CharField(max_length=100, choices=ENGINE_TYPE, default="No type")
-    engine_capacity = models.IntegerField(default="No capacity")
+    engine_capacity = models.DecimalField(decimal_places=1, max_digits=5, default="No capacity")
     drive = models.CharField(max_length=100, choices=DRIVE, default="No type")
     gear_box = models.CharField(max_length=100, choices=GEAR_BOX, default="No type")
-    description = models.TextField(null=True, blank=True)
-    image = models.ImageField(null=True, blank=True)
-    win = models.CharField(max_length=17, null=True, blank=True)
+    description = models.TextField(blank=True, default="")
+    win = models.CharField(max_length=17, blank=True, default="")
     price = models.DecimalField(decimal_places=2, max_digits=15)
     price_usd = models.DecimalField(default=0, decimal_places=2, max_digits=15)
     owner = models.ForeignKey(
@@ -97,5 +88,21 @@ class Advert(models.Model):
         settings.AUTH_USER_MODEL, related_name="favorite_adverts"
     )
 
+    @property
+    def gallery(self):
+        return [item.image for item in self.images.all()]
+
     def __str__(self):
         return f"{self.car.mark} - {self.car.model} - {self.car.year}"
+
+
+class AdvertImage(models.Model):
+    advert = models.ForeignKey(Advert, related_name="images", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="advert_photos/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"Advert image for {self.advert_id}"

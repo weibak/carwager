@@ -4,40 +4,126 @@
 {% block title %}Create Auction - CarWager{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow-lg border-0">
-        <div class="card-header bg-primary text-white py-3">
-          <h3 class="mb-0">Create Car Auction</h3>
-          <p class="mb-0 small">Start a new auction for your vehicle</p>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h3 class="mb-0">Create Car Auction</h3>
+                        <p class="mb-0 small">Start a new auction for your vehicle</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form enctype="multipart/form-data" method="POST" class="post-form">
+                            {% csrf_token %}
+
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">Car Information</h5>
+                                {{ form_car | crispy }}
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">Auction Details</h5>
+                                {{ form | crispy }}
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-gavel me-2"></i>Start Auction
+                                </button>
+                                <a href="{% url 'auction' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body p-4">
-          <form enctype="multipart/form-data" method="POST" class="post-form">
-            {% csrf_token %}
-            
-            <div class="mb-4">
-              <h5 class="text-primary mb-3">Car Information</h5>
-              {{ form_car | crispy }}
-            </div>
-            
-            <div class="mb-4">
-              <h5 class="text-primary mb-3">Auction Details</h5>
-              {{ form | crispy }}
-            </div>
-            
-            <div class="d-grid gap-2 mt-4">
-              <button type="submit" class="btn btn-primary btn-lg">
-                <i class="fas fa-gavel me-2"></i>Start Auction
-              </button>
-              <a href="{% url 'auction' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-times me-2"></i>Cancel
-              </a>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
-</div>
+
+    <script> document.addEventListener('DOMContentLoaded', function () {
+        const markSelect = document.getElementById('id_mark');
+        const modelSelect = document.getElementById('id_model');
+        const dateStart = document.getElementById('id_date_start');
+        const dateEnd = document.getElementById('id_date_end'); /* * Минимальное время начала аукциона — * следующий полный час. * * Например: * сейчас 22.09.2026 15:27 * минимальное значение = 22.09.2026 16:00 */
+        function getMinDateTime() {
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+            now.setMinutes(0);
+            now.setSeconds(0);
+            now.setMilliseconds(0);
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:00`;
+        } /* * Дата начала аукциона */
+        if (dateStart) {
+            dateStart.min = getMinDateTime();
+            dateStart.addEventListener('change', function () {
+                if (!this.value) {
+                    this.setCustomValidity('');
+                    return;
+                }
+                if (this.value < getMinDateTime()) {
+                    this.setCustomValidity('Дата начала аукциона должна быть не раньше следующего полного часа.');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        } /* * Дата окончания не может быть раньше даты начала. */
+        if (dateStart && dateEnd) {
+            dateStart.addEventListener('change', function () {
+                if (!this.value) {
+                    dateEnd.removeAttribute('min');
+                    return;
+                }
+                dateEnd.min = this.value;
+                if (dateEnd.value && dateEnd.value < this.value) {
+                    dateEnd.value = '';
+                }
+            });
+        } /* * Загрузка моделей автомобиля */
+        if (!markSelect || !modelSelect) {
+            return;
+        }
+
+        async function loadModels(markId, preselect) {
+            modelSelect.innerHTML = '<option value="">---------</option>';
+            if (!markId) {
+                return;
+            }
+            try {
+                const resp = await fetch(`/ajax/auction/models/${markId}/`);
+                if (!resp.ok) {
+                    return;
+                }
+                const models = await resp.json();
+                models.forEach(function (m) {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.car_model;
+                    if (preselect && preselect == String(m.id)) {
+                        opt.selected = true;
+                    }
+                    modelSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error('Failed to load car models:', error);
+            }
+        }
+
+        markSelect.addEventListener('change', function () {
+            loadModels(this.value);
+        }); /* * Если марка уже выбрана при загрузке страницы, * загружаем соответствующие модели. */
+        if (markSelect.value) {
+            if (modelSelect.options && modelSelect.options.length > 1) {
+                return;
+            }
+            const pre = modelSelect.getAttribute('data-selected') || null;
+            loadModels(markSelect.value, pre);
+        }
+    }); </script>
+
+
 {% endblock %}

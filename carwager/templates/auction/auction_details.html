@@ -8,8 +8,31 @@
         <h1 class="my-4">{{ auction.car.mark }} {{ auction.car.model.car_model }}</h1>
         <div class="row">
             <div class="col-4">
-                {% if auction.image %}
-                    <img src="{{ auction.image.url }}" alt="{{ auction.car.model }}" class="w-100">
+                {% if auction.gallery %}
+                    <div id="auctionCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            {% for image in auction.gallery %}
+                                <button type="button" data-bs-target="#auctionCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+                            {% endfor %}
+                        </div>
+                        <div class="carousel-inner">
+                            {% for image in auction.gallery %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ image.url }}" alt="{{ auction.car.model }}" class="d-block w-100 rounded" style="height: 420px; object-fit: cover;">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if auction.gallery|length > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#auctionCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#auctionCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        {% endif %}
+                    </div>
                 {% else %}
                     <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">
                 {% endif %}
