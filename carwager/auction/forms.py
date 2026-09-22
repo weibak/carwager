@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX, ORDER_BY_CHOICES, CarMark, CarModel
 from auction.models import STATUS_AUC
 
@@ -46,14 +49,48 @@ class AuctionForm(forms.Form):
     win = forms.CharField(max_length=17, required=False)
     price = forms.DecimalField(decimal_places=2, max_digits=15)
     phone_number = forms.CharField(max_length=13)
-    date_start = forms.DateTimeField(input_formats='%Y-%m-%d %H', help_text='2022-03-19 14')
-    date_end = forms.DateTimeField(input_formats='%Y-%m-%d %H', help_text='2022-03-19 14')
+    date_start = forms.DateTimeField(
+        widget=forms.DateTimeInput(
+            attrs={
+                'type': 'datetime-local',
+                'step': '3600',
+                'placeholder': 'Select start date and time',
+            }
+        ),
+        input_formats=['%Y-%m-%dT%H', '%Y-%m-%d %H', '%Y-%m-%d %H'],
+        help_text='Select a future date and time for the auction start.'
+    )
+    date_end = forms.DateTimeField(
+        widget=forms.DateTimeInput(
+            attrs={
+                'type': 'datetime-local',
+                'step': '3600',
+                'placeholder': 'Select end date and time',
+            }
+        ),
+        input_formats=['%Y-%m-%dT%H', '%Y-%m-%d %H', '%Y-%m-%d %H'],
+        help_text='Select a date later than the start time.'
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.now = timezone.now()
+        self.fields['date_start'].widget.attrs['min'] = self.now.strftime('%Y-%m-%dT%H')
+        self.fields['date_end'].widget.attrs['min'] = (self.now + timedelta(hours=1)).strftime('%Y-%m-%dT%H')
 
     def clean(self):
-        cleaned_data = super().clean()
+        cleaned_data = super().clean() or {}
         files = self.files.getlist('image')
         if len(files) > 8:
             raise ValidationError("You can upload up to 8 photos.")
+
+        date_start = cleaned_data.get('date_start', self.now)
+        date_end = cleaned_data.get('date_end', self.now)
+        if date_start and date_start <= self.now:
+            raise ValidationError("Auction start date must be in the future.")
+        if date_start and date_end and date_end <= date_start:
+            raise ValidationError("Auction end date must be later than the start date.")
+
         cleaned_data['image_list'] = files
         if files:
             cleaned_data['image'] = files[0]
