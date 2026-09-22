@@ -15,7 +15,7 @@ def news_list_all(request):
     if request.user.is_anonymous:
         return redirect("auth")
     news = News.objects.order_by("-created_at")
-    logger.info(f"News list")
+    logger.info("News list")
     return render(request, "news/news_list.html", {"news": news})
 
 

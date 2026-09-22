@@ -3,7 +3,6 @@ from rest_framework import viewsets
 
 from api.auction.serializers import AuctionModelSerializer
 from auction.models import Auction
-from rest_framework.permissions import IsAuthenticated
 
 
 class AuctionViewSet(viewsets.ModelViewSet):

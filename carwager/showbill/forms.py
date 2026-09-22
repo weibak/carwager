@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX, CarMark, CarModel
 
-CAR_MARKS = (('', ''), *CarMark.objects.values_list('id', 'car_mark'))
+CAR_MARKS = (("", ""), *CarMark.objects.values_list("id", "car_mark"))
 
 
 class CarFiltersForm(forms.Form):
@@ -25,7 +25,7 @@ class CarFiltersForm(forms.Form):
 class AdvertFiltersForm(forms.Form):
     order_date = forms.ChoiceField(
         choices=(
-            ('', ""),
+            ("", ""),
             ("-created_at", "Newest First"),
             ("created_at", "Oldest First"),
         ),
@@ -40,10 +40,10 @@ class CarForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         # Accept optional mark_id to limit model choices server-side
-        mark_id = kwargs.pop('mark_id', None)
+        mark_id = kwargs.pop("mark_id", None)
         super().__init__(*args, **kwargs)
         if mark_id:
-            self.fields['model'].queryset = CarModel.objects.filter(car_mark_id=mark_id)
+            self.fields["model"].queryset = CarModel.objects.filter(car_mark_id=mark_id)
 
 
 class AdvertForm(forms.Form):
@@ -52,7 +52,7 @@ class AdvertForm(forms.Form):
     drive = forms.ChoiceField(choices=DRIVE)
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
     description = forms.CharField(max_length=500)
-    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'multiple': True}), help_text="You can upload up to 8 photos.")
+    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={"multiple": True}), help_text="You can upload up to 8 photos.")
     win = forms.CharField(max_length=17,)
     price = forms.DecimalField(decimal_places=2, max_digits=15)
     price_usd = forms.DecimalField(decimal_places=2, max_digits=15)
@@ -60,10 +60,10 @@ class AdvertForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        files = self.files.getlist('image')
+        files = self.files.getlist("image")
         if len(files) > 8:
             raise ValidationError("You can upload up to 8 photos.")
-        cleaned_data['image_list'] = files
+        cleaned_data["image_list"] = files
         if files:
-            cleaned_data['image'] = files[0]
+            cleaned_data["image"] = files[0]
         return cleaned_data

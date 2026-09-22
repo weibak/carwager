@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 # view for show all adverts on the showbill
-@method_decorator(cache_page(60), name='dispatch')
+@method_decorator(cache_page(60), name="dispatch")
 class CarView(TemplateView):
     template_name = "showbill/car_list.html"
 
@@ -54,7 +54,7 @@ def create_advert(request, *args, **kwargs):
     if request.method == "POST":
         form = AdvertForm(request.POST, request.FILES)
         # supply mark_id so model choices are validated server-side
-        form_car = CarForm(request.POST, mark_id=request.POST.get('mark'))
+        form_car = CarForm(request.POST, mark_id=request.POST.get("mark"))
         if form_car.is_valid():
             car = Car.objects.create(**form_car.cleaned_data)
             if form.is_valid():
@@ -73,7 +73,7 @@ def create_advert(request, *args, **kwargs):
         else:
             # if car form invalid, re-render with posted data and mark-specific models
             form = AdvertForm(request.POST)
-            form_car = CarForm(request.POST, mark_id=request.POST.get('mark'))
+            form_car = CarForm(request.POST, mark_id=request.POST.get("mark"))
             return render(request, "showbill/create_advert.html", {"form": form, "form_car": form_car})
 
     else:
@@ -111,5 +111,5 @@ from django.http import JsonResponse
 from showbill.models import CarModel
 
 def models_for_mark(request, mark_id):
-    models = list(CarModel.objects.filter(car_mark_id=mark_id).values('id', 'car_model'))
+    models = list(CarModel.objects.filter(car_mark_id=mark_id).values("id", "car_model"))
     return JsonResponse(models, safe=False)

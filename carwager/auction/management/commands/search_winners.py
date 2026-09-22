@@ -20,5 +20,5 @@ class Command(BaseCommand):
             func=search_winners,
             interval=10,
             id=job_id,
-        )        
+        )
         logger.info("Scheduler works with winners")

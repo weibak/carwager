@@ -3,14 +3,14 @@ from django.db import models
 
 
 ORDER_BY_CHOICES = (
-    ('', ""),
+    ("", ""),
     ("price_asc", "Price Asc"),
     ("price_desc", "Price Desc"),
 )
 
 
 ENGINE_TYPE = (
-    ('', ""),
+    ("", ""),
     ("petr", "Petrol"),
     ("dies", "Diesel"),
     ("hyb", "Hybrid"),
@@ -19,7 +19,7 @@ ENGINE_TYPE = (
 
 
 DRIVE = (
-    ('', ""),
+    ("", ""),
     ("fwd", "Front-wheel drive"),
     ("rwd", "Rear-wheel drive"),
     ("awd", "Automatic 4WD"),
@@ -28,7 +28,7 @@ DRIVE = (
 
 
 GEAR_BOX = (
-    ('', ""),
+    ("", ""),
     ("auto", "Automatic"),
     ("man", "Manual"),
 )

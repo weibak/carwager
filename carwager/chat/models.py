@@ -21,7 +21,7 @@ class ChatRoom(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-updated_at']
+        ordering = ["-updated_at"]
 
     def clean(self):
         if self.user_id == self.owner_id:
@@ -46,7 +46,7 @@ class Message(models.Model):
     is_read = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['timestamp']
+        ordering = ["timestamp"]
 
     def __str__(self):
         return f"{self.sender.username}: {self.content[:50]}"

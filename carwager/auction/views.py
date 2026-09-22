@@ -5,24 +5,24 @@ from channels.layers import get_channel_layer
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 
 from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
 from auction.models import Auction, AuctionImage, Winner
 from auction.queries import filter_cars_auction
-from django.views.decorators.cache import cache_page
 from showbill.models import Car, CarModel
-from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
 
 # general page of auctions, auctions going, auctions ended, auctions soon, filter-forms.
-@method_decorator(cache_page(60), name='dispatch')
+@method_decorator(cache_page(60), name="dispatch")
 class CarAuctionView(TemplateView):
     template_name = "auction/auction_car_list.html"
 
@@ -55,7 +55,7 @@ class CarAuctionView(TemplateView):
 
 # AJAX endpoint for auction models
 def models_for_mark_auction(request, mark_id):
-    models = list(CarModel.objects.filter(car_mark_id=mark_id).values('id', 'car_model'))
+    models = list(CarModel.objects.filter(car_mark_id=mark_id).values("id", "car_model"))
     return JsonResponse(models, safe=False)
 
 
@@ -67,14 +67,14 @@ def create_auction(request, *args, **kwargs):
 
     if request.method == "POST":
         form = AuctionForm(request.POST, request.FILES)
-        form_car = CarAuctionForm(request.POST, mark_id=request.POST.get('mark'))
+        form_car = CarAuctionForm(request.POST, mark_id=request.POST.get("mark"))
         now = str(timezone.now())  # time to compare statuses
         if form_car.is_valid():
             # create or get canonical Car from showbill models
-            mark = form_car.cleaned_data['mark']
-            model = form_car.cleaned_data['model']
-            year = form_car.cleaned_data['year']
-            car, _created = Car.objects.get_or_create(mark=mark, model=model, defaults={'year': year})
+            mark = form_car.cleaned_data["mark"]
+            model = form_car.cleaned_data["model"]
+            year = form_car.cleaned_data["year"]
+            car, _created = Car.objects.get_or_create(mark=mark, model=model, defaults={"year": year})
             if not _created and car.year != year:
                 # if existing car has different year, update if desired (keep existing to avoid duplicates)
                 car.year = year
@@ -105,7 +105,7 @@ def create_auction(request, *args, **kwargs):
             )
         else:
             form = AuctionForm(request.POST)
-            form_car = CarAuctionForm(request.POST, mark_id=request.POST.get('mark'))
+            form_car = CarAuctionForm(request.POST, mark_id=request.POST.get("mark"))
             return render(request, "auction/create_auction.html", {"form": form, "form_car": form_car})
 
     else:
@@ -148,15 +148,15 @@ def auction_view(request, auction_id):
             # Send WebSocket update to all connected clients
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
-                f'auction_{auction.id}',
+                f"auction_{auction.id}",
                 {
-                    'type': 'price_update',
-                    'new_price': new_price,
-                    'auction_id': auction.id,
+                    "type": "price_update",
+                    "new_price": new_price,
+                    "auction_id": auction.id,
                 }
             )
 
-            messages.success(request, 'Bid placed successfully!')
+            messages.success(request, "Bid placed successfully!")
         else:
             messages.error(request, message)
 
