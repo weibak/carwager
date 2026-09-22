@@ -1,9 +1,6 @@
 import pytest
 import requests
-import logging
 from django.test import Client
-
-logger = logging.getLogger(__name__)
 
 
 @pytest.mark.django_db
