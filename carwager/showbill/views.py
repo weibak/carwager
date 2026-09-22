@@ -3,6 +3,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -10,6 +11,7 @@ from django.views.generic import TemplateView
 
 from showbill.forms import AdvertFiltersForm, AdvertForm, CarFiltersForm, CarForm
 from showbill.models import Advert, AdvertImage, Car
+from showbill.models import CarModel
 from showbill.queries import filter_adverts, filter_cars
 
 logger = logging.getLogger(__name__)
@@ -105,10 +107,6 @@ def advert_view(request, advert_id):
         },
     )
 
-
-# AJAX endpoint for dependent models (showbill)
-from django.http import JsonResponse
-from showbill.models import CarModel
 
 def models_for_mark(request, mark_id):
     models = list(CarModel.objects.filter(car_mark_id=mark_id).values("id", "car_model"))

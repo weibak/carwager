@@ -75,8 +75,8 @@ class Advert(models.Model):
     engine_capacity = models.DecimalField(decimal_places=1, max_digits=5, default="No capacity")
     drive = models.CharField(max_length=100, choices=DRIVE, default="No type")
     gear_box = models.CharField(max_length=100, choices=GEAR_BOX, default="No type")
-    description = models.TextField(null=True, blank=True)
-    win = models.CharField(max_length=17, null=True, blank=True)
+    description = models.TextField(blank=True, default="")
+    win = models.CharField(max_length=17, blank=True, default="")
     price = models.DecimalField(decimal_places=2, max_digits=15)
     price_usd = models.DecimalField(default=0, decimal_places=2, max_digits=15)
     owner = models.ForeignKey(

@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.db import models
-from showbill.models import ENGINE_TYPE, GEAR_BOX, DRIVE
 
+from api import users
+from showbill.models import Car
+from showbill.models import ENGINE_TYPE, GEAR_BOX, DRIVE
 
 STATUS_AUC = (
     ("", ""),
@@ -12,9 +14,6 @@ STATUS_AUC = (
 )
 
 
-from showbill.models import Car
-
-
 class Auction(models.Model):
     car = models.ForeignKey(
         Car, related_name="auctions", on_delete=models.CASCADE
@@ -23,8 +22,8 @@ class Auction(models.Model):
     engine_capacity = models.DecimalField(decimal_places=1, max_digits=5, default="No capacity")
     drive = models.CharField(max_length=100, choices=DRIVE, default="No type")
     gear_box = models.CharField(max_length=100, choices=GEAR_BOX, default="No type")
-    description = models.TextField(null=True, blank=True)
-    win = models.CharField(max_length=17, null=True, blank=True)
+    description = models.TextField(blank=True, default="")
+    win = models.CharField(max_length=17, blank=True, default="")
     price = models.DecimalField(decimal_places=2, max_digits=15)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="auctions"
@@ -65,7 +64,8 @@ class Winner(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None
     )
-
+    def __str__(self):
+        return f"Winner: {self.user.id} for {self.auction_id}"
 
 class Bid(models.Model):
     user = models.ForeignKey(
