@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
 
-from api import users
 from showbill.models import Car
 from showbill.models import ENGINE_TYPE, GEAR_BOX, DRIVE
 
