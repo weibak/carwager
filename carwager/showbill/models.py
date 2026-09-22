@@ -9,14 +9,6 @@ ORDER_BY_CHOICES = (
 )
 
 
-CAR_MARK = (
-    ('', ""),
-    ("bmw", "BMW"),
-    ("merc", "MERCEDES"),
-    ("toyo", "TOYOTA"),
-)
-
-
 ENGINE_TYPE = (
     ('', ""),
     ("petr", "Petrol"),

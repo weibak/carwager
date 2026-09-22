@@ -12,11 +12,11 @@ from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 
 from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
-from auction.models import Auction, AuctionImage, CarAuction, Winner
+from auction.models import Auction, AuctionImage, Winner
 from auction.queries import filter_cars_auction
 from django.views.decorators.cache import cache_page
+from showbill.models import Car, CarModel
 from django.http import JsonResponse
-from auction.models import CarModelAuction
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +40,9 @@ class CarAuctionView(TemplateView):
             gear_box = filters_form.cleaned_data["gear_box"]
             drive = filters_form.cleaned_data["drive"]
             status = filters_form.cleaned_data["status"]
+            mark = filters_form.cleaned_data["mark"]
             auctions = filter_cars_auction(
-                auctions, price__gt, price__lt, order_price, engine_type, drive, gear_box, status
+                auctions, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark
             )
         # settings of page size
         paginator = Paginator(auctions, 30)
@@ -54,7 +55,7 @@ class CarAuctionView(TemplateView):
 
 # AJAX endpoint for auction models
 def models_for_mark_auction(request, mark_id):
-    models = list(CarModelAuction.objects.filter(car_mark_id=mark_id).values('id', 'car_model'))
+    models = list(CarModel.objects.filter(car_mark_id=mark_id).values('id', 'car_model'))
     return JsonResponse(models, safe=False)
 
 
@@ -69,7 +70,16 @@ def create_auction(request, *args, **kwargs):
         form_car = CarAuctionForm(request.POST, mark_id=request.POST.get('mark'))
         now = str(timezone.now())  # time to compare statuses
         if form_car.is_valid():
-            car = CarAuction.objects.create(**form_car.cleaned_data)
+            # create or get canonical Car from showbill models
+            mark = form_car.cleaned_data['mark']
+            model = form_car.cleaned_data['model']
+            year = form_car.cleaned_data['year']
+            car, _created = Car.objects.get_or_create(mark=mark, model=model, defaults={'year': year})
+            if not _created and car.year != year:
+                # if existing car has different year, update if desired (keep existing to avoid duplicates)
+                car.year = year
+                car.save()
+
             if form.is_valid():
                 cleaned_data = form.cleaned_data.copy()
                 uploaded_files = cleaned_data.pop("image_list", [])

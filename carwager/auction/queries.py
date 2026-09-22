@@ -1,4 +1,4 @@
-def filter_cars_auction(cars, price__gt, price__lt, order_price, engine_type, drive, gear_box, status):
+def filter_cars_auction(cars, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark):
     if price__gt is not None:
         cars = cars.filter(price__gt=price__gt)
     if price__lt is not None:
@@ -38,6 +38,8 @@ def filter_cars_auction(cars, price__gt, price__lt, order_price, engine_type, dr
             cars = cars.filter(status="stop")
         if status == "soon":
             cars = cars.filter(status="soon")
+    if mark:
+        cars = cars.filter(car__mark=mark)
     return cars
 
 

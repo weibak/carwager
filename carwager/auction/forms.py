@@ -1,7 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from auction.models import CarMarkAuction, CarModelAuction, STATUS_AUC
-from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX, ORDER_BY_CHOICES
+from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX, ORDER_BY_CHOICES, CarMark, CarModel
+from auction.models import STATUS_AUC
+
+CAR_MARKS = (('', ''), *CarMark.objects.values_list('id', 'car_mark'))
 
 
 class AuctionFiltersForm(forms.Form):
@@ -9,6 +11,7 @@ class AuctionFiltersForm(forms.Form):
     price__lt = forms.IntegerField(min_value=0, label="Price Max", required=False)
     order_price = forms.ChoiceField(choices=ORDER_BY_CHOICES, required=False)
     engine_type = forms.ChoiceField(choices=ENGINE_TYPE, required=False)
+    mark = forms.ChoiceField(choices=CAR_MARKS, required=False,)
     gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False)
     drive = forms.ChoiceField(choices=DRIVE, required=False)
     status = forms.ChoiceField(choices=STATUS_AUC, required=False)
@@ -22,15 +25,15 @@ class AuctionFiltersForm(forms.Form):
 
 
 class CarAuctionForm(forms.Form):
-    mark = forms.ModelChoiceField(CarMarkAuction.objects.all(), required=True)
-    model = forms.ModelChoiceField(CarModelAuction.objects.all(), required=True)
+    mark = forms.ModelChoiceField(CarMark.objects.all(), required=True)
+    model = forms.ModelChoiceField(CarModel.objects.all(), required=True)
     year = forms.IntegerField()
 
     def __init__(self, *args, **kwargs):
         mark_id = kwargs.pop('mark_id', None)
         super().__init__(*args, **kwargs)
         if mark_id:
-            self.fields['model'].queryset = CarModelAuction.objects.filter(car_mark_id=mark_id)
+            self.fields['model'].queryset = CarModel.objects.filter(car_mark_id=mark_id)
 
 
 class AuctionForm(forms.Form):

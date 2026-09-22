@@ -12,42 +12,12 @@ STATUS_AUC = (
 )
 
 
-class CarMarkAuction(models.Model):
-    car_mark = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.car_mark}"
-
-
-class CarModelAuction(models.Model):
-    car_mark = models.ForeignKey(
-        CarMarkAuction, related_name="carmodelsauction", on_delete=models.CASCADE
-    )
-    car_model = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return f"{self.car_mark} - {self.car_model}"
-
-
-class CarAuction(models.Model):
-    mark = models.ForeignKey(
-        CarMarkAuction, related_name="carsauction", on_delete=models.CASCADE
-    )
-    model = models.ForeignKey(
-        CarModelAuction, related_name="carsauction", on_delete=models.CASCADE
-    )
-    year = models.IntegerField(default=None)
-    favorites = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="favorite_carsauction"
-    )
-
-    def __str__(self):
-        return f"{self.mark.car_mark} - {self.model.car_model}"
+from showbill.models import Car
 
 
 class Auction(models.Model):
     car = models.ForeignKey(
-        CarAuction, related_name="auctions", on_delete=models.CASCADE
+        Car, related_name="auctions", on_delete=models.CASCADE
     )
     engine_type = models.CharField(max_length=100, choices=ENGINE_TYPE, default="No type")
     engine_capacity = models.DecimalField(decimal_places=1, max_digits=5, default="No capacity")
