@@ -12,6 +12,11 @@ STATUS_AUC = (
 
 )
 
+AUCTION_SORT_PRIORITY = {
+        "go" : 1,
+        "soon" : 2,
+        "stop" : 3
+    }
 
 class Auction(models.Model):
     car = models.ForeignKey(
