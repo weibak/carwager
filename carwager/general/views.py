@@ -2,7 +2,7 @@ import logging
 
 from auction.models import Auction, Bid
 from django.contrib import messages
-from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
@@ -68,7 +68,6 @@ def register(request):
 
 # activate user's account, take token from register function
 def activate(request, uidb64, token):
-    User = get_user_model()
     token_checker = PasswordResetTokenGenerator()
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -147,7 +146,7 @@ def profile_view(request):
 def update_profile_view(request):
     if request.user.is_anonymous:
         return redirect("auth")
-    
+
     if request.method == "POST":
         user = request.user
         first_name = request.POST.get('first_name', '').strip()
@@ -156,11 +155,11 @@ def update_profile_view(request):
         # Update user fields
         user.first_name = first_name
         user.last_name = last_name
-        
+
         try:
             user.save()
             logger.info(f"Profile updated for user {user.username}: {user.first_name} {user.last_name}")
-            
+
             # Return JSON response for AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -172,7 +171,7 @@ def update_profile_view(request):
             else:
                 messages.success(request, 'Profile updated successfully!')
                 return redirect('profile')
-                
+
         except Exception as e:
             logger.error(f"Error updating profile for user {user.username}: {e}")
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -183,5 +182,5 @@ def update_profile_view(request):
             else:
                 messages.error(request, 'Failed to update profile')
                 return redirect('profile')
-    
+
     return redirect('profile')
