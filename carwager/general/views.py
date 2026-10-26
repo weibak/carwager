@@ -149,9 +149,9 @@ def update_profile_view(request):
 
     if request.method == "POST":
         user = request.user
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+
         # Update user fields
         user.first_name = first_name
         user.last_name = last_name
@@ -161,26 +161,26 @@ def update_profile_view(request):
             logger.info(f"Profile updated for user {user.username}: {user.first_name} {user.last_name}")
 
             # Return JSON response for AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return JsonResponse({
-                    'success': True,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'message': 'Profile updated successfully'
+                    "success": True,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "message": "Profile updated successfully"
                 })
             else:
-                messages.success(request, 'Profile updated successfully!')
-                return redirect('profile')
+                messages.success(request, "Profile updated successfully!")
+                return redirect("profile")
 
         except Exception as e:
             logger.error(f"Error updating profile for user {user.username}: {e}")
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return JsonResponse({
-                    'success': False,
-                    'error': 'Failed to update profile'
+                    "success": False,
+                    "error": "Failed to update profile"
                 }, status=400)
             else:
-                messages.error(request, 'Failed to update profile')
-                return redirect('profile')
+                messages.error(request, "Failed to update profile")
+                return redirect("profile")
 
-    return redirect('profile')
+    return redirect("profile")
