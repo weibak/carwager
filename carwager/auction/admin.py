@@ -6,15 +6,15 @@ from auction.models import Auction, Winner, Bid
 class AuctionAdmin(admin.ModelAdmin):
     list_display = (
         "car", "engine_type", "engine_capacity", "drive",
-        "gear_box", "win",
+        "gear_box", "body", "win",
         "price", "owner", "phone_number", "date_start", "date_end", "status",
     )
     fields = (
         "car", "engine_type", "engine_capacity", "drive",
-        "gear_box", "description", "win",
+        "gear_box", "body", "description", "win",
         "price", "owner", "phone_number", "date_start", "date_end", "status",
     )
-    search_fields = ("car", "engine_type", "gear_box", "status")
+    search_fields = ("engine_type", "gear_box", "body", "status")
     readonly_fields = ("created_at",)
     list_filter = ["status"]
 

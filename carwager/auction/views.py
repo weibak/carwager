@@ -48,8 +48,9 @@ class CarAuctionView(TemplateView):
             drive = filters_form.cleaned_data["drive"]
             status = filters_form.cleaned_data["status"]
             mark = filters_form.cleaned_data["mark"]
+            body = filters_form.cleaned_data["body"]
             auctions = filter_cars_auction(
-                auctions, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark
+                auctions, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark, body
             )
         # settings of page size
         paginator = Paginator(auctions, 30)
@@ -125,7 +126,7 @@ def create_auction(request, *args, **kwargs):
 # details of auction, info, bids, take bid
 def auction_view(request: HttpRequest, auction_id: int):
     auction = get_object_or_404(Auction, id=auction_id)
-    winner = winn.user.username if (winn := Winner.objects.filter(auction=auction).first()) else "No winner"
+    winner = winn.user.username if (winn := Winner.objects.filter(auction=auction).first()) else None
 
     if request.method == "POST" and request.user.is_authenticated and request.POST.get("bid"):
         from .bid_processor import process_bid_with_retry
