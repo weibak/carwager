@@ -10,53 +10,92 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- ЛЕВАЯ ЧАСТЬ МЕНЮ -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url "news" %}">News</a>
+                    <a class="nav-link" href="{% url "news" %}">
+                        <i class="fas fa-newspaper me-1"></i>News
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url "showbill" %}">Sale Ads</a>
+                    <a class="nav-link" href="{% url "showbill" %}">
+                        <i class="fas fa-car me-1"></i>Sale Ads
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url "auction" %}">Auction</a>
+                    <a class="nav-link" href="{% url "auction" %}">
+                        <i class="fas fa-gavel me-1"></i>Auction
+                    </a>
                 </li>
                 
                 {% if request.user.is_authenticated %}
                     {% if request.user.is_superuser %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url "create_new" %}">Create News</a>
+                            <a class="nav-link" href="{% url "create_new" %}">
+                                <i class="fas fa-newspaper me-1"></i>Create News
+                            </a>
                         </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url "add_advert" %}">Create Advert</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url "add_auction" %}">Create Auction</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="createDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-plus-circle me-1"></i>Create
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="createDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url "add_advert" %}">
+                                    <i class="fas fa-car me-2"></i>Create Advert
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url "add_auction" %}">
+                                    <i class="fas fa-gavel me-2"></i>Create Auction
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'my_chats' %}">
-                            💬 Chats
+                            <i class="fas fa-comments me-1"></i>Chats
                             {% if unread_messages_count > 0 %}
                                 <span class="badge bg-danger">{{ unread_messages_count }}</span>
                             {% endif %}
                         </a>
                     </li>
+                {% endif %}
+            </ul>
+
+            <!-- ПРАВАЯ ЧАСТЬ МЕНЮ -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if request.user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>
                             {{ request.user.username }}
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url "profile" %}">Profile</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url "profile" %}">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url "logout" %}">Logout</a></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url "logout" %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url "auth" %}">Login</a>
+                        <a class="nav-link" href="{% url "auth" %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url "register" %}">Register</a>
+                        <a class="nav-link" href="{% url "register" %}">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
                     </li>
                 {% endif %}
             </ul>

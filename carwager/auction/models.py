@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from showbill.models import Car
-from showbill.models import ENGINE_TYPE, GEAR_BOX, DRIVE
+from showbill.models import Car, CAR_BODY, ENGINE_TYPE, GEAR_BOX, DRIVE
 
 STATUS_AUC = (
     ("", ""),
@@ -12,6 +11,11 @@ STATUS_AUC = (
 
 )
 
+AUCTION_SORT_PRIORITY = {
+        "go" : 1,
+        "soon" : 2,
+        "stop" : 3
+    }
 
 class Auction(models.Model):
     car = models.ForeignKey(
@@ -21,6 +25,7 @@ class Auction(models.Model):
     engine_capacity = models.DecimalField(decimal_places=1, max_digits=5, default="No capacity")
     drive = models.CharField(max_length=100, choices=DRIVE, default="No type")
     gear_box = models.CharField(max_length=100, choices=GEAR_BOX, default="No type")
+    body = models.CharField(max_length=100, choices=CAR_BODY, default="No body")
     description = models.TextField(blank=True, default="")
     win = models.CharField(max_length=17, blank=True, default="")
     price = models.DecimalField(decimal_places=2, max_digits=15)

@@ -8,7 +8,6 @@
         <div class="row mb-4">
             <div class="col">
                 <h1 class="display-5 fw-bold mb-2">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h1>
-                <p class="lead text-muted">{{ advert.car.year }} • {{ advert.get_engine_type_display }}</p>
             </div>
         </div>
 
@@ -20,28 +19,33 @@
                         {% if advert.gallery %}
                             <div id="advertCarousel" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-indicators">
-                                   {% for image in advert.gallery %}
-                                       <button type="button" data-bs-target="#advertCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
-                                   {% endfor %}
+                                    {% for image in advert.gallery %}
+                                        <button type="button" data-bs-target="#advertCarousel"
+                                                data-bs-slide-to="{{ forloop.counter0 }}"
+                                                class="{% if forloop.first %}active{% endif %}"
+                                                aria-label="Slide {{ forloop.counter }}"></button>
+                                    {% endfor %}
                                 </div>
                                 <div class="carousel-inner">
-                                   {% for image in advert.gallery %}
-                                       <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                           <img src="{{ image.url }}"
-                                                alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}"
-                                                class="d-block w-100" style="height: 520px; object-fit: cover;">
-                                       </div>
-                                   {% endfor %}
+                                    {% for image in advert.gallery %}
+                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                            <img src="{{ image.url }}"
+                                                 alt="{{ advert.car.mark }} {{ advert.car.model.car_model }}"
+                                                 class="d-block w-100" style="height: 520px; object-fit: cover;">
+                                        </div>
+                                    {% endfor %}
                                 </div>
                                 {% if advert.gallery|length > 1 %}
-                                   <button class="carousel-control-prev" type="button" data-bs-target="#advertCarousel" data-bs-slide="prev">
-                                       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                       <span class="visually-hidden">Previous</span>
-                                   </button>
-                                   <button class="carousel-control-next" type="button" data-bs-target="#advertCarousel" data-bs-slide="next">
-                                       <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                       <span class="visually-hidden">Next</span>
-                                   </button>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#advertCarousel"
+                                            data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#advertCarousel"
+                                            data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
                                 {% endif %}
                             </div>
                         {% else %}
@@ -59,15 +63,17 @@
                     </div>
                     <div class="card-body">
                         <!-- Price Section -->
-                        <div class="mb-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-light rounded p-3 me-3">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
                                     <small class="text-muted d-block">Price in BYN</small>
-                                    <h3 class="mb-0 text-primary">{{ advert.price }} BYN</h3>
+                                    <h3 class="mb-0 text-primary"><span id="current-price">{{ advert.price }}</span></h3>
                                 </div>
-                                <div class="bg-light rounded p-3">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
                                     <small class="text-muted d-block">Price in USD</small>
-                                    <h3 class="mb-0 text-primary">{{ advert.price_usd }} USD</h3>
+                                    <h3 class="mb-0 text-primary">{{ advert.price_usd }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -109,6 +115,24 @@
                                         <div>
                                             <small class="text-muted d-block">Drive Type</small>
                                             <strong>{{ advert.get_drive_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-car-side text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Body Type</small>
+                                            <strong>{{ advert.get_body_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Year</small>
+                                            <strong>{{ advert.car.year }}</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -280,14 +304,23 @@
         <!-- JavaScript для чата -->
         <script>
             let chatSocket = null;
+            let isConnecting = false;
+            let messageQueue = [];
             const advertId = {{ advert.id }};
             const currentUserId = {{ user.id|default:"null" }};
             const currentUsername = "{{ user.username|default:'Anonymous' }}";
 
             // Time formatting function
             function formatTime(timestamp) {
-                const date = new Date(timestamp);
-                return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                try {
+                    const date = new Date(timestamp);
+                    if (isNaN(date.getTime())) {
+                        return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                    }
+                    return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                } catch (e) {
+                    return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                }
             }
 
             function getCookie(name) {
@@ -315,8 +348,21 @@
                     loadingDiv.remove();
                 }
 
+                // Generate unique message ID based on content, sender and timestamp
+                const messageId = `${senderId}_${message.substring(0, 20)}_${timestamp.substring(0, 19)}`;
+                
+                // Check if message already exists to prevent duplicates
+                const existingMessages = messagesDiv.querySelectorAll('.message');
+                for (const existingMsg of existingMessages) {
+                    if (existingMsg.dataset.messageId === messageId) {
+                        console.log('Duplicate message detected, skipping:', message);
+                        return; // Message already exists, skip adding
+                    }
+                }
+
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${isOwn ? 'message-own' : 'message-other'}`;
+                messageDiv.dataset.messageId = messageId;
 
                 const senderSpan = document.createElement('div');
                 senderSpan.className = 'message-sender';
@@ -327,7 +373,7 @@
 
                 const timeDiv = document.createElement('div');
                 timeDiv.className = 'message-time';
-                timeDiv.textContent = formatTime(timestamp || new Date().toISOString());
+                timeDiv.textContent = formatTime(timestamp);
 
                 messageDiv.appendChild(senderSpan);
                 messageDiv.appendChild(contentDiv);
@@ -340,12 +386,15 @@
 
             // WebSocket connection function
             function connectWebSocket(chatRoomId) {
-                if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-                    return;
-                }
+                if (isConnecting) return;
+                isConnecting = true;
 
                 // Close previous connection if exists
                 if (chatSocket) {
+                    chatSocket.onopen = null;
+                    chatSocket.onmessage = null;
+                    chatSocket.onerror = null;
+                    chatSocket.onclose = null;
                     chatSocket.close();
                 }
 
@@ -357,32 +406,48 @@
 
                 chatSocket.onopen = function () {
                     console.log('✅ WebSocket connected to chat ID', chatRoomId);
+                    isConnecting = false;
+
+                    // Process any queued messages
+                    while (messageQueue.length > 0) {
+                        const msg = messageQueue.shift();
+                        chatSocket.send(JSON.stringify(msg));
+                    }
 
                     // Load message history
                     loadChatHistory(chatRoomId);
                 };
 
                 chatSocket.onmessage = function (event) {
-                    const data = JSON.parse(event.data);
-                    console.log('📨 Message received:', data);
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('📨 Message received:', data);
 
-                    const isOwn = data.sender_id === currentUserId;
-                    addMessage(
-                        data.sender_id,
-                        data.sender_username,
-                        data.content,
-                        data.timestamp,
-                        isOwn
-                    );
+                        // Validate data structure
+                        if (data.content && data.sender_id && data.sender_username) {
+                            const isOwn = data.sender_id === currentUserId;
+                            addMessage(
+                                data.sender_id,
+                                data.sender_username,
+                                data.content,
+                                data.timestamp || new Date().toISOString(),
+                                isOwn
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error parsing message:', error);
+                    }
                 };
 
                 chatSocket.onerror = function (error) {
                     console.error('❌ WebSocket error:', error);
+                    isConnecting = false;
                     addMessage(null, 'System', 'Connection error', new Date().toISOString());
                 };
 
                 chatSocket.onclose = function (event) {
                     console.log('🔌 WebSocket disconnected, code:', event.code);
+                    isConnecting = false;
 
                     // Try to reconnect after 3 seconds
                     if (event.code !== 1000) { // 1000 = normal closure
@@ -411,6 +476,9 @@
                         if (loadingDiv && loadingDiv.parentNode) {
                             loadingDiv.remove();
                         }
+
+                        // Clear existing messages before loading history
+                        messagesDiv.innerHTML = '';
 
                         if (data.messages && data.messages.length > 0) {
                             data.messages.forEach(msg => {
@@ -456,11 +524,6 @@
 
             // Function to send message
             function sendMessage() {
-                if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
-                    alert('Connection not established. Please wait...');
-                    return;
-                }
-
                 const input = document.getElementById('messageInput');
                 const message = input.value.trim();
 
@@ -468,25 +531,42 @@
                     return;
                 }
 
-                // Send message via WebSocket
-                chatSocket.send(JSON.stringify({
-                    message: message
-                }));
-
-                // Clear input field
+                // Clear input field immediately
                 input.value = '';
-
-                // Focus back on input field
                 input.focus();
+
+                // Create message object
+                const messageObj = {
+                    message: message,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
+                    // Queue message if not connected
+                    messageQueue.push(messageObj);
+                    alert('Connecting... Message will be sent when connection is established.');
+                    return;
+                }
+
+                // Send message via WebSocket ONLY
+                // DO NOT add message locally - wait for WebSocket response
+                chatSocket.send(JSON.stringify(messageObj));
             }
 
             // Variable to store current chat_room_id
             let currentChatRoomId = null;
+            let modalEventHandlersAdded = false;
 
             // Function to open chat and connect WebSocket
             async function openChatAndConnect() {
                 try {
                     console.log('📞 Opening chat for advert', advertId);
+
+                    // Clear chat messages
+                    const messagesDiv = document.getElementById('chatMessages');
+                    if (messagesDiv) {
+                        messagesDiv.innerHTML = '<div class="text-center text-muted" id="loadingMessages"><i class="fas fa-spinner fa-spin me-2"></i>Loading messages...</div>';
+                    }
 
                     // Open chat via /chat/open/<advert_id>/
                     const response = await fetch(`/chat/open/${advertId}/`, {
@@ -516,14 +596,30 @@
             }
 
             // Handle Enter key press
-            document.getElementById('messageInput').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
+            function setupEventHandlers() {
+                if (modalEventHandlersAdded) return;
+                
+                const messageInput = document.getElementById('messageInput');
+                const sendButton = document.getElementById('sendButton');
+                
+                if (messageInput) {
+                    messageInput.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
+                            sendMessage();
+                        }
+                    });
                 }
-            });
+                
+                if (sendButton) {
+                    sendButton.addEventListener('click', sendMessage);
+                }
+                
+                modalEventHandlersAdded = true;
+            }
 
             // Connect WebSocket when modal opens
             document.getElementById('chatModal').addEventListener('shown.bs.modal', function () {
+                setupEventHandlers();
                 openChatAndConnect();
             });
 
@@ -532,6 +628,12 @@
                 if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
                     chatSocket.close(1000); // 1000 = normal closure
                 }
+                // Reset connection state
+                chatSocket = null;
+                isConnecting = false;
+                messageQueue = [];
+                currentChatRoomId = null;
+                modalEventHandlersAdded = false;
             });
 
             // Initialize on page load

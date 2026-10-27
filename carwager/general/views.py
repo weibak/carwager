@@ -2,12 +2,12 @@ import logging
 
 from auction.models import Auction, Bid
 from django.contrib import messages
-from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -68,7 +68,6 @@ def register(request):
 
 # activate user's account, take token from register function
 def activate(request, uidb64, token):
-    User = get_user_model()
     token_checker = PasswordResetTokenGenerator()
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -127,8 +126,6 @@ def profile_view(request):
     logger.info(f"Favorite adverts: {favorite_adverts} of {user}")
     logger.info(f"Adverts of {request.user}: {cars}")
     logger.info(f"Bids of {request.user}: {auctions}")
-    # filters_form = AdvertFiltersForm(request.GET)
-    # auc_filter_form = AdvertFiltersForm(request.GET)
     time = timezone.now()
 
     return render(
@@ -143,3 +140,47 @@ def profile_view(request):
             "time": time,
         },
     )
+
+
+# update user profile
+def update_profile_view(request):
+    if request.user.is_anonymous:
+        return redirect("auth")
+
+    if request.method == "POST":
+        user = request.user
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+
+        # Update user fields
+        user.first_name = first_name
+        user.last_name = last_name
+
+        try:
+            user.save()
+            logger.info(f"Profile updated for user {user.username}: {user.first_name} {user.last_name}")
+
+            # Return JSON response for AJAX
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({
+                    "success": True,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "message": "Profile updated successfully"
+                })
+            else:
+                messages.success(request, "Profile updated successfully!")
+                return redirect("profile")
+
+        except Exception as e:
+            logger.error(f"Error updating profile for user {user.username}: {e}")
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({
+                    "success": False,
+                    "error": "Failed to update profile"
+                }, status=400)
+            else:
+                messages.error(request, "Failed to update profile")
+                return redirect("profile")
+
+    return redirect("profile")
