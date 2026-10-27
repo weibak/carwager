@@ -29,12 +29,14 @@ class AdvertImageAdmin(admin.ModelAdmin):
     list_display = ("advert", "image_preview", "created_at")
     list_filter = ("created_at", "advert")
     readonly_fields = ("image_preview", "created_at")
-    
+
     def image_preview(self, obj):
         if obj.image:
-            return format_html('<img src="{}" width="100" height="75" style="object-fit: cover; border-radius: 5px;" />', obj.image.url)
+            return format_html(
+                '<img src="{}" width="100" height="75" style="object-fit: cover; border-radius: 5px;" />',
+                obj.image.url)
         return "No image"
-    
+
     image_preview.short_description = "Preview"
 
 
@@ -47,19 +49,21 @@ class AdvertAdmin(admin.ModelAdmin):
     fields = ("car", "engine_type", "engine_capacity", "drive", "gear_box", "body", "description",
               "win", "price", "price_usd", "owner", "phone_number")
     search_fields = ("drive", "engine_type", "gear_box", "body")
-    readonly_fields = ("created_at", )
-    
+    readonly_fields = ("created_at",)
+
     # Добавляем inline для отображения изображений прямо в админке объявления
     class AdvertImageInline(admin.TabularInline):
         model = AdvertImage
         extra = 1
         readonly_fields = ("image_preview",)
-        
+
         def image_preview(self, obj):
             if obj.image:
-                return format_html('<img src="{}" width="100" height="75" style="object-fit: cover; border-radius: 5px;" />', obj.image.url)
+                return format_html(
+                    '<img src="{}" width="100" height="75" style="object-fit: cover; border-radius: 5px;" />',
+                    obj.image.url)
             return "No image"
-        
+
         image_preview.short_description = "Preview"
-    
+
     inlines = [AdvertImageInline]
