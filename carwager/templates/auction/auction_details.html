@@ -1,119 +1,293 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %} Auction {{ auction.car.model }}{% endblock %}
-{% block content %}
 
-    <br>
-    <main class="auction-details">
-        <h1 class="my-4">{{ auction.car.mark }} {{ auction.car.model.car_model }}</h1>
-        <div class="row">
-            <div class="col-4">
-                {% if auction.gallery %}
-                    <div id="auctionCarousel" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            {% for image in auction.gallery %}
-                                <button type="button" data-bs-target="#auctionCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
-                            {% endfor %}
+{% block title %}{{ auction.car.mark }} {{ auction.car.model.car_model }} - Auction - CarWager{% endblock %}
+
+{% block content %}
+    <div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold mb-2">{{ auction.car.mark }} {{ auction.car.model.car_model }}</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Car Image -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    {% if auction.gallery %}
+                        <div id="auctionCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                {% for image in auction.gallery %}
+                                    <button type="button" data-bs-target="#auctionCarousel"
+                                            data-bs-slide-to="{{ forloop.counter0 }}"
+                                            class="{% if forloop.first %}active{% endif %}"
+                                            aria-label="Slide {{ forloop.counter }}"></button>
+                                {% endfor %}
+                            </div>
+                            <div class="carousel-inner">
+                                {% for image in auction.gallery %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                        <img src="{{ image.url }}"
+                                             alt="{{ auction.car.mark }} {{ auction.car.model.car_model }}"
+                                             class="d-block w-100" style="height: 520px; object-fit: cover;">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if auction.gallery|length > 1 %}
+                                <button class="carousel-control-prev" type="button" data-bs-target="#auctionCarousel"
+                                        data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#auctionCarousel"
+                                        data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            {% endif %}
                         </div>
-                        <div class="carousel-inner">
-                            {% for image in auction.gallery %}
-                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                    <img src="{{ image.url }}" alt="{{ auction.car.model }}" class="d-block w-100 rounded" style="height: 420px; object-fit: cover;">
-                                </div>
-                            {% endfor %}
-                        </div>
-                        {% if auction.gallery|length > 1 %}
-                            <button class="carousel-control-prev" type="button" data-bs-target="#auctionCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#auctionCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <img src="{% static 'no-image.jpg' %}" class="card-img-top" alt="No image">
-                {% endif %}
+                    {% else %}
+                        <img src="{% static 'no-image.jpg' %}" alt="No image" class="img-fluid rounded">
+                    {% endif %}
+                </div>
             </div>
-            <div class="col-6">
-                <h3 class="mb-1">Current Price: <span id="current-price">{{ auction.price }}</span> BYN</h3>
-                <h5 class="mb-1">{{ auction.get_status_display }}</h5>
-                <h8 class="mb-1">Started at: {{ auction.date_start }}</h8>
-                <br>
-                <h8 class="mb-1">Stop at {{ auction.date_end }}</h8>
-                <br>
-                {% if  winner %}
-                    <div class="winner"><h5>Winner - {{ winner }} </h5></div>
-                {% endif %}
-                {% if auction.status == "go" %}
-                    {% if user.is_authenticated %}
-                        <form id="bid-form" method="post">
-                            {% csrf_token %}
-                            <h7 class="mb-2">Auction bid</h7>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="input-group mb-3">
-                                        <input id="bid-amount" name="bid" type="number" class="bid form-control"
-                                               required minlength="1"
-                                               value="1" step="0.01" placeholder="Bid"
-                                               aria-label="Bid"
-                                               aria-describedby="bid">
-                                        <span class="input-group-text" id="bid">
-                                    <button type="submit" class="btn">Bid</button>
-                                    </span>
+        </div>
+
+        <!-- Auction Details -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0">Auction Details</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Price and Status Section -->
+                    <div class="mb-4">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <small class="text-muted d-block">Current Price</small>
+                                    <h3 class="mb-0 text-primary"><span id="current-price">{{ auction.price }}</span> BYN</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <small class="text-muted d-block">Status</small>
+                                    <h3 class="mb-0 text-primary">{{ auction.get_status_display }}</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-2 h-70">
+                                    <small class="text-muted d-block">Started at</small>
+                                    <h5 class="mb-0 text-primary">{{ auction.date_start }}</h5>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-2 h-70">
+                                    <small class="text-muted d-block">Ends at</small>
+                                    <h5 class="mb-0 text-primary">{{ auction.date_end }}</h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if winner %}
+                            <div class="mt-3">
+                                <div class="bg-success text-white rounded p-3">
+                                    <small class="d-block">Winner</small>
+                                    <h4 class="mb-0">{{ winner }}</h4>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Bid Form -->
+                        {% if auction.status == "go" %}
+                            {% if user.is_authenticated %}
+                                <div class="mb-4">
+                                    <h4 class="mb-3">Place a Bid</h4>
+                                    <form id="bid-form" method="post">
+                                        {% csrf_token %}
+                                        <div class="row" style="height: 60px;">
+                                            <div class="col-md-8 h-80">
+                                                <div class="bg-light rounded h-80 d-flex align-items-center px-3">
+                                                    <div class="input-group">
+                                                        <input id="bid-amount" name="bid" type="number" 
+                                                               class="form-control form-control-lg border-0 bg-transparent"
+                                                               required minlength="10"
+                                                               value="10" step="10" placeholder="Enter bid amount"
+                                                               aria-label="Bid amount"
+                                                               style="font-size: 1rem; font-weight: bold;">
+                                                        <span class="input-group-text border-0 bg-transparent" style="font-size: 1rem; font-weight: bold;">BYN</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 h-80">
+                                                <button type="submit" class="btn btn-primary btn-lg w-100 h-80">Place Bid</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div id="bid-message" class="alert d-none mt-3"></div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <!-- Specifications -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Specifications</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cogs text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Engine Type</small>
+                                            <strong>{{ auction.get_engine_type_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-gas-pump text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Engine Capacity</small>
+                                            <strong>{{ auction.engine_capacity }}L</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cog text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Transmission</small>
+                                            <strong>{{ auction.get_gear_box_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-car text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Drive Type</small>
+                                            <strong>{{ auction.get_drive_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-car-side text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Body Type</small>
+                                            <strong>{{ auction.get_body_display }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Year</small>
+                                            <strong>{{ auction.car.year }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-barcode text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">VIN</small>
+                                            <strong>{{ auction.win|default:"Not provided" }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-phone text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Contact Phone</small>
+                                            <strong>{{ auction.phone_number|default:"Not provided" }}</strong>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </form>
-                        <div id="bid-message" class="alert d-none"></div>
-                    {% endif %}
-                {% endif %}
-                <h4 class="mb-3">Information: </h4>
-                <h6 class="mb-3">Engine type: {{ auction.get_engine_type_display }}</h6>
-                <h6 class="mb-3">Engine capacity: {{ auction.engine_capacity }}l.</h6>
-                <h6 class="mb-3">Gear box: {{ auction.get_gear_box_display }}</h6>
-                <h6 class="mb-3">Drive: {{ auction.get_drive_display }}</h6>
-                <h6 class="mb-3">Win: {{ auction.win }}</h6>
-                <h6 class="mb-3">Phone number: {{ auction.phone_number }}</h6>
-                <div class="description mb-3">
-                    <h3 class="mb-3">Description:</h3>
-                    <h6 class="mb-3">{{ auction.description }}</h6>
+                        </div>
+
+                        <!-- Description -->
+                        {% if auction.description %}
+                            <div class="mb-4">
+                                <h5 class="mb-3">Description</h5>
+                                <div class="bg-light rounded p-3">
+                                    <p class="mb-0">{{ auction.description }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Favorites Button -->
+                        {% if user.is_authenticated %}
+                            <form method="POST" class="mt-4">
+                                {% csrf_token %}
+                                {% if is_auction_in_favorites %}
+                                    <input type="hidden" name="action" value="remove">
+                                    <button type="submit" class="btn btn-outline-primary w-100">
+                                        <i class="fas fa-heart"></i> Remove from favorites
+                                    </button>
+                                {% else %}
+                                    <input type="hidden" name="action" value="add">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="far fa-heart"></i> Add to favorites
+                                    </button>
+                                {% endif %}
+                                {% if messages %}
+                                    <ul class="messages mt-3">
+                                        {% for message in messages %}
+                                            <li{% if message.tags %}
+                                                class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
-                {% if user.is_authenticated %}
-                    <form method="POST" class="mt-4">
-                        {% csrf_token %}
-                        {% if is_auction_in_favorites %}
-                            <input type="hidden" name="action" value="remove">
-                            <button type="submit" class="btn btn-primary">Remove from favorites</button>
-                        {% else %}
-                            <input type="hidden" name="action" value="add">
-                            <button type="submit" class="btn btn-primary">Add to favorites</button>
-                        {% endif %}
-                        {% if messages %}
-                            <ul class="messages">
-                                {% for message in messages %}
-                                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </form>
-                {% endif %}
             </div>
-            {% if auction.bids.exists %}
-                <div class="bids col-2">
-                    <h3 class="mb-3">Users previously take a bid to this auction:</h3>
-                    <ul id="bids-list">
-                        {% for bid in bids.all %}
-                            <li>{{ bid.bid }} BYN by {{ bid.user.username }}
-                                at {{ bid.created_at }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
         </div>
-    </main>
+
+        <!-- Bids History -->
+        {% if auction.bids.exists %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-secondary text-white py-3">
+                            <h4 class="mb-0">Bid History</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Bid Amount</th>
+                                        <th>User</th>
+                                        <th>Time</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="bids-list">
+                                    {% for bid in bids.all %}
+                                        <tr>
+                                            <td><strong>{{ bid.bid }} BYN</strong></td>
+                                            <td>{{ bid.user.username }}</td>
+                                            <td>{{ bid.created_at }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 
     <script>
         // WebSocket connection for real-time updates
