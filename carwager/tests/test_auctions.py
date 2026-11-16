@@ -36,6 +36,6 @@ class TestAuctions:
 
         response = client.get("/auction/add")
         assert response.status_code == 301
-        
+
         response = client.get(f"/details/{auction.id}")
         assert response.status_code == 301

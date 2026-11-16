@@ -200,11 +200,11 @@ CACHES = {
         }
     }
 }
-if 'test' in sys.argv or any('pytest' in arg for arg in sys.argv):
+if "test" in sys.argv or any("pytest" in arg for arg in sys.argv):
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'unique-snowflake',
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
         }
     }
 
