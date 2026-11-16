@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX, CarMark, CarModel
+from showbill.models import ORDER_BY_CHOICES, DRIVE, ENGINE_TYPE, GEAR_BOX, CarMark, CarModel, CAR_BODY
 
 
 class CarFiltersForm(forms.Form):
@@ -11,6 +11,7 @@ class CarFiltersForm(forms.Form):
     engine_type = forms.ChoiceField(choices=ENGINE_TYPE, required=False,)
     gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False,)
     drive = forms.ChoiceField(choices=DRIVE, required=False,)
+    body = forms.ChoiceField(choices=CAR_BODY, required=False,)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -57,6 +58,7 @@ class AdvertForm(forms.Form):
     engine_capacity = forms.DecimalField(decimal_places=2, max_digits=15)
     drive = forms.ChoiceField(choices=DRIVE)
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
+    body = forms.ChoiceField(choices=CAR_BODY)
     description = forms.CharField(max_length=500)
     image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={"multiple": True}), help_text="You can upload up to 8 photos.")
     win = forms.CharField(max_length=17,)

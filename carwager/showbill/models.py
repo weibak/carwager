@@ -30,9 +30,26 @@ DRIVE = (
 GEAR_BOX = (
     ("", ""),
     ("auto", "Automatic"),
+    ("CVT", "CVT transmission"),
     ("man", "Manual"),
 )
 
+CAR_BODY = (
+    ("", ""),
+    ("sedan", "Sedan"),
+    ("hatchback", "Hatchback"),
+    ("coupe", "Coupe"),
+    ("wagon", "Wagon"),
+    ("jeep", "Jeep"),
+    ("pickup", "Pickup"),
+    ("minivan", "Minivan"),
+    ("limousine", "Limousine"),
+    ("roadster", "Roadster"),
+    ("convertible", "Convertible"),
+    ("cabriolet", "Cabriolet"),
+    ("fastback", "Fastback"),
+    ("targa", "Targa")
+)
 
 class CarMark(models.Model):
     car_mark = models.CharField(max_length=100)
@@ -83,6 +100,7 @@ class Advert(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="adverts"
     )
     phone_number = models.CharField(max_length=13)
+    body = models.CharField(max_length=100, choices=CAR_BODY, default="No body")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True,)
     favorites = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="favorite_adverts"

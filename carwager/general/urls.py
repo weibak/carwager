@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from auction.views import CarAuctionView, auction_view, create_auction, models_for_mark_auction
-from general.views import register, sign_in, logout_view, profile_view, activate
+from general.views import register, sign_in, logout_view, profile_view, activate, update_profile_view
 from news.views import news_list_all, news_view, create_new
 from showbill.views import CarView, create_advert, advert_view, models_for_mark
 
@@ -35,6 +35,7 @@ urlpatterns = [
     path("news/<str:slug>/", news_view, name="news_view"),
     path("create_new", create_new, name="create_new"),
     path("profile/", profile_view, name="profile"),
+    path("profile/update/", update_profile_view, name="update_profile"),
     path("advert/<int:advert_id>", advert_view, name="car_details"),
     path("showbill/add/", create_advert, name="add_advert"),
     path("ajax/showbill/models/<int:mark_id>/", models_for_mark, name="ajax_showbill_models"),

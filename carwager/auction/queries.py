@@ -1,4 +1,4 @@
-def filter_cars_auction(cars, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark):
+def filter_cars_auction(cars, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark, body):
     if price__gt is not None:
         cars = cars.filter(price__gt=price__gt)
     if price__lt is not None:
@@ -9,37 +9,22 @@ def filter_cars_auction(cars, price__gt, price__lt, order_price, engine_type, dr
         if order_price == "price_desc":
             cars = cars.order_by("-price")
     if engine_type:
-        if engine_type == "petr":
-            cars = cars.filter(engine_type="petr")
-        if engine_type == "dies":
-            cars = cars.filter(engine_type="dies")
-        if engine_type == "hyb":
-            cars = cars.filter(engine_type="hyb")
-        if engine_type == "elec":
-            cars = cars.filter(engine_type="elec")
+        cars = cars.filter(engine_type=engine_type)
+
     if drive:
-        if drive == "fwd":
-            cars = cars.filter(drive="fwd")
-        if drive == "rwd":
-            cars = cars.filter(drive="rwd")
-        if drive == "awd":
-            cars = cars.filter(drive="awd")
-        if drive == "4wd":
-            cars = cars.filter(drive="4wd")
+        cars = cars.filter(drive=drive)
+
     if gear_box:
-        if gear_box == "auto":
-            cars = cars.filter(gear_box="auto")
-        if gear_box == "man":
-            cars = cars.filter(gear_box="man")
+        cars = cars.filter(gear_box=gear_box)
+
     if status:
-        if status == "go":
-            cars = cars.filter(status="go")
-        if status == "stop":
-            cars = cars.filter(status="stop")
-        if status == "soon":
-            cars = cars.filter(status="soon")
+        cars = cars.filter(status=status)
+
     if mark:
         cars = cars.filter(car__mark=mark)
+
+    if body:
+        cars = cars.filter(body=body)
     return cars
 
 

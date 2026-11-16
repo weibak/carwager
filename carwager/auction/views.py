@@ -5,7 +5,9 @@ from channels.layers import get_channel_layer
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Case, When, IntegerField
 from django.http import JsonResponse
+from django.http.request import HttpRequest
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -14,7 +16,7 @@ from django.views.generic import TemplateView
 from rest_framework.generics import get_object_or_404
 
 from auction.forms import AuctionFiltersForm, AuctionForm, CarAuctionForm
-from auction.models import Auction, AuctionImage, Winner
+from auction.models import Auction, AuctionImage, Winner, AUCTION_SORT_PRIORITY
 from auction.queries import filter_cars_auction
 from showbill.models import Car, CarModel
 
@@ -29,7 +31,12 @@ class CarAuctionView(TemplateView):
     def get_context_data(self, **kwargs, ):
         logger.info("Auctions page opened")
 
-        auctions = Auction.objects.all().order_by("-created_at")
+        auctions = Auction.objects.all().annotate(
+            position_value=Case(
+                *[When(status=key, then=value) for key, value in AUCTION_SORT_PRIORITY.items()],
+                output_field=IntegerField(),
+            )
+        ).order_by("position_value", "-created_at")
         filters_form = AuctionFiltersForm(self.request.GET)
         # validate filter form
         if filters_form.is_valid():
@@ -41,8 +48,9 @@ class CarAuctionView(TemplateView):
             drive = filters_form.cleaned_data["drive"]
             status = filters_form.cleaned_data["status"]
             mark = filters_form.cleaned_data["mark"]
+            body = filters_form.cleaned_data["body"]
             auctions = filter_cars_auction(
-                auctions, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark
+                auctions, price__gt, price__lt, order_price, engine_type, drive, gear_box, status, mark, body
             )
         # settings of page size
         paginator = Paginator(auctions, 30)
@@ -116,9 +124,9 @@ def create_auction(request, *args, **kwargs):
 
 
 # details of auction, info, bids, take bid
-def auction_view(request, auction_id):
+def auction_view(request: HttpRequest, auction_id: int):
     auction = get_object_or_404(Auction, id=auction_id)
-    winner = winn.user.username if (winn := Winner.objects.filter(auction=auction).first()) else "No winner"
+    winner = winn.user.username if (winn := Winner.objects.filter(auction=auction).first()) else None
 
     if request.method == "POST" and request.user.is_authenticated and request.POST.get("bid"):
         from .bid_processor import process_bid_with_retry

@@ -11,26 +11,52 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="mb-0">{{ advert.car.mark }} {{ advert.car.model.car_model }}</h5>
-                            <small class="text-muted">Чат с {{ other_user.username }}</small>
+                            <h5 class="mb-0">
+                                {{ advert.car.mark }} {{ advert.car.model.car_model }}
+                            </h5>
+                            <small class="text-muted">
+                                Чат с {{ other_user.username }}
+                            </small>
                         </div>
-                        <a href="{% url 'my_chats' %}" class="btn btn-sm btn-outline-secondary">← Назад</a>
+                        <a href="{% url 'my_chats' %}"
+                           class="btn btn-sm btn-outline-secondary">
+                            ← Назад
+                        </a>
                     </div>
                 </div>
-                
-                <div id="connectionStatus" style="display: none;" class="alert alert-warning alert-dismissible fade show" role="alert">
+
+                <div id="connectionStatus"
+                     class="alert alert-warning alert-dismissible fade show m-2"
+                     role="alert"
+                     style="display: none;">
                     <span id="statusMessage">Подключение к чату...</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"></button>
                 </div>
-                
-                <div class="card-body" id="messagesContainer" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1rem; background-color: #f8f9fa;">
+
+                <div class="card-body"
+                     id="messagesContainer"
+                     style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1rem; background-color: #f8f9fa;">
                     <div id="messages"></div>
                 </div>
-                
+
                 <div class="card-footer">
                     <div class="input-group">
-                        <input type="text" class="form-control" id="messageInput" placeholder="Введите сообщение..." autocomplete="off" disabled>
-                        <button class="btn btn-primary" id="sendBtn" type="button" disabled>Отправить</button>
+                        <input type="text"
+                               class="form-control"
+                               id="messageInput"
+                               placeholder="Введите сообщение..."
+                               autocomplete="off"
+                               disabled>
+
+                        <button class="btn btn-primary"
+                                id="sendBtn"
+                                type="button"
+                                disabled>
+                            Отправить
+                        </button>
                     </div>
                 </div>
             </div>
@@ -39,139 +65,348 @@
 </div>
 
 <script>
-const chatRoomId = {{ chat_room.id }};
-const currentUserId = {{ request.user.id }};
-const currentUsername = "{{ request.user.username }}";
-const otherUsername = "{{ other_user.username }}";
+(() => {
+    'use strict';
 
-// Определяем протокол WebSocket
-const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const socket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat/${chatRoomId}/`);
+    // Django передаёт числовые ID напрямую.
+    const chatRoomId = {{ chat_room.id }};
+    const currentUserId = {{ request.user.id }};
 
-const messagesContainer = document.getElementById('messages');
-const messageInput = document.getElementById('messageInput');
-const sendBtn = document.getElementById('sendBtn');
-const messagesDiv = document.getElementById('messagesContainer');
-const connectionStatus = document.getElementById('connectionStatus');
-const statusMessage = document.getElementById('statusMessage');
+    const messagesContainer = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const messagesDiv = document.getElementById('messagesContainer');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const statusMessage = document.getElementById('statusMessage');
 
-socket.onopen = () => {
-    console.log('✅ WebSocket connected');
-    connectionStatus.style.display = 'none';
-    messageInput.disabled = false;
-    sendBtn.disabled = false;
-    loadChatHistory();
-};
+    // ID уже отображённых сообщений.
+    const displayedMessageIds = new Set();
 
-socket.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    console.log('📨 Received:', data);
-    
-    if (data.type === 'message') {
-        addMessageToUI(data);
-    } else if (data.type === 'system') {
-        console.log('System:', data.message);
+    let historyLoaded = false;
+    let historyLoading = false;
+    let pendingMessages = [];
+
+    let socket = null;
+    let reconnectTimer = null;
+    let reconnectAttempts = 0;
+    let manuallyClosed = false;
+
+    const MAX_RECONNECT_DELAY = 15000;
+
+    function showStatus(message) {
+        statusMessage.textContent = message;
+        connectionStatus.style.display = 'block';
     }
-};
 
-socket.onerror = (error) => {
-    console.error('❌ WebSocket error:', error);
-    connectionStatus.style.display = 'block';
-    statusMessage.textContent = '⚠️ Ошибка подключения к чату. Попытка переподключения...';
-    messageInput.disabled = true;
-    sendBtn.disabled = true;
-};
+    function hideStatus() {
+        connectionStatus.style.display = 'none';
+    }
 
-socket.onclose = () => {
-    console.log('🔌 WebSocket closed');
-    connectionStatus.style.display = 'block';
-    statusMessage.textContent = '⚠️ Соединение с чатом разорвано';
-    messageInput.disabled = true;
-    sendBtn.disabled = true;
-};
+    function setInputEnabled(enabled) {
+        messageInput.disabled = !enabled;
+        sendBtn.disabled = !enabled;
+    }
 
-function loadChatHistory() {
-    // Получаем сообщения с сервера
-    fetch(`/chat/api/rooms/${chatRoomId}/messages/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.messages) {
-                data.messages.forEach(msg => {
-                    addMessageToUI(msg);
-                });
-                scrollToBottom();
+    function scrollToBottom() {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function formatTime(timestamp) {
+        if (!timestamp) {
+            return '';
+        }
+
+        const date = new Date(timestamp);
+
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+
+        if (diff >= 0 && diff < 60000) {
+            return 'только что';
+        }
+
+        if (diff >= 0 && diff < 3600000) {
+            return `${Math.floor(diff / 60000)} мин назад`;
+        }
+
+        if (diff >= 0 && diff < 86400000 &&
+            date.toDateString() === now.toDateString()) {
+            return `${Math.floor(diff / 3600000)} ч назад`;
+        }
+
+        return date.toLocaleString('ru-RU');
+    }
+
+    function getMessageId(message) {
+        return message.id ?? message.message_id ?? null;
+    }
+
+    function getSenderId(message) {
+        return message.sender_id ?? message.sender?.id ?? null;
+    }
+
+    function getMessageText(message) {
+        return message.content ?? message.message ?? '';
+    }
+
+    function addMessageToUI(message) {
+        const messageId = getMessageId(message);
+
+        // Если сообщение уже отображалось, пропускаем его.
+        if (messageId !== null && messageId !== undefined) {
+            const normalizedId = String(messageId);
+
+            if (displayedMessageIds.has(normalizedId)) {
+                return;
             }
-        })
-        .catch(error => console.error('Error loading chat history:', error));
-}
 
-function addMessageToUI(message) {
-    const messageDiv = document.createElement('div');
-    const isCurrentUser = message.sender_id == currentUserId;
-    
-    // Используем 'content' из API или 'message' из WebSocket
-    const messageText = message.content || message.message;
-    
-    messageDiv.className = `mb-2 ${isCurrentUser ? 'text-end' : ''}`;
-    messageDiv.innerHTML = `
-        <div class="d-inline-block ${isCurrentUser ? 'bg-primary text-white' : 'bg-light'} rounded p-2" style="max-width: 70%;">
-            <small class="d-block fw-bold">${isCurrentUser ? 'Вы' : message.sender_username}</small>
-            <div>${escapeHtml(messageText)}</div>
-            <small class="d-block opacity-75 mt-1">${formatTime(message.timestamp)}</small>
-        </div>
-    `;
-    
-    messagesContainer.appendChild(messageDiv);
-    scrollToBottom();
-}
+            displayedMessageIds.add(normalizedId);
+        }
 
-function sendMessage() {
-    const message = messageInput.value.trim();
-    if (message && socket.readyState === WebSocket.OPEN) {
+        const messageText = getMessageText(message);
+
+        if (typeof messageText !== 'string' || !messageText.trim()) {
+            return;
+        }
+
+        const senderId = getSenderId(message);
+
+        const isCurrentUser =
+            senderId !== null &&
+            String(senderId) === String(currentUserId);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `mb-2 ${isCurrentUser ? 'text-end' : ''}`;
+
+        const bubble = document.createElement('div');
+        bubble.className = `d-inline-block ${
+            isCurrentUser
+                ? 'bg-primary text-white'
+                : 'bg-light'
+        } rounded p-2`;
+
+        bubble.style.maxWidth = '70%';
+        bubble.style.overflowWrap = 'anywhere';
+        bubble.style.textAlign = 'left';
+
+        const sender = document.createElement('small');
+        sender.className = 'd-block fw-bold';
+        sender.textContent = isCurrentUser
+            ? 'Вы'
+            : (
+                message.sender_username ??
+                message.sender?.username ??
+                'Пользователь'
+            );
+
+        const content = document.createElement('div');
+        content.textContent = messageText;
+        content.style.whiteSpace = 'pre-wrap';
+
+        const time = document.createElement('small');
+        time.className = 'd-block opacity-75 mt-1';
+        time.textContent = formatTime(
+            message.timestamp ?? message.created_at
+        );
+
+        bubble.appendChild(sender);
+        bubble.appendChild(content);
+        bubble.appendChild(time);
+
+        wrapper.appendChild(bubble);
+        messagesContainer.appendChild(wrapper);
+
+        scrollToBottom();
+    }
+
+    async function loadChatHistory() {
+        if (historyLoaded || historyLoading) {
+            return;
+        }
+
+        historyLoading = true;
+
+        try {
+            const response = await fetch(
+                `/chat/api/rooms/${chatRoomId}/messages/`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (!Array.isArray(data.messages)) {
+                throw new Error(
+                    'API не вернул массив data.messages'
+                );
+            }
+
+            // Выводим историю. Уже показанные сообщения
+            // с теми же ID повторно добавлены не будут.
+            data.messages.forEach(addMessageToUI);
+
+            historyLoaded = true;
+
+            // Обрабатываем сообщения, полученные по WebSocket
+            // во время загрузки истории.
+            pendingMessages.forEach(addMessageToUI);
+            pendingMessages = [];
+
+            hideStatus();
+            scrollToBottom();
+
+        } catch (error) {
+            console.error(
+                'Ошибка загрузки истории сообщений:',
+                error
+            );
+
+            showStatus(
+                'Не удалось загрузить историю сообщений.'
+            );
+        } finally {
+            historyLoading = false;
+        }
+    }
+
+    function connectWebSocket() {
+        if (manuallyClosed) {
+            return;
+        }
+
+        const wsProtocol =
+            window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+        socket = new WebSocket(
+            `${wsProtocol}//${window.location.host}/ws/chat/${chatRoomId}/`
+        );
+
+        setInputEnabled(false);
+        showStatus('Подключение к чату...');
+
+        socket.onopen = async () => {
+            console.log('WebSocket подключён');
+
+            reconnectAttempts = 0;
+            hideStatus();
+            setInputEnabled(true);
+
+            // История загружается один раз.
+            await loadChatHistory();
+        };
+
+        socket.onmessage = (event) => {
+            let data;
+
+            try {
+                data = JSON.parse(event.data);
+            } catch (error) {
+                console.error(
+                    'Ошибка разбора сообщения WebSocket:',
+                    error
+                );
+                return;
+            }
+
+            if (data.type === 'message') {
+                if (historyLoading || !historyLoaded) {
+                    pendingMessages.push(data);
+                } else {
+                    addMessageToUI(data);
+                }
+            } else if (data.type === 'system') {
+                console.log('Системное сообщение:', data.message);
+            }
+        };
+
+        socket.onerror = (error) => {
+            console.error('Ошибка WebSocket:', error);
+
+            showStatus('Ошибка подключения к чату.');
+            setInputEnabled(false);
+        };
+
+        socket.onclose = () => {
+            console.log('WebSocket отключён');
+
+            setInputEnabled(false);
+
+            if (manuallyClosed) {
+                return;
+            }
+
+            showStatus(
+                'Соединение потеряно. Переподключение...'
+            );
+
+            const delay = Math.min(
+                1000 * (2 ** reconnectAttempts),
+                MAX_RECONNECT_DELAY
+            );
+
+            reconnectAttempts++;
+
+            clearTimeout(reconnectTimer);
+
+            reconnectTimer = setTimeout(
+                connectWebSocket,
+                delay
+            );
+        };
+    }
+
+    function sendMessage() {
+        const message = messageInput.value.trim();
+
+        if (
+            !message ||
+            !socket ||
+            socket.readyState !== WebSocket.OPEN
+        ) {
+            return;
+        }
+
         socket.send(JSON.stringify({
             message: message
         }));
+
         messageInput.value = '';
         messageInput.focus();
     }
-}
 
-function scrollToBottom() {
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
+    sendBtn.addEventListener('click', sendMessage);
 
-function formatTime(timestamp) {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    
-    if (diff < 60000) {
-        return 'только что';
-    } else if (diff < 3600000) {
-        const minutes = Math.floor(diff / 60000);
-        return `${minutes} мин назад`;
-    } else if (diff < 86400000) {
-        const hours = Math.floor(diff / 3600000);
-        return `${hours} ч назад`;
-    } else {
-        return date.toLocaleString('ru-RU');
-    }
-}
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+    window.addEventListener('beforeunload', () => {
+        manuallyClosed = true;
+        clearTimeout(reconnectTimer);
 
-sendBtn.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendMessage();
-    }
-});
+        if (socket) {
+            socket.close();
+        }
+    });
 
-// Загружаем сообщения при загрузке страницы
-document.addEventListener('DOMContentLoaded', loadChatHistory);
+    // Единственная точка запуска.
+    connectWebSocket();
+})();
 </script>
 {% endblock %}

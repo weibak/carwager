@@ -3,7 +3,7 @@ from datetime import timedelta
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX, ORDER_BY_CHOICES, CarMark, CarModel
+from showbill.models import DRIVE, ENGINE_TYPE, GEAR_BOX, ORDER_BY_CHOICES, CarMark, CarModel, CAR_BODY
 from auction.models import STATUS_AUC
 
 
@@ -16,6 +16,7 @@ class AuctionFiltersForm(forms.Form):
     gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False)
     drive = forms.ChoiceField(choices=DRIVE, required=False)
     status = forms.ChoiceField(choices=STATUS_AUC, required=False)
+    body = forms.ChoiceField(choices=CAR_BODY, required=False,)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -50,6 +51,7 @@ class AuctionForm(forms.Form):
     engine_capacity = forms.FloatField()
     drive = forms.ChoiceField(choices=DRIVE)
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
+    body = forms.ChoiceField(choices=CAR_BODY)
     description = forms.CharField(max_length=500)
     image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={"multiple": True}), help_text="You can upload up to 8 photos.")
     win = forms.CharField(max_length=17, required=False)

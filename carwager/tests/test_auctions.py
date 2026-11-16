@@ -22,7 +22,7 @@ class TestAuctions:
         mark = CarMark.objects.create(car_mark="test")
         model = CarModel.objects.create(car_mark=mark, car_model="test")
         car = Car.objects.create(mark=mark, model=model, year=random.randint(1800, 2022))
-        Auction.objects.create(car=car, engine_type="Test", engine_capacity=random.randint(1, 10),
+        auction = Auction.objects.create(car=car, engine_type="Test", engine_capacity=random.randint(1, 10),
                                drive="No type", gear_box="No type", description="Test",
                                price=random.randrange(9999999999999), owner=user,
                                phone_number=random.randrange(9999999), date_start=timezone.now(),
@@ -35,4 +35,7 @@ class TestAuctions:
         assert response.status_code == 200
 
         response = client.get("/auction/add")
+        assert response.status_code == 301
+
+        response = client.get(f"/details/{auction.id}")
         assert response.status_code == 301

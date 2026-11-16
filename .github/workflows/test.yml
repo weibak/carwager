@@ -94,7 +94,7 @@ jobs:
       - name: Run Django tests
         working-directory: carwager
         run: |
-          python manage.py test --verbosity=2
+          pytest 
 
       - name: Check Django migrations
         working-directory: carwager
