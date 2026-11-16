@@ -8,8 +8,8 @@ class TestAdvertJSON:
     def test_advert_json(self):
         client = Client()
 
-        query_set = requests.get("http://127.0.0.1:8000/api/adverts/")
-        json = query_set.json()
+        response = client.get("/api/adverts/")  # "http://127.0.0.1:8000/api/adverts/"
+        json = response.json()
         mark = []
         model = []
         year = []
