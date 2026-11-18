@@ -88,7 +88,14 @@ class AuctionForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean() or {}
-        files = self.files.getlist("image")
+        # Handle both dict and MultiValueDict for files
+        if hasattr(self.files, 'getlist'):
+            files = self.files.getlist("image")
+        else:
+            files = self.files.get("image", [])
+            if not isinstance(files, list):
+                files = [files] if files else []
+        
         if len(files) > 8:
             raise ValidationError("You can upload up to 8 photos.")
 
