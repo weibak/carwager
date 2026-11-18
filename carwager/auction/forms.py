@@ -12,11 +12,11 @@ class AuctionFiltersForm(forms.Form):
     price__lt = forms.IntegerField(min_value=0, label="Price Max", required=False)
     order_price = forms.ChoiceField(choices=ORDER_BY_CHOICES, required=False)
     engine_type = forms.ChoiceField(choices=ENGINE_TYPE, required=False)
-    mark = forms.ChoiceField(choices=(), required=False,)
+    mark = forms.ChoiceField(choices=(), required=False, )
     gear_box = forms.ChoiceField(choices=GEAR_BOX, required=False)
     drive = forms.ChoiceField(choices=DRIVE, required=False)
     status = forms.ChoiceField(choices=STATUS_AUC, required=False)
-    body = forms.ChoiceField(choices=CAR_BODY, required=False,)
+    body = forms.ChoiceField(choices=CAR_BODY, required=False, )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,7 +53,8 @@ class AuctionForm(forms.Form):
     gear_box = forms.ChoiceField(choices=GEAR_BOX)
     body = forms.ChoiceField(choices=CAR_BODY)
     description = forms.CharField(max_length=500)
-    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={"multiple": True}), help_text="You can upload up to 8 photos.")
+    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={"multiple": True}),
+                             help_text="You can upload up to 8 photos.")
     win = forms.CharField(max_length=17, required=False)
     price = forms.DecimalField(decimal_places=2, max_digits=15)
     phone_number = forms.CharField(max_length=13)
@@ -89,13 +90,13 @@ class AuctionForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean() or {}
         # Handle both dict and MultiValueDict for files
-        if hasattr(self.files, 'getlist'):
+        if hasattr(self.files, "getlist"):
             files = self.files.getlist("image")
         else:
             files = self.files.get("image", [])
             if not isinstance(files, list):
                 files = [files] if files else []
-        
+
         if len(files) > 8:
             raise ValidationError("You can upload up to 8 photos.")
 
