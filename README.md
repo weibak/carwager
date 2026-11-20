@@ -76,16 +76,16 @@ docker-compose exec django python manage.py createsuperuser
 
 ```
 carwager/
-├── carwager/          # Основное Django приложение
-│   ├── static/       # Статические файлы (CSS, JS, изображения)
-│   ├── templates/    # HTML шаблоны
+├── carwager/               # Основное Django приложение
+│   ├── static/             # Статические файлы (CSS, JS, изображения)
+│   ├── templates/          # HTML шаблоны
 │   └── ...
-├── general/          # Настройки проекта
-├── showbill/         # Приложение объявлений
-├── auction/          # Приложение аукционов
-├── chat/            # Приложение чатов (WebSocket)
-├── news/            # Приложение новостей
-├── docker/          # Docker конфигурации
+├── general/                # Настройки проекта
+├── showbill/               # Приложение объявлений
+├── auction/                # Приложение аукционов
+├── chat/                   # Приложение чатов (WebSocket)
+├── news/                   # Приложение новостей
+├── docker/                 # Docker конфигурации
 ├── docker-compose.yml
 ├── requirements.txt
 └── README_LOCAL_DOCKER.md  # Полное руководство
