@@ -91,7 +91,7 @@ jobs:
         run: |
           python manage.py migrate --noinput
 
-      - name: Run Django tests
+      - name: Run Pytest
         working-directory: carwager
         run: |
           pytest 
