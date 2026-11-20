@@ -76,8 +76,8 @@ class TestAuctionModels:
         )
 
         # Создаем изображения для аукциона
-        image1 = AuctionImage.objects.create(auction=auction, image="test1.jpg")
-        image2 = AuctionImage.objects.create(auction=auction, image="test2.jpg")
+        _image1 = AuctionImage.objects.create(auction=auction, image="test1.jpg")
+        _image2 = AuctionImage.objects.create(auction=auction, image="test2.jpg")
 
         gallery = auction.gallery
         assert len(gallery) == 2
@@ -768,7 +768,7 @@ class TestAuctionBidProcessor:
     def test_process_bid_with_retry(self):
         """Тест обработки ставки с повторными попытками"""
         from auction.bid_processor import process_bid_with_retry
-        from auction.models import Auction, Bid
+        from auction.models import Auction
         from django.contrib.auth.models import User
         from showbill.models import CarMark, CarModel, Car
         from django.utils import timezone
@@ -936,6 +936,7 @@ class TestAuctionTasks:
             bid=Decimal("25500.00"),
             created_at=timezone.now() - datetime.timedelta(hours=3)
         )
+        assert bid1.bef_bid_price == Decimal("25000.00")
 
         bid2 = Bid.objects.create(
             user=bidder2,
@@ -944,6 +945,7 @@ class TestAuctionTasks:
             bid=Decimal("26000.00"),
             created_at=timezone.now() - datetime.timedelta(hours=2)
         )
+        assert bid2.bef_bid_price == Decimal("25500.00")
 
         # Запускаем поиск победителей
         search_winners()
@@ -965,15 +967,12 @@ class TestAuctionViewsDetailed:
 
     def test_car_auction_view_with_filters(self):
         """Тест главной страницы аукционов с фильтрами"""
-        from django.test import Client
         from auction.views import CarAuctionView
         from auction.models import Auction
         from django.contrib.auth.models import User
         from showbill.models import CarMark, CarModel, Car
         from django.utils import timezone
         import datetime
-
-        client = Client()
 
         # Создаем тестовые данные
         user = User.objects.create_user(username="testuser", password="testpass")
@@ -997,6 +996,7 @@ class TestAuctionViewsDetailed:
             date_end=timezone.now() + datetime.timedelta(hours=1),
             status="go"
         )
+        assert auction_go.status == "go"
 
         auction_soon = Auction.objects.create(
             car=car,
@@ -1013,6 +1013,7 @@ class TestAuctionViewsDetailed:
             date_end=timezone.now() + datetime.timedelta(days=2),
             status="soon"
         )
+        assert auction_soon.status == "soon"
 
         # Тестируем view
         view = CarAuctionView()
@@ -1081,7 +1082,7 @@ class TestAuctionViewsDetailed:
             # Проверяем редирект
             pass
         else:
-            assert False, f"Unexpected status code: {response.status_code}"
+            assert f"Unexpected status code: {response.status_code}"
 
     def test_auction_view_details(self):
         """Тест страницы деталей аукциона"""
@@ -1236,7 +1237,7 @@ class TestAuctionViewsDetailed:
         initial_bid_count = auction.bids.count()
         initial_price = auction.price
 
-        response = client.post(
+        _ = client.post(
             f"/auction/{auction.id}/",
             {"bid": "25500.00"}
         )
@@ -1266,7 +1267,7 @@ class TestAuctionAdmin:
         model = CarModel.objects.create(car_mark=mark, car_model="Camry")
         car = Car.objects.create(mark=mark, model=model, year=2020)
 
-        auction = Auction.objects.create(
+        _ = Auction.objects.create(
             car=car,
             engine_type="petr",
             engine_capacity=Decimal("2.5"),
@@ -1335,7 +1336,7 @@ class TestAuctionAdmin:
             status="go"
         )
 
-        bid = Bid.objects.create(
+        _ = Bid.objects.create(
             user=bidder,
             auction=auction,
             bef_bid_price=Decimal("25000.00"),
@@ -1468,7 +1469,6 @@ class TestAuctionConsumers:
         """Тест подключения неаутентифицированного пользователя"""
         from auction.consumers import AuctionConsumer
         from django.contrib.auth.models import AnonymousUser
-        from asgiref.sync import sync_to_async
 
         # Создаем consumer с анонимным пользователем
         consumer = AuctionConsumer()

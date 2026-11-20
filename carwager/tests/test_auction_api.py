@@ -94,7 +94,7 @@ class TestAuctionsAPI:
             # Endpoint может не существовать
             pass
         else:
-            assert False, f"Unexpected status code: {response.status_code}"
+            assert f"Unexpected status code: {response.status_code}"
 
     def test_auctions_api_filter(self):
         """Тест фильтрации аукционов через API"""
@@ -121,6 +121,8 @@ class TestAuctionsAPI:
             date_end=timezone.now() + datetime.timedelta(days=7),
             status="go"
         )
+        assert auction1.price == Decimal("30000.00")
+        assert auction1.status == "go"
 
         auction2 = Auction.objects.create(
             car=car,
@@ -137,6 +139,8 @@ class TestAuctionsAPI:
             date_end=timezone.now() + datetime.timedelta(days=7),
             status="go"
         )
+        assert auction2.price == Decimal("35000.00")
+        assert auction2.status == "go"
 
         client.force_login(user)
 
