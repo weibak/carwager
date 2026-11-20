@@ -1016,7 +1016,7 @@ class TestAuctionViewsDetailed:
 
         # Тестируем view
         view = CarAuctionView()
-        view.request = type('Request', (), {'GET': {}})()
+        view.request = type("Request", (), {"GET": {}})()
 
         context = view.get_context_data()
 
@@ -1560,8 +1560,8 @@ class TestAuctionConsumers:
             if data["type"] == "bid_update":
                 await consumer.bid_update(data)
 
-        consumer.channel_layer = type('MockChannelLayer', (), {
-            'group_send': mock_group_send
+        consumer.channel_layer = type("MockChannelLayer", (), {
+            "group_send": mock_group_send
         })()
 
         # Тестируем получение ставки
@@ -1698,8 +1698,8 @@ class TestAuctionConsumers:
             assert group == "auction_1"
             assert channel == "test_channel"
 
-        consumer.channel_layer = type('MockChannelLayer', (), {
-            'group_discard': mock_group_discard
+        consumer.channel_layer = type("MockChannelLayer", (), {
+            "group_discard": mock_group_discard
         })()
 
         # Тестируем отключение
